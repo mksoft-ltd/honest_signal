@@ -1,0 +1,93 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- The measurement engine's entire job is to make real network requests. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Reports which transport is in use (Wi-Fi / mobile) and tells the app the
+         moment it changes, so the score can be re-measured immediately. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <!-- The status-bar indicator IS a notification: its small icon is the live
+         score. Without this the app's headline feature cannot be shown. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- Keeps measuring while the app is not on screen, which is the only way a
+         status-bar indicator can stay current. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <!-- specialUse rather than dataSync: from Android 15 a dataSync foreground
+         service is capped at 6 hours per day, which would silently kill a
+         persistent indicator part-way through the day. See the subtype property
+         on the service declaration below for the justification string. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+
+    <!-- Pro, opt-in, off by default: the draggable floating bubble. The user
+         grants this in system settings and can revoke it there at any time; the
+         app never asks for it until they turn the feature on. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
+    <!-- Restores the indicator the user had switched on after a restart.
+         Without it a persistent indicator silently disappears on reboot. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <application
+        android:label="Honest Signal"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:networkSecurityConfig="@xml/network_security_config">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".HonestSignalService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Continuously measures real network throughput and latency so the live connection-quality indicator in the status bar stays accurate while the app is not open. The measurement must run on the user's own schedule and cannot be deferred to a background job without the indicator going stale."/>
+        </service>
+
+        <service
+            android:name=".OverlayService"
+            android:exported="false"/>
+
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- Don't delete the meta-data below.
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
+</manifest>

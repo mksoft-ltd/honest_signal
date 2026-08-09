@@ -1,0 +1,126 @@
+<!-- Store screenshot frame. One template for both stores; render.sh drives it.
+
+     The captured screen is letterboxed (object-fit: contain), never cropped.
+     That is deliberate: a frame that crops silently drops whatever sat below
+     the cut, and a spec then promises an element the artwork does not show.
+     Here, whatever the harness captured is what appears.
+
+     Query parameters, all supplied by render.sh from specs.json:
+       ?src=      raw capture filename, relative to raw/
+       &head=     headline
+       &sub=      subheadline (optional)
+       &badge=    small pill above the headline (optional, e.g. "Pro")
+-->
+<style>
+  @page { margin: 0 }
+  html, body {
+    margin: 0; width: 100vw; height: 100vh; overflow: hidden;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Same plate as the icon and the feature graphic, so the listing reads as
+       one set rather than five unrelated pictures. */
+    background: linear-gradient(165deg, #14241E 0%, #08120F 100%);
+    font-family: "SF Pro Display", -apple-system, system-ui, "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-align: center;
+  }
+
+  /* A green lift behind the headline, echoing the feature graphic. */
+  body::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: -18vh;
+    width: 120vw; height: 60vh;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse, rgba(31,169,122,.22) 0%, rgba(31,169,122,0) 70%);
+  }
+
+  .copy {
+    position: relative;
+    padding: 5.5vh 7vw 0;
+    flex: none;
+  }
+
+  .badge {
+    display: inline-block;
+    margin-bottom: 2.4vh;
+    padding: 0.9vh 2.6vw;
+    border-radius: 999px;
+    border: 0.28vh solid rgba(69,224,166,.55);
+    color: #45E0A6;
+    font-size: 2.4vh;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .badge:empty { display: none }
+
+  h1 {
+    margin: 0;
+    font-size: 4.6vh;
+    line-height: 1.12;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: #FFFFFF;
+    text-wrap: balance;
+    /* `balance` will break a line after a hyphen, which turns "drop-outs" into
+       "drop-" + "outs". The copy uses U+2011 non-breaking hyphens; this stops
+       the browser adding its own. */
+    hyphens: none;
+  }
+
+  p {
+    margin: 1.8vh 0 0;
+    font-size: 2.5vh;
+    line-height: 1.35;
+    font-weight: 400;
+    color: #94A79E;
+    text-wrap: balance;
+  }
+  p:empty { display: none }
+
+  /* The device. It takes whatever vertical room the copy leaves, and the
+     capture is fitted inside it, so a taller headline shrinks the phone
+     rather than pushing it off the canvas. */
+  .device {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding: 3.5vh 9vw 2vh;
+    box-sizing: border-box;
+  }
+
+  .device img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    border-radius: 4.2vh;
+    border: 0.5vh solid #2E403A;
+    box-shadow: 0 2vh 6vh rgba(0,0,0,.55);
+    background: #0F1511;
+  }
+</style>
+
+<div class="copy">
+  <span class="badge" id="badge"></span>
+  <h1 id="head"></h1>
+  <p id="sub"></p>
+</div>
+<div class="device"><img id="shot" alt=""></div>
+
+<script>
+  const q = new URLSearchParams(location.search);
+  document.getElementById('head').textContent = q.get('head') || '';
+  document.getElementById('sub').textContent = q.get('sub') || '';
+  document.getElementById('badge').textContent = q.get('badge') || '';
+  document.getElementById('shot').src = 'raw/' + (q.get('src') || '');
+</script>

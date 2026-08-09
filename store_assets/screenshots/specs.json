@@ -1,0 +1,79 @@
+{
+  "_comment": [
+    "The shot list, in listing order. `src` is the raw capture the harness",
+    "writes (integration_test/screenshots_test.dart). Rationale and the exact",
+    "app state each shot needs are in ../screenshot_specs.md — read that before",
+    "changing anything here.",
+    "",
+    "05_pro is deliberately absent from both marketing sets: the paywall shows a",
+    "store-supplied price, and a GBP figure baked into artwork is wrong on every",
+    "other storefront. That capture is still taken — it is the IAP review",
+    "screenshot App Store Connect requires."
+  ],
+  "canvases": {
+    "ios": { "width": 1320, "height": 2868, "label": "iPhone 6.9\"" },
+    "play": { "width": 1080, "height": 2160, "label": "Play phone (2:1)" }
+  },
+  "shots": {
+    "ios": [
+      {
+        "out": "01_lying",
+        "src": "00_onboarding.png",
+        "head": "Full bars. No data.",
+        "sub": "Your phone measures the mast. Honest Signal measures the connection."
+      },
+      {
+        "out": "02_home",
+        "src": "01_home.png",
+        "head": "See what it can actually do",
+        "sub": "Latency, jitter, lost probes and a real transfer sample."
+      },
+      {
+        "out": "03_history",
+        "src": "02_history.png",
+        "head": "Prove the drop‑outs are real",
+        "sub": "An hour or a full day, kept on your phone.",
+        "badge": "Pro"
+      },
+      {
+        "out": "04_method",
+        "src": "04_how_it_works.png",
+        "head": "No mystery score",
+        "sub": "Every weight and threshold is written down, in the app."
+      }
+    ],
+    "play": [
+      {
+        "out": "01_lying",
+        "src": "00_onboarding.png",
+        "head": "Full bars. No data.",
+        "sub": "Your phone measures the mast. Honest Signal measures the connection."
+      },
+      {
+        "out": "02_home",
+        "src": "01_home.png",
+        "head": "See what it can actually do",
+        "sub": "Latency, jitter, lost probes and a real transfer sample."
+      },
+      {
+        "out": "03_statusbar",
+        "src": "03_settings.png",
+        "head": "A live score in your status bar",
+        "sub": "Keeps measuring while you get on with something else."
+      },
+      {
+        "out": "04_history",
+        "src": "02_history.png",
+        "head": "Prove the drop‑outs are real",
+        "sub": "An hour or a full day, kept on your phone.",
+        "badge": "Pro"
+      },
+      {
+        "out": "05_method",
+        "src": "04_how_it_works.png",
+        "head": "No mystery score",
+        "sub": "Every weight and threshold is written down, in the app."
+      }
+    ]
+  }
+}

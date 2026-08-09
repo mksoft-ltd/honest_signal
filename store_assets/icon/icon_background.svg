@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12211C"/>
+      <stop offset="1" stop-color="#08120F"/>
+    </linearGradient>
+    <!-- One gradient across the whole cluster rather than per bar, so the
+         ascent itself brightens: the short bars sit in the deep green, the
+         tallest reaches the mint. Per-bar (objectBoundingBox) gradients make
+         all five identical and the ramp disappears. -->
+    <linearGradient id="g" gradientUnits="userSpaceOnUse"
+                    x1="372" y1="782"
+                    x2="872" y2="312">
+      <stop offset="0" stop-color="#189C70"/>
+      <stop offset="1" stop-color="#45E0A6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="#0D1915"/>
+
+</svg>

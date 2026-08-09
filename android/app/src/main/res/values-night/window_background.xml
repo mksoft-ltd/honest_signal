@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark counterpart of values/window_background.xml: the dark ColorScheme's
+     `surface`. Without this the stock templates leave the launch window white,
+     so a dark-themed phone flashes white on every cold start. -->
+<resources>
+    <color name="window_background">#0F1511</color>
+</resources>

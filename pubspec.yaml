@@ -1,0 +1,64 @@
+name: honestsignal
+description: "Honest Signal — a connectivity meter that measures what your connection can actually do."
+publish_to: 'none'
+
+# Version and build number derive from BOTH stores' live state at release time,
+# never from this file alone (house-facts #20).
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State management + routing
+  flutter_riverpod: ^2.6.1
+  go_router: ^14.6.2
+
+  # Measurement engine
+  http: ^1.2.2
+  connectivity_plus: ^6.1.0
+
+  # Local-first storage (no backend, no accounts — house-facts #8)
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.5
+
+  # Monetisation: native plugin only, no wrappers (house-facts #9)
+  in_app_purchase: ^3.2.0
+
+  url_launcher: ^6.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # Build-time only: regenerates the launcher icons from store_assets/icon/.
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+
+# Sources and the regeneration recipe live in store_assets/icon/ (build_icon.py
+# emits the SVGs, render.sh rasterises them). Re-run with:
+#   dart run flutter_launcher_icons
+# and then revert the pbxproj line the package corrupts — see
+# store_assets/README.md.
+flutter_launcher_icons:
+  image_path: "store_assets/icon/icon_master.png"
+  android: true
+  ios: true
+  # iOS rejects an app icon with an alpha channel; the master is opaque anyway.
+  remove_alpha_ios: true
+  adaptive_icon_background: "store_assets/icon/icon_background.png"
+  adaptive_icon_foreground: "store_assets/icon/icon_foreground.png"
+  adaptive_icon_monochrome: "store_assets/icon/icon_monochrome.png"
+  min_sdk_android: 21

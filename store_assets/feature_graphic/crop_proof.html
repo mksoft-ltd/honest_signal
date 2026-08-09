@@ -1,0 +1,13 @@
+<style>
+  html,body{margin:0;width:1024px;height:500px;overflow:hidden;position:relative}
+  img{position:absolute;inset:0;width:1024px;height:500px}
+  /* Play's risky zone: the outer 100 px, which can be cropped or covered. */
+  .edge{position:absolute;background:rgba(255,0,80,.42)}
+  .l{left:0;top:0;width:100px;height:500px}
+  .r{right:0;top:0;width:100px;height:500px}
+  .t{left:0;top:0;width:1024px;height:60px}
+  .b{left:0;bottom:0;width:1024px;height:60px}
+</style>
+<img src="feature_graphic.png">
+<div class="edge l"></div><div class="edge r"></div>
+<div class="edge t"></div><div class="edge b"></div>

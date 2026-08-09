@@ -1,0 +1,20 @@
+<style>
+  html,body{margin:0;width:432px;height:432px;overflow:hidden}
+  /* One 108 dp adaptive layer at 4x. The foreground is drawn at 68% of the
+     layer (flutter_launcher_icons' 16% inset); the round launcher mask is
+     66/108 of it, and the inner ring is where OEM masks start clipping. */
+  .layer{position:absolute;inset:0;background:#0D1915}
+  .fg{position:absolute;left:16%;top:16%;width:68%;height:68%}
+  .fg img{width:100%;height:100%}
+  .mask{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+        border-radius:50%;box-shadow:0 0 0 999px rgba(255,0,80,.55)}
+  .round{width:264px;height:264px}
+  .safe{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+        width:288px;height:288px;border-radius:50%;
+        outline:2px dashed rgba(255,255,255,.6);outline-offset:-1px}
+</style>
+<div class="layer">
+  <div class="fg"><img src="icon_foreground.png"></div>
+  <div class="mask round"></div>
+  <div class="safe"></div>
+</div>

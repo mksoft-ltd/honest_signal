@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12211C"/>
+      <stop offset="1" stop-color="#08120F"/>
+    </linearGradient>
+    <!-- One gradient across the whole cluster rather than per bar, so the
+         ascent itself brightens: the short bars sit in the deep green, the
+         tallest reaches the mint. Per-bar (objectBoundingBox) gradients make
+         all five identical and the ramp disappears. -->
+    <linearGradient id="g" gradientUnits="userSpaceOnUse"
+                    x1="372" y1="782"
+                    x2="872" y2="312">
+      <stop offset="0" stop-color="#189C70"/>
+      <stop offset="1" stop-color="#45E0A6"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(36.71 24.71) scale(0.9229)">
+    <rect x="372.00" y="631.60" width="78.00" height="150.40" rx="23.40" fill="url(#g)"/>
+    <rect x="477.50" y="551.70" width="78.00" height="230.30" rx="23.40" fill="url(#g)"/>
+    <rect x="583.00" y="471.80" width="78.00" height="310.20" rx="23.40" fill="url(#g)"/>
+    <rect x="688.50" y="391.90" width="78.00" height="390.10" rx="23.40" fill="url(#g)"/>
+    <rect x="794.00" y="312.00" width="78.00" height="470.00" rx="23.40" fill="url(#g)"/>
+    <path d="M 196.0 436.0 L 288.0 532.0 L 462.0 312.0" fill="none" stroke="#FFFFFF" stroke-width="76.0" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

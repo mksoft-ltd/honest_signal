@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The colour behind the window before Flutter's first frame.
+
+     It is in its own file rather than colors.xml because flutter_launcher_icons
+     creates and rewrites colors.xml, which would drop a hand-written entry on
+     the next icon regeneration. Android merges every XML file in a values
+     folder, so this one survives.
+
+     The value is the light ColorScheme's `surface`, so the launch window is the
+     same colour as the scaffold the app draws a moment later. -->
+<resources>
+    <color name="window_background">#F5FBF5</color>
+</resources>
