@@ -1,7 +1,9 @@
 # Honest Signal — Privacy Policy
 
 **Last updated: 7 August 2026**
+
 **Publisher: Froggy Eye Ltd (United Kingdom)**
+
 **Contact: info@froggyeye.com**
 
 ## The short version
