@@ -1198,3 +1198,12 @@ the new Gradle suite and a fresh "Latest run".
   capture set taken from this tree, so it is one `./render.sh play`.
 - `changelogs/3.txt` still says "solid plate" and was left alone deliberately:
   it shipped with the release and is not worth a re-upload for one word.
+
+## Conductor ruling on the "one-word-stale" screenshot (2026-08-15)
+
+The follow-up round's Settings wording change ("solid plate" → "on a plate") does
+NOT trigger a listing-screenshot re-upload now: the PNG live on Play matches the
+binary live on Play (vc3 still says "solid plate"), and re-framing from this tree
+would advertise unshipped UI. Re-frame at the NEXT release (raw/ already holds a
+fresh pro-tier capture set from the new tree — it is a single `./render.sh play`
+plus the images-only edit), in the same round that bumps pubspec past 1.0.1+3.
