@@ -194,6 +194,23 @@ void main() {
       },
     );
 
+    test(
+      'the service is started with the high-contrast choice, not a default',
+      () async {
+        // N4, the other end of the same wire: the fixture above leaves
+        // `highContrastIndicator` at its default `true`, so it passes against a
+        // hardcoded literal. This one cannot.
+        final channel = FakeIndicatorChannel();
+        final controller = IndicatorController(channel: channel);
+
+        await controller.sync(
+          const AppSettings(highContrastIndicator: false),
+        );
+
+        expect(channel.starts.single['highContrast'], isFalse);
+      },
+    );
+
     test('a free install starts the service on the free-tier values', () async {
       // `clampedForTier` is what the app passes here, so a lapsed Pro user's
       // one-second interval never reaches the service.

@@ -18,7 +18,16 @@ the status-bar icon says.
 | Static analysis | `flutter analyze` | nothing |
 | One file | `flutter test test/measurement_engine_test.dart` | nothing |
 | One test | `flutter test --plain-name "hysteresis"` | nothing |
+| Kotlin unit tests (`android/app/src/test/`) | `cd android && ./gradlew :app:testDebugUnitTest` | a JDK (no device, no emulator) |
 | Screenshot / journey harness | see below | a booted Android emulator |
+
+`flutter test` compiles nothing under `android/**/kotlin/**` (house-facts §27),
+so anything in the Kotlin side that is pure logic needs the Gradle suite. Today
+that is `IndicatorIconsTest`, which pins the theme × level × high-contrast
+mapping to the 36 drawables — the wire that could be, and was, severed with the
+whole Dart suite green. It is a plain JUnit test: no Robolectric, it needs only
+the generated `R` constants, and it asserts that an id of `0` is a failure so it
+cannot pass vacuously if `R` ever stops being generated for unit tests.
 
 ### Screenshot harness
 
@@ -141,6 +150,13 @@ device.
 
 ### Known testability gaps
 
+- **Kotlin that touches Android APIs is still untested.** `IndicatorIcons` is
+  pure enough for a JVM test; `HonestSignalService`'s notification building —
+  the `canPromote()` branch, the channel setup, the silencing — is not, and is
+  covered only by running a build on a device and reading `dumpsys
+  notification` back (see `docs/verification/1.0.1/`). Robolectric would close
+  some of it and has not been judged worth the dependency.
+
 - `BackgroundMeasurementHost` calls `DateTime.now()` directly rather than taking
   an injected clock the way `MeasurementEngine` and `MeasurementController` do.
   The first-cycle and immediate-second-cycle transfer decisions are covered; the
@@ -255,6 +271,25 @@ is today, so a change fails loudly. None of them block the gate.
 ---
 
 ## 6. Latest run
+
+**2026-08-15**, Flutter 3.44.4 stable, Dart 3.12.2, on macOS 26.6.1 (arm64) —
+the N4–N10 review-fix round.
+
+| Gate | Command | Result |
+|---|---|---|
+| Static analysis | `flutter analyze` | **No issues found** (exit 0) |
+| Unit + widget | `flutter test` | **281/281 passing** (exit 0) |
+| Kotlin unit | `cd android && ./gradlew :app:testDebugUnitTest` | **4/4 passing** (exit 0) |
+| Release bundle | `flutter build appbundle --release` | exit 0 |
+| Screenshot harness, Pro tier | `flutter drive … SCREENSHOT_MODE=true -d emulator-5554` | **All tests passed** (exit 0) — 5 PNGs in `raw/` plus `tier.txt` = `pro` |
+| Framing | `./render.sh play` (in a scratch copy, so the pushed set was untouched) | exit 0, five 1080x2160 shots |
+
+The harness's tail no longer depends on finding an AppBar back chevron, and
+`render.sh` now **fails** rather than warns when `raw/tier.txt` is missing —
+that combination (complete PNGs, no marker) is what a part-way harness failure
+leaves behind, and it used to sail past the guard.
+
+### Previous run
 
 **2026-08-08**, Flutter 3.44.4 stable, Dart 3.12.2, on macOS 26.5.2 (arm64).
 

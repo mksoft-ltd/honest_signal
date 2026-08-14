@@ -70,7 +70,12 @@ object IndicatorIcons {
         R.drawable.ic_signal_wave_plate_5,
     )
 
-    fun resourceFor(theme: String?, bars: Int, highContrast: Boolean = true): Int {
+    /**
+     * [highContrast] is deliberately not defaulted: a second caller that forgot
+     * it would silently serve the old mask to a user who had asked for the
+     * plate, and a silent wrong answer is worse than a compile error.
+     */
+    fun resourceFor(theme: String?, bars: Int, highContrast: Boolean): Int {
         val level = bars.coerceIn(0, 5)
         return when (theme) {
             "dots" -> if (highContrast) DOTS_PLATE[level] else DOTS[level]

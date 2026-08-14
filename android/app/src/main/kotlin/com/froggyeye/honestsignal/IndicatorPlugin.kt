@@ -38,16 +38,6 @@ class IndicatorPlugin(private val activity: Activity) : MethodChannel.MethodCall
                 result.success(null)
             }
 
-            "updateConfig" -> {
-                // Only meaningful while the service is up; starting it here
-                // would switch the indicator on as a side effect of the user
-                // changing an unrelated setting.
-                if (HonestSignalService.isRunning) {
-                    send(configIntent(call, HonestSignalService.ACTION_CONFIG))
-                }
-                result.success(null)
-            }
-
             "stopIndicator" -> {
                 if (HonestSignalService.isRunning) {
                     send(

@@ -52,20 +52,6 @@ class IndicatorChannel {
 
   Future<void> stop() => _invoke<void>('stopIndicator');
 
-  Future<void> updateConfig({
-    required String theme,
-    required bool highContrast,
-    required int intervalSeconds,
-    required int budgetLimitBytes,
-    required bool measureOnCellular,
-  }) => _invoke<void>('updateConfig', {
-    'theme': theme,
-    'highContrast': highContrast,
-    'intervalSeconds': intervalSeconds,
-    'budgetLimitBytes': budgetLimitBytes,
-    'measureOnCellular': measureOnCellular,
-  });
-
   /// Pushes a sample measured by the UI isolate so the status-bar icon stays
   /// live without the background isolate duplicating the work.
   Future<void> publishSample({

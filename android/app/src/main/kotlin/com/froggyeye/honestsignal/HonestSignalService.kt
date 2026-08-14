@@ -56,7 +56,6 @@ class HonestSignalService : Service() {
 
         const val ACTION_START = "com.froggyeye.honestsignal.START"
         const val ACTION_STOP = "com.froggyeye.honestsignal.STOP"
-        const val ACTION_CONFIG = "com.froggyeye.honestsignal.CONFIG"
         const val ACTION_PUBLISH = "com.froggyeye.honestsignal.PUBLISH"
         const val ACTION_UI_ACTIVE = "com.froggyeye.honestsignal.UI_ACTIVE"
 
@@ -171,11 +170,6 @@ class HonestSignalService : Service() {
                 // side immediately rather than leaving a fresh score stale
                 // until the next sparse service tick.
                 if (!active) runCycle()
-            }
-
-            ACTION_CONFIG -> {
-                applyConfig(intent)
-                if (isRunning) restartLoop()
             }
 
             else -> {
@@ -421,8 +415,11 @@ class HonestSignalService : Service() {
             .setOnlyAlertOnce(true)
             // The score's colour. It cannot reach the status-bar icon — Android
             // treats a small icon as an alpha mask and tints it itself — but it
-            // does tint the icon and app name in the shade, and it is the
-            // colour of the Android 16 status-bar chip below.
+            // tints the icon and app name in the shade, and it is what
+            // setColorized paints the card with below. It does *not* reach the
+            // Android 16 chip: that renders in the system's own neutral pill
+            // (docs/verification/1.0.1/01_before_after_and_chip.png shows it grey
+            // beside a five-bar score).
             .setColor(SignalColours.forBars(bars))
             // Belt and braces with the channel's own silencing: the channel
             // decides whether an icon appears, this decides whether anything is
@@ -464,11 +461,24 @@ class HonestSignalService : Service() {
     }
 
     /**
-     * True when this notification can be promoted to a status-bar chip.
+     * True when this notification *may* be promoted to a status-bar chip.
      *
      * The permission is declared in the manifest and is not a runtime grant,
      * but the user can revoke promoted notifications per app in settings, so
      * this is re-checked on every build rather than cached.
+     *
+     * Note this asks permission, not outcome: whether the system actually
+     * promoted a post shows up afterwards as `FLAG_PROMOTED_ONGOING` on the
+     * posted notification. A device that holds the permission but declines to
+     * promote would get neither the chip nor the colorized card. Reading the
+     * flag back from `getActiveNotifications()` and re-posting colorized would
+     * close that, at the cost of a post-inspect-repost cycle on a notification
+     * that already updates on a timer — a flap risk in exchange for a gap that
+     * has not been observed (promotion landed on the API 36 emulator, and the
+     * notification holds every documented promotable characteristic: ongoing,
+     * foreground-service, short critical text, not colorized). Revisit if the
+     * chip is ever reported missing on an Android 16 device that still has the
+     * permission.
      */
     private fun canPromote(): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&

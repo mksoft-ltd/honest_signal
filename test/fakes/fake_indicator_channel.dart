@@ -30,7 +30,6 @@ class FakeIndicatorChannel extends IndicatorChannel {
 
   final List<String> calls = [];
   final List<Map<String, Object?>> starts = [];
-  final List<Map<String, Object?>> configUpdates = [];
   final List<Map<String, Object?>> published = [];
   final List<bool> uiActive = [];
 
@@ -68,24 +67,6 @@ class FakeIndicatorChannel extends IndicatorChannel {
   Future<void> stop() async {
     calls.add('stopIndicator');
     serviceRunning = false;
-  }
-
-  @override
-  Future<void> updateConfig({
-    required String theme,
-    required bool highContrast,
-    required int intervalSeconds,
-    required int budgetLimitBytes,
-    required bool measureOnCellular,
-  }) async {
-    calls.add('updateConfig');
-    configUpdates.add({
-      'theme': theme,
-      'highContrast': highContrast,
-      'intervalSeconds': intervalSeconds,
-      'budgetLimitBytes': budgetLimitBytes,
-      'measureOnCellular': measureOnCellular,
-    });
   }
 
   @override

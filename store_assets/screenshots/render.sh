@@ -52,16 +52,24 @@ for set in $SETS; do
   # are real" ships a screenshot showing a paywall where it advertises a graph.
   # A free-tier run produced exactly that, so this is a guard rather than a note.
   #
-  # The harness writes tier.txt. Absent, we warn rather than fail, so an older
-  # capture set still frames; present and wrong, we stop.
+  # The driver writes tier.txt from the harness's reportData, which it only
+  # receives when the drive test *finishes*. A run that dies part-way — the tail
+  # of the harness has flaked on back navigation — therefore leaves fresh PNGs
+  # and no marker, and this used to warn and carry on framing them. That is
+  # precisely the combination the guard exists to catch, so a missing marker is
+  # now as fatal as a wrong one: an unverifiable capture set is not a pro one.
   # `|| true`: under `set -e` an assignment whose command substitution fails
-  # takes the whole script down, so a missing marker would exit 0 having
-  # rendered nothing at all.
+  # takes the whole script down before the message below can explain why.
   TIER="$(cat "$raw/tier.txt" 2>/dev/null | tr -d '[:space:]' || true)"
   if [ -z "$TIER" ]; then
-    echo "  ! $raw/tier.txt missing — cannot confirm these captures are pro-tier." >&2
-    echo "    If 02_history.png shows 'History is a Pro feature', recapture" >&2
-    echo "    without SCREENSHOT_TIER=free before shipping." >&2
+    echo "$raw/tier.txt is missing, so the tier of these captures is unknown." >&2
+    echo "The driver writes it only when the drive test runs to completion, so" >&2
+    echo "this usually means the capture run failed part-way and left a partial" >&2
+    echo "set behind. Recapture:" >&2
+    echo "  flutter drive --driver=test_driver/integration_test.dart \\" >&2
+    echo "    --target=integration_test/screenshots_test.dart \\" >&2
+    echo "    --dart-define=SCREENSHOT_MODE=true" >&2
+    exit 1
   elif [ "$TIER" != "pro" ]; then
     echo "$raw/ holds a '$TIER'-tier capture; the marketing set needs 'pro'." >&2
     echo "The history shot would frame the Pro lock screen under a headline" >&2

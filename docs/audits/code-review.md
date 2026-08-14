@@ -1139,4 +1139,89 @@ at HEAD `409e0fb`, and the MD5s match the pre-mutation values:
 Gates re-run on the restored tree: `flutter analyze` **No issues found!** ·
 `flutter test` **279/279**.
 
+### N4–N10 resolution — 2026-08-15 (flutter-architect)
+
+Applied against `b34de10`, riding the next release: no version bump, no store
+upload. Each fix and where it landed.
+
+**N4 — closed at both ends, both ends verified against the severance the review
+demonstrated.**
+
+- Dart: `measurement_controller_test.dart` now publishes from a fixture with
+  `highContrastIndicator: false` and asserts `false` arrives, and
+  `indicator_controller_test.dart` does the same for `start`. Hardcoding
+  `highContrast: true` at `indicator_controller.dart:79` and
+  `measurement_controller.dart:233` — the review's own experiment — now fails
+  exactly one test per severed end, and nothing else.
+- Kotlin: `android/app/src/test/kotlin/.../IndicatorIconsTest.kt`, a plain JUnit
+  test on the JVM (no Robolectric — it needs the generated `R` constants and
+  nothing else from Android), run with `cd android && ./gradlew
+  :app:testDebugUnitTest`. It asserts the plated and plain ids differ for all 18
+  theme × level pairs, that all 36 ids are distinct, that an id of 0 is a
+  failure rather than a vacuous pass, and that an unknown theme and an
+  out-of-range score fall back rather than crash. Deleting the
+  `if (highContrast)` branch from all three arms of `resourceFor` — again the
+  review's experiment — fails 2 of the 4. This is the first JVM test in the
+  repo; `junit:junit:4.13.2` was added as `testImplementation` for it, and the
+  gate command is documented in the build file and in `docs/TEST_PLAN.md`.
+
+**N5 — reworded.** `SignalColours` now names its three callers, says that two of
+them draw in the system shade rather than on a dark ground, and records *why*
+the dark ramp is still right there (Android contrast-corrects a notification's
+accent colour and picks its own text colour over a colorized background — the
+app supplies an intent, not a final pixel), so the next reader can judge the
+edge case instead of inheriting an assertion.
+
+**N6 — trimmed.** The comment no longer claims `setColor` reaches the Android 16
+chip; it now says the chip renders in the system's own neutral pill and points
+at the capture that shows it.
+
+**N7 — left as is, deliberately, and the reasoning moved into the code.**
+`canPromote()` keeps asking permission rather than outcome. The robust form
+means posting, reading `FLAG_PROMOTED_ONGOING` back from
+`getActiveNotifications()`, and re-posting colorized — a post-inspect-repost
+cycle on a notification that already updates on a timer, for a gap that has not
+been observed. The KDoc now states the trade-off and names the trigger for
+revisiting it: a chip reported missing on an Android 16 device that still holds
+the permission.
+
+**N8 — deleted rather than repaired.** `IndicatorChannel.updateConfig`, its fake
+override and `configUpdates` list, the plugin's `"updateConfig"` branch, and the
+service's `ACTION_CONFIG` constant and dispatch arm are gone. It was redundant
+by design, not merely unused: a config change already reaches the service
+through `sync()` → `startIndicator` → `startForegroundIndicator()`, which
+re-posts the notification, which is the repaint `ACTION_CONFIG` was missing. No
+`PendingIntent` in the app carried `ACTION_CONFIG`, so nothing already installed
+can send one to the new service. `configIntent()` stays — `ACTION_START` uses it.
+
+**N9 — default dropped.** `resourceFor(theme, bars, highContrast)` takes the
+argument explicitly, with a note saying why a default would be worse than a
+compile error.
+
+**N10 — reworded, changelog left alone.** The Settings subtitle now reads "on a
+plate". `changelogs/3.txt` still says "solid plate": it shipped with the release
+and re-uploading store text for one word is not worth it. **Consequence worth
+carrying: `store_assets/screenshots/out/play/03_statusbar.png` is stale again**,
+by that one word — it was recaptured in `b34de10` from a build with the old
+subtitle. `store_assets/screenshots/raw/` now holds a fresh, complete, pro-tier
+capture set taken from this tree, so re-framing it is a single `./render.sh play`.
+
+**Harness guard (store-publisher's flake), fixed and both halves run.**
+`render.sh` now **exits 1** when `raw/tier.txt` is absent instead of warning and
+framing anyway: the driver writes that marker only from a completed drive test,
+so "missing" means "the run died part-way and these captures are unverifiable",
+which is the exact combination the guard exists to prevent. And the flake itself
+is gone — `goBack()` pops the enclosing `Navigator` (with a `canPop` guard)
+instead of calling `tester.pageBack()`, which searches for the AppBar chevron and
+asserts `findsOneWidget`: mid-pop two are mounted, on a chevron-less route none
+is, and either throws at the tail of the run *after* every PNG is on disk.
+Verified by running: a full `flutter drive` on `emulator-5554` completed green
+and wrote `tier.txt` = `pro`, `render.sh play` framed all five shots (exit 0) in
+a scratch copy, and with the marker removed it exits 1 with an actionable
+message.
+
+Gates on the fixed tree: `flutter analyze` clean · `flutter test` 281/281 ·
+`./gradlew :app:testDebugUnitTest` 4/4 · `flutter build appbundle --release`
+exit 0. No tracked store asset was modified.
+
 Verdict: PASS

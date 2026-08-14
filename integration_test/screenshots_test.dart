@@ -84,13 +84,25 @@ void main() {
     await settle(tester);
   }
 
-  /// Leaves the current route.
+  /// Leaves the current route, by asking the router rather than by finding a
+  /// back button.
   ///
-  /// `Icons.arrow_back` is the Android back chevron only; on iOS the AppBar
-  /// inserts `arrow_back_ios_new`, so keying off the icon would break every
-  /// iOS run. `pageBack` finds whichever one the platform used.
+  /// It used to call `tester.pageBack()`, which searches for the AppBar's back
+  /// chevron and asserts `findsOneWidget`. That is two ways to flake for a
+  /// reason that has nothing to do with what is being captured: mid-pop the
+  /// outgoing and incoming AppBars are both mounted, so the search finds two,
+  /// and on a route with no chevron it finds none. Either throws at the tail of
+  /// the run, *after* every PNG has been written — and because the driver
+  /// records `raw/tier.txt` only from a completed test, the result was a full
+  /// set of captures that `render.sh` could no longer verify the tier of.
+  ///
+  /// Popping the enclosing Navigator is what the system back gesture does, so
+  /// GoRouter stays in step. `canPop` makes an extra call a no-op instead of an
+  /// error, which matters because the last two calls exist only to return the
+  /// app to a known route.
   Future<void> goBack(WidgetTester tester) async {
-    await tester.pageBack();
+    final navigator = tester.state<NavigatorState>(find.byType(Navigator).last);
+    if (navigator.canPop()) navigator.pop();
     await settle(tester);
   }
 

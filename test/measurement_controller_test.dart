@@ -346,6 +346,20 @@ void main() {
       expect(indicator.published.single['theme'], BarTheme.wave.name);
     });
 
+    test('carries the high-contrast choice, not a hardcoded default', () async {
+      // N4. The wire from the switch to the drawable had no test at either end:
+      // hardcoding `highContrast: true` at the publish site left the whole
+      // suite green, because every fixture used the default. The value asserted
+      // here is deliberately the non-default one.
+      await build(
+        settings: const AppSettings(highContrastIndicator: false),
+      );
+
+      await controller.measureNow(forceTransfer: true);
+
+      expect(indicator.published.single['highContrast'], isFalse);
+    });
+
     test('tells the service how often the next reading is due', () async {
       // N2. Every publish renews the service's UI-active lease, and the service
       // sizes that lease from this number. A flat lease shorter than the

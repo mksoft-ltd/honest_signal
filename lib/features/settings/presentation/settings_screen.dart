@@ -43,8 +43,8 @@ class SettingsScreen extends ConsumerWidget {
             SwitchListTile(
               title: const Text('High-contrast icon'),
               subtitle: const Text(
-                'Draws the status-bar icon on a solid plate so it stays '
-                'readable over any wallpaper.',
+                'Draws the status-bar icon on a plate so it stays readable '
+                'over any wallpaper.',
               ),
               value: effective.highContrastIndicator,
               onChanged: effective.notificationIndicatorEnabled

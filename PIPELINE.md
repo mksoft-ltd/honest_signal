@@ -1134,3 +1134,67 @@ was touched: no track, no release, no metadata text, and the App Store set and
   Re-asserting `cmd uimode night no` and `wm size reset` immediately before the
   run, and checking the geometry and appearance of the resulting PNGs rather than
   trusting the green test result, is the guard.
+
+## Code-review fix round N4–N10 (build, 2026-08-15)
+
+Follow-up to the 1.0.1 round, applied against `b34de10` after review returned
+**PASS with seven minors**. **No version bump and no store upload** — this rides
+the next release. `pubspec.yaml` therefore still reads `1.0.1+3` while the tree
+no longer matches the versionCode-3 artifact that is live on Play production;
+the next release must bump before anything is built for upload.
+
+- **N4, the one that mattered — the high-contrast toggle now has a test at each
+  end, and each was verified against the severance the review demonstrated.**
+  Dart fixtures now publish with `highContrastIndicator: false` and assert the
+  `false` arrives, so a hardcoded literal at either publish site fails. Kotlin
+  gets the repo's first JVM unit test —
+  `android/app/src/test/kotlin/.../IndicatorIconsTest.kt`, run with `cd android
+  && ./gradlew :app:testDebugUnitTest` — pinning that the plated and plain ids
+  differ across all 18 theme × level pairs, that all 36 are distinct, and that
+  an id of `0` fails rather than passing vacuously. Deleting the
+  `if (highContrast)` branch fails 2 of its 4 tests; before, it failed nothing.
+- **N5/N6/N9/N10 — comments and copy.** `SignalColours` names its three callers
+  and says why the dark ramp is still right in the shade; the `setColor` comment
+  no longer claims the Android 16 chip takes our colour (it renders in the
+  system's neutral pill); `resourceFor` lost its `= true` default; the Settings
+  subtitle says "on a plate", not "solid plate".
+- **N7 — deliberately not changed, with the reasoning moved into the code.**
+  `canPromote()` still asks permission rather than outcome. The robust form
+  needs a post-inspect-repost cycle against `getActiveNotifications()` on a
+  notification that already updates on a timer; the KDoc states the trade-off
+  and names what would justify revisiting it.
+- **N8 — deleted rather than repaired.** The dead `updateConfig` path is gone
+  end to end (Dart method, fake, plugin branch, `ACTION_CONFIG` constant and
+  dispatch arm). It was redundant by design: config changes already reach the
+  service through `sync()` → `startIndicator`, which re-posts the notification.
+- **Screenshot harness guard** (store-publisher's flake). `render.sh` now exits
+  1 when `raw/tier.txt` is missing instead of warning and framing anyway — the
+  driver writes that marker only from a completed drive test, so "missing"
+  means "unverifiable captures", which is exactly what the guard exists to stop.
+  The flake itself is fixed too: `goBack()` pops the enclosing `Navigator` with
+  a `canPop` guard rather than calling `tester.pageBack()`, which hunts for the
+  AppBar chevron and asserts `findsOneWidget` — two ways to throw at the tail of
+  a run, after every PNG is already on disk.
+
+Verified by running, not reading: a full `flutter drive` on `emulator-5554`
+completed green and wrote `tier.txt` = `pro`; `./render.sh play` framed all five
+shots (exit 0) **in a scratch copy**, so the pushed `out/play/` set was not
+touched; with the marker removed it exits 1 with an actionable message.
+
+Gates: `flutter analyze` clean · `flutter test` 281/281 · `./gradlew
+:app:testDebugUnitTest` 4/4 · `flutter build appbundle --release` exit 0 ·
+merged manifest re-parsed and unchanged (10 permissions, `specialUse` + its
+subtype property, package and version). Resolution notes appended to
+`docs/audits/code-review.md` above its `Verdict:` line; `docs/TEST_PLAN.md` has
+the new Gradle suite and a fresh "Latest run".
+
+### For the next release stage
+
+- **`store_assets/screenshots/out/play/03_statusbar.png` is stale again by one
+  word.** It was recaptured in `b34de10` from a build whose Settings subtitle
+  read "solid plate"; N10 changed that to "on a plate". It needs re-framing
+  before the next Play listing update — not before a binary upload.
+  `store_assets/screenshots/raw/` already holds a fresh, complete, pro-tier
+  capture set taken from this tree, so it is one `./render.sh play`.
+- `changelogs/3.txt` still says "solid plate" and was left alone deliberately:
+  it shipped with the release and is not worth a re-upload for one word.

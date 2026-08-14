@@ -72,6 +72,13 @@ dependencies {
     // classpath stayed on 1.13.1, so the calls failed to compile even though
     // the library that ships in the APK has them.
     implementation("androidx.core:core-ktx:1.17.0")
+
+    // JVM unit tests for the parts of the Kotlin side that are pure logic —
+    // currently IndicatorIcons, whose theme/level/contrast mapping no Dart test
+    // can reach. `flutter test` does not compile android/**, so without this
+    // the mapping could be severed with the whole Dart suite green.
+    //   cd android && ./gradlew :app:testDebugUnitTest
+    testImplementation("junit:junit:4.13.2")
 }
 
 kotlin {
