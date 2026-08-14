@@ -46,6 +46,7 @@ class FakeIndicatorChannel extends IndicatorChannel {
   @override
   Future<void> start({
     required String theme,
+    required bool highContrast,
     required int intervalSeconds,
     required int budgetLimitBytes,
     required bool measureOnCellular,
@@ -54,6 +55,7 @@ class FakeIndicatorChannel extends IndicatorChannel {
     calls.add('startIndicator');
     starts.add({
       'theme': theme,
+      'highContrast': highContrast,
       'intervalSeconds': intervalSeconds,
       'budgetLimitBytes': budgetLimitBytes,
       'measureOnCellular': measureOnCellular,
@@ -71,6 +73,7 @@ class FakeIndicatorChannel extends IndicatorChannel {
   @override
   Future<void> updateConfig({
     required String theme,
+    required bool highContrast,
     required int intervalSeconds,
     required int budgetLimitBytes,
     required bool measureOnCellular,
@@ -78,6 +81,7 @@ class FakeIndicatorChannel extends IndicatorChannel {
     calls.add('updateConfig');
     configUpdates.add({
       'theme': theme,
+      'highContrast': highContrast,
       'intervalSeconds': intervalSeconds,
       'budgetLimitBytes': budgetLimitBytes,
       'measureOnCellular': measureOnCellular,
@@ -90,6 +94,7 @@ class FakeIndicatorChannel extends IndicatorChannel {
     required String verdict,
     required String detail,
     required String theme,
+    required bool highContrast,
     required int uiIntervalSeconds,
   }) async {
     calls.add('publishSample');
@@ -98,6 +103,7 @@ class FakeIndicatorChannel extends IndicatorChannel {
       'verdict': verdict,
       'detail': detail,
       'theme': theme,
+      'highContrast': highContrast,
       'uiIntervalSeconds': uiIntervalSeconds,
     });
   }

@@ -46,6 +46,41 @@ void main() {
     });
   });
 
+  group('high-contrast indicator', () {
+    test('an install that predates 1.0.1 upgrades with it switched on', () {
+      // The whole live population stored its settings before this key existed,
+      // and the release is worthless to them if the absent key reads as off.
+      final legacy = AppSettings.fromJson(const {
+        'notification': true,
+        'barTheme': 'bars',
+        'budgetMb': 25,
+      });
+
+      expect(legacy.highContrastIndicator, isTrue);
+    });
+
+    test('a user who switched it off keeps it off across a reload', () {
+      final stored = const AppSettings(
+        highContrastIndicator: false,
+      ).toJson();
+
+      expect(AppSettings.fromJson(stored).highContrastIndicator, isFalse);
+    });
+
+    test('it survives free-tier clamping', () {
+      // It is a legibility setting, not a Pro theme. Clamping it here would
+      // take the readable icon away from every free install, which is most of
+      // them and exactly the users who asked for it.
+      const off = AppSettings(highContrastIndicator: false);
+
+      expect(off.clampedForTier(isPro: false).highContrastIndicator, isFalse);
+      expect(
+        const AppSettings().clampedForTier(isPro: false).highContrastIndicator,
+        isTrue,
+      );
+    });
+  });
+
   group('AppSettings tier clamping', () {
     test('a free install is pinned to the default intervals and theme', () {
       const customised = AppSettings(

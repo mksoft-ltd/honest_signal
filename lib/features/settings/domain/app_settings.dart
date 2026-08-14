@@ -27,6 +27,7 @@ class AppSettings {
     this.backgroundIntervalSeconds = defaultBackgroundInterval,
     this.dailyBudgetMb = defaultDailyBudgetMb,
     this.barTheme = BarTheme.bars,
+    this.highContrastIndicator = true,
     this.measureOnCellular = true,
     this.themeMode = ThemeMode.system,
     this.hasSeenOnboarding = false,
@@ -56,6 +57,15 @@ class AppSettings {
   final int backgroundIntervalSeconds;
   final int dailyBudgetMb;
   final BarTheme barTheme;
+
+  /// Android only: draw the status-bar icon on a filled plate instead of as
+  /// bare strokes.
+  ///
+  /// Free for everyone and on by default, unlike [barTheme]. It is a
+  /// legibility accommodation, not decoration — users reported the bare mark
+  /// disappearing into busy wallpaper — and charging for one would be the kind
+  /// of thing this app exists not to do.
+  final bool highContrastIndicator;
 
   /// When false the engine skips probing on a metered mobile connection, for
   /// users on very small data plans.
@@ -89,6 +99,7 @@ class AppSettings {
     int? backgroundIntervalSeconds,
     int? dailyBudgetMb,
     BarTheme? barTheme,
+    bool? highContrastIndicator,
     bool? measureOnCellular,
     ThemeMode? themeMode,
     bool? hasSeenOnboarding,
@@ -103,6 +114,8 @@ class AppSettings {
             backgroundIntervalSeconds ?? this.backgroundIntervalSeconds,
         dailyBudgetMb: dailyBudgetMb ?? this.dailyBudgetMb,
         barTheme: barTheme ?? this.barTheme,
+        highContrastIndicator:
+            highContrastIndicator ?? this.highContrastIndicator,
         measureOnCellular: measureOnCellular ?? this.measureOnCellular,
         themeMode: themeMode ?? this.themeMode,
         hasSeenOnboarding: hasSeenOnboarding ?? this.hasSeenOnboarding,
@@ -115,6 +128,7 @@ class AppSettings {
         'bgInterval': backgroundIntervalSeconds,
         'budgetMb': dailyBudgetMb,
         'barTheme': barTheme.name,
+        'highContrast': highContrastIndicator,
         'cellular': measureOnCellular,
         'themeMode': themeMode.name,
         'onboarded': hasSeenOnboarding,
@@ -129,6 +143,10 @@ class AppSettings {
             (json['bgInterval'] as num?)?.toInt() ?? defaultBackgroundInterval,
         dailyBudgetMb: (json['budgetMb'] as num?)?.toInt() ?? defaultDailyBudgetMb,
         barTheme: BarTheme.fromStorage(json['barTheme'] as String?),
+        // Absent for every install that predates 1.0.1, which is the whole
+        // live population — they get the high-contrast icon on upgrade, which
+        // is the point of the release.
+        highContrastIndicator: json['highContrast'] as bool? ?? true,
         measureOnCellular: json['cellular'] as bool? ?? true,
         themeMode: ThemeMode.values.firstWhere(
           (m) => m.name == json['themeMode'],

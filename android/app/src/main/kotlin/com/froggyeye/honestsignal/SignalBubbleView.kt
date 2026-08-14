@@ -32,19 +32,6 @@ class SignalBubbleView(context: Context) : View(context) {
         invalidate()
     }
 
-    /**
-     * Matches `AppColors.dark.forBars` in Dart — the dark set specifically,
-     * because the bubble always draws on its own dark plate whatever theme the
-     * phone is in. Change the two together.
-     */
-    private fun colourFor(level: Int): Int = when (level) {
-        0 -> Color.rgb(0xE0, 0x48, 0x3C)
-        1 -> Color.rgb(0xE8, 0x86, 0x3B)
-        2, 3 -> Color.rgb(0xD8, 0xB2, 0x2E)
-        4 -> Color.rgb(0x4F, 0xA8, 0x3D)
-        else -> Color.rgb(0x1F, 0xA9, 0x7A)
-    }
-
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -58,7 +45,7 @@ class SignalBubbleView(context: Context) : View(context) {
         val right = w - inset
         val bottom = h - inset
         val top = inset
-        val active = colourFor(bars)
+        val active = SignalColours.forBars(bars)
         val inactive = Color.argb(70, 255, 255, 255)
 
         when (theme) {

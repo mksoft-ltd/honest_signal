@@ -26,6 +26,14 @@
          app never asks for it until they turn the feature on. -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
+    <!-- Android 16+, non-runtime: lets the ongoing indicator be promoted to a
+         status-bar chip. Users reported the icon being dropped when the status
+         bar filled up; a promoted chip sits outside the icon row that gets
+         culled, and is the only sanctioned way to ask for that treatment. The
+         user can still switch promoted notifications off per app in settings,
+         which the service re-checks on every update. -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS"/>
+
     <!-- Restores the indicator the user had switched on after a restart.
          Without it a persistent indicator silently disappears on reboot. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>

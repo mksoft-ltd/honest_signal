@@ -185,6 +185,7 @@ void main() {
 
         expect(channel.starts.single, {
           'theme': 'wave',
+          'highContrast': true,
           'intervalSeconds': 600,
           'budgetLimitBytes': 50 * 1024 * 1024,
           'measureOnCellular': false,

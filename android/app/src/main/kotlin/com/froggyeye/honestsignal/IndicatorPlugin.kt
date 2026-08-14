@@ -70,6 +70,10 @@ class IndicatorPlugin(private val activity: Activity) : MethodChannel.MethodCall
                         putExtra(HonestSignalService.EXTRA_VERDICT, call.argument<String>("verdict"))
                         putExtra(HonestSignalService.EXTRA_DETAIL, call.argument<String>("detail"))
                         putExtra(HonestSignalService.EXTRA_THEME, call.argument<String>("theme"))
+                        putExtra(
+                            HonestSignalService.EXTRA_HIGH_CONTRAST,
+                            call.argument<Boolean>("highContrast") ?: true,
+                        )
                         putExtra(HonestSignalService.EXTRA_ACTIVE, call.argument<Boolean>("uiActive") ?: true)
                         putExtra(
                             HonestSignalService.EXTRA_UI_INTERVAL,
@@ -144,6 +148,10 @@ class IndicatorPlugin(private val activity: Activity) : MethodChannel.MethodCall
         Intent(activity, HonestSignalService::class.java).apply {
             this.action = action
             putExtra(HonestSignalService.EXTRA_THEME, call.argument<String>("theme"))
+            putExtra(
+                HonestSignalService.EXTRA_HIGH_CONTRAST,
+                call.argument<Boolean>("highContrast") ?: true,
+            )
             putExtra(
                 HonestSignalService.EXTRA_INTERVAL,
                 call.argument<Int>("intervalSeconds") ?: 300,

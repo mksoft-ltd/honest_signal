@@ -267,6 +267,71 @@ void main() {
     });
   });
 
+  group('Android status-bar indicator drawables', () {
+    // The Kotlin side picks a drawable by name-shaped convention, so a missing
+    // file is a crash at the moment the score reaches that level — on a user's
+    // phone, in the background, with nothing on screen to see it. Neither
+    // `flutter analyze` nor `flutter test` compiles Kotlin, and a release
+    // build only fails if the *identifier* is missing, not if the drawable is
+    // wrong, so the set is checked here instead.
+    const themes = ['bars', 'dots', 'wave'];
+    const drawableDir = 'android/app/src/main/res/drawable';
+
+    test('every theme has a plain and a plated mask at every level', () {
+      expect(
+        themes.toSet(),
+        BarTheme.values.map((t) => t.name).toSet(),
+        reason: 'a new BarTheme needs its Android masks generated too',
+      );
+
+      for (final theme in themes) {
+        for (var level = 0; level <= 5; level++) {
+          for (final name in [
+            'ic_signal_${theme}_$level',
+            'ic_signal_${theme}_plate_$level',
+          ]) {
+            expect(
+              File('$drawableDir/$name.xml').existsSync(),
+              isTrue,
+              reason: '$name.xml is missing — re-run '
+                  'android/tools/generate_indicator_icons.py',
+            );
+          }
+        }
+      }
+    });
+
+    test('IndicatorIcons maps every one of them', () {
+      final kotlin = File(
+        'android/app/src/main/kotlin/com/froggyeye/honestsignal/'
+        'IndicatorIcons.kt',
+      ).readAsStringSync();
+
+      for (final theme in themes) {
+        for (var level = 0; level <= 5; level++) {
+          expect(kotlin, contains('ic_signal_${theme}_$level,'));
+          expect(kotlin, contains('ic_signal_${theme}_plate_$level,'));
+        }
+      }
+    });
+
+    test('the plated masks actually carry a plate', () {
+      // The plate is one even-odd path: the contrast the release exists to add
+      // is gone the moment that path is, and at 24dp nobody would notice in a
+      // screenshot review.
+      for (final theme in themes) {
+        for (var level = 0; level <= 5; level++) {
+          final xml = File(
+            '$drawableDir/ic_signal_${theme}_plate_$level.xml',
+          ).readAsStringSync();
+
+          expect(xml, contains('android:fillType="evenOdd"'));
+          expect(xml, contains('android:fillAlpha="0.44"'));
+        }
+      }
+    });
+  });
+
   group('Android manifest', () {
     late String manifest;
 
@@ -288,6 +353,7 @@ void main() {
         'INTERNET',
         'ACCESS_NETWORK_STATE',
         'POST_NOTIFICATIONS',
+        'POST_PROMOTED_NOTIFICATIONS',
         'FOREGROUND_SERVICE',
         'FOREGROUND_SERVICE_SPECIAL_USE',
         'SYSTEM_ALERT_WINDOW',

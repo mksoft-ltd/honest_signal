@@ -230,6 +230,7 @@ class MeasurementController extends ChangeNotifier {
       verdict: sample.verdict,
       detail: IndicatorText.detail(sample),
       theme: _settings.barTheme.name,
+      highContrast: _settings.highContrastIndicator,
       uiIntervalSeconds: _settings.foregroundIntervalSeconds,
     );
   }

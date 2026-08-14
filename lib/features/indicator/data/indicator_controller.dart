@@ -76,6 +76,7 @@ class IndicatorController extends ChangeNotifier {
       if (allowed) {
         await _channel.start(
           theme: settings.barTheme.name,
+          highContrast: settings.highContrastIndicator,
           intervalSeconds: settings.backgroundIntervalSeconds,
           budgetLimitBytes: settings.dailyBudgetBytes,
           measureOnCellular: settings.measureOnCellular,

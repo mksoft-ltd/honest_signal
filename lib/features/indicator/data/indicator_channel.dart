@@ -36,12 +36,14 @@ class IndicatorChannel {
 
   Future<void> start({
     required String theme,
+    required bool highContrast,
     required int intervalSeconds,
     required int budgetLimitBytes,
     required bool measureOnCellular,
     required bool uiActive,
   }) => _invoke<void>('startIndicator', {
     'theme': theme,
+    'highContrast': highContrast,
     'intervalSeconds': intervalSeconds,
     'budgetLimitBytes': budgetLimitBytes,
     'measureOnCellular': measureOnCellular,
@@ -52,11 +54,13 @@ class IndicatorChannel {
 
   Future<void> updateConfig({
     required String theme,
+    required bool highContrast,
     required int intervalSeconds,
     required int budgetLimitBytes,
     required bool measureOnCellular,
   }) => _invoke<void>('updateConfig', {
     'theme': theme,
+    'highContrast': highContrast,
     'intervalSeconds': intervalSeconds,
     'budgetLimitBytes': budgetLimitBytes,
     'measureOnCellular': measureOnCellular,
@@ -69,12 +73,14 @@ class IndicatorChannel {
     required String verdict,
     required String detail,
     required String theme,
+    required bool highContrast,
     required int uiIntervalSeconds,
   }) => _invoke<void>('publishSample', {
     'bars': bars,
     'verdict': verdict,
     'detail': detail,
     'theme': theme,
+    'highContrast': highContrast,
     // A foreground reading is also an acknowledgement that the UI is
     // still alive. The Android service treats this as a renewable lease.
     'uiActive': true,

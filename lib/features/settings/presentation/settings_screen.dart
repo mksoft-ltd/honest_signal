@@ -40,6 +40,19 @@ class SettingsScreen extends ConsumerWidget {
                 (s) => s.copyWith(notificationIndicatorEnabled: value),
               ),
             ),
+            SwitchListTile(
+              title: const Text('High-contrast icon'),
+              subtitle: const Text(
+                'Draws the status-bar icon on a solid plate so it stays '
+                'readable over any wallpaper.',
+              ),
+              value: effective.highContrastIndicator,
+              onChanged: effective.notificationIndicatorEnabled
+                  ? (value) => controller.update(
+                      (s) => s.copyWith(highContrastIndicator: value),
+                    )
+                  : null,
+            ),
             ListTile(
               title: const Text('Floating indicator'),
               subtitle: Text(

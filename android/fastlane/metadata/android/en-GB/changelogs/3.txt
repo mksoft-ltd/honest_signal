@@ -1,0 +1,10 @@
+You asked for a status-bar icon you can actually read.
+
+• It now sits on a solid plate, so it stays legible over any wallpaper and no
+  longer looks like your phone's own signal bars. Turn it off in Settings if
+  you prefer the old mark.
+• Android 16: it also gets an "HS" chip by the clock, clear of the icon row
+  that gets cut short when the bar is busy.
+• Android 15 and below: the notification carries the score's colour.
+
+Android tints these icons itself, so coloured bars aren't possible.

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -150,6 +152,33 @@ class HowItWorksScreen extends StatelessWidget {
                 ),
               ),
             ),
+          if (Platform.isAndroid) ...[
+            const SizedBox(height: 24),
+            Text(
+              'About the status-bar icon',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Android draws every status-bar icon in one colour it chooses '
+              'itself — white on a dark bar, black on a light one — so a '
+              'green, amber or red icon up there is not something any app can '
+              'ask for. What we can do is shape: the icon sits on a solid '
+              'plate so it stays readable over any wallpaper and looks nothing '
+              'like your phone\'s own signal bars. You can turn the plate off '
+              'in Settings. The score\'s colour still shows in the '
+              'notification itself, and in the floating bubble if you use it. '
+              'On Android 16 the indicator also appears as a small chip '
+              'labelled HS next to the clock, which keeps it out of the icon '
+              'row that gets cut short when a lot of apps are competing for '
+              'space.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           Text(
             'The probes carry no identifiers and nothing about you or your '

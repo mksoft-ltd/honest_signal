@@ -12,6 +12,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -48,6 +49,7 @@ class HonestSignalService : Service() {
 
         private const val KEY_ENABLED = "enabled"
         private const val KEY_THEME = "theme"
+        private const val KEY_HIGH_CONTRAST = "highContrast"
         private const val KEY_INTERVAL = "interval"
         private const val KEY_BUDGET = "budget"
         private const val KEY_CELLULAR = "cellular"
@@ -59,6 +61,7 @@ class HonestSignalService : Service() {
         const val ACTION_UI_ACTIVE = "com.froggyeye.honestsignal.UI_ACTIVE"
 
         const val EXTRA_THEME = "theme"
+        const val EXTRA_HIGH_CONTRAST = "highContrast"
         const val EXTRA_INTERVAL = "intervalSeconds"
         const val EXTRA_BUDGET = "budgetLimitBytes"
         const val EXTRA_CELLULAR = "measureOnCellular"
@@ -93,6 +96,7 @@ class HonestSignalService : Service() {
             return Intent(context, HonestSignalService::class.java).apply {
                 action = ACTION_START
                 putExtra(EXTRA_THEME, prefs.getString(KEY_THEME, "bars"))
+                putExtra(EXTRA_HIGH_CONTRAST, prefs.getBoolean(KEY_HIGH_CONTRAST, true))
                 putExtra(EXTRA_INTERVAL, prefs.getInt(KEY_INTERVAL, 300))
                 putExtra(EXTRA_BUDGET, prefs.getLong(KEY_BUDGET, 25L * 1024 * 1024))
                 putExtra(EXTRA_CELLULAR, prefs.getBoolean(KEY_CELLULAR, true))
@@ -105,6 +109,7 @@ class HonestSignalService : Service() {
     private var backgroundChannel: MethodChannel? = null
 
     private var theme: String = "bars"
+    private var highContrast: Boolean = true
     private var intervalSeconds: Int = 300
     private var budgetLimitBytes: Long = 25L * 1024 * 1024
     private var measureOnCellular: Boolean = true
@@ -149,6 +154,8 @@ class HonestSignalService : Service() {
                 verdict = intent.getStringExtra(EXTRA_VERDICT) ?: verdict
                 detail = intent.getStringExtra(EXTRA_DETAIL) ?: detail
                 theme = intent.getStringExtra(EXTRA_THEME) ?: theme
+                highContrast = intent.takeIf { it.hasExtra(EXTRA_HIGH_CONTRAST) }
+                    ?.getBooleanExtra(EXTRA_HIGH_CONTRAST, true) ?: highContrast
                 renewUiLease(
                     intent.getBooleanExtra(EXTRA_ACTIVE, true),
                     intent.getIntExtra(EXTRA_UI_INTERVAL, 0),
@@ -191,6 +198,9 @@ class HonestSignalService : Service() {
     private fun applyConfig(intent: Intent?) {
         val prefs = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         theme = intent?.getStringExtra(EXTRA_THEME) ?: prefs.getString(KEY_THEME, theme) ?: theme
+        highContrast = intent?.takeIf { it.hasExtra(EXTRA_HIGH_CONTRAST) }
+            ?.getBooleanExtra(EXTRA_HIGH_CONTRAST, true)
+            ?: prefs.getBoolean(KEY_HIGH_CONTRAST, highContrast)
         intervalSeconds = intent?.getIntExtra(EXTRA_INTERVAL, 0)
             ?.takeIf { it > 0 } ?: prefs.getInt(KEY_INTERVAL, intervalSeconds)
         budgetLimitBytes = intent?.getLongExtra(EXTRA_BUDGET, 0L)
@@ -204,6 +214,7 @@ class HonestSignalService : Service() {
 
         prefs.edit()
             .putString(KEY_THEME, theme)
+            .putBoolean(KEY_HIGH_CONTRAST, highContrast)
             .putInt(KEY_INTERVAL, intervalSeconds)
             .putLong(KEY_BUDGET, budgetLimitBytes)
             .putBoolean(KEY_CELLULAR, measureOnCellular)
@@ -399,8 +410,8 @@ class HonestSignalService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(IndicatorIcons.resourceFor(theme, bars))
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(IndicatorIcons.resourceFor(theme, bars, highContrast))
             .setContentTitle(verdict)
             .setContentText(detail)
             .setContentIntent(openIntent)
@@ -408,6 +419,11 @@ class HonestSignalService : Service() {
             .setOngoing(true)
             .setShowWhen(false)
             .setOnlyAlertOnce(true)
+            // The score's colour. It cannot reach the status-bar icon — Android
+            // treats a small icon as an alpha mask and tints it itself — but it
+            // does tint the icon and app name in the shade, and it is the
+            // colour of the Android 16 status-bar chip below.
+            .setColor(SignalColours.forBars(bars))
             // Belt and braces with the channel's own silencing: the channel
             // decides whether an icon appears, this decides whether anything is
             // heard. Without it, raising the channel to DEFAULT would make every
@@ -419,8 +435,44 @@ class HonestSignalService : Service() {
             // notification does show a status-bar icon.
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .build()
+
+        // Which status-bar icons survive a crowded bar is the system's call,
+        // not ours: there is no ordering or pinning API, and importance is the
+        // dominant term in the ranking that decides who gets dropped. Raising
+        // this channel to IMPORTANCE_HIGH would buy a better rank and cost a
+        // heads-up card on the user's screen, plus a third channel ID and the
+        // loss of every existing install's channel settings (importance is
+        // fixed at creation — see CHANNEL_ID above). Not worth it.
+        //
+        // Android 16 offers the honest version of what the user asked for: a
+        // promoted ongoing notification gets its own status-bar chip, which is
+        // separate from the icon row and so is not what gets culled when the
+        // row fills up, and the chip can carry a few characters of text — the
+        // one place "HS" is actually legible next to the mark.
+        if (canPromote()) {
+            builder.setRequestPromotedOngoing(true).setShortCriticalText("HS")
+        } else {
+            // Below Android 16, or if the user has switched promoted
+            // notifications off, colour the shade entry instead. Colorized and
+            // promoted are mutually exclusive: setColorized(true) is one of the
+            // documented disqualifiers for promotion, so this is an either/or
+            // and not an oversight.
+            builder.setColorized(true)
+        }
+
+        return builder.build()
     }
+
+    /**
+     * True when this notification can be promoted to a status-bar chip.
+     *
+     * The permission is declared in the manifest and is not a runtime grant,
+     * but the user can revoke promoted notifications per app in settings, so
+     * this is re-checked on every build rather than cached.
+     */
+    private fun canPromote(): Boolean =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&
+            NotificationManagerCompat.from(this).canPostPromotedNotifications()
 
     private fun updateNotification() {
         val manager = getSystemService(NotificationManager::class.java) ?: return

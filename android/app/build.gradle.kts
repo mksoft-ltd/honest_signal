@@ -64,6 +64,16 @@ android {
     }
 }
 
+dependencies {
+    // Pinned because the notification code calls NotificationCompat APIs that
+    // only exist from 1.17 (setRequestPromotedOngoing, setShortCriticalText,
+    // canPostPromotedNotifications). Without this the runtime classpath
+    // resolved 1.17.0 through a transitive constraint while the *compile*
+    // classpath stayed on 1.13.1, so the calls failed to compile even though
+    // the library that ships in the APK has them.
+    implementation("androidx.core:core-ktx:1.17.0")
+}
+
 kotlin {
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
