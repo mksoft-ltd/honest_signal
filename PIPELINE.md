@@ -21,7 +21,7 @@ Decisions (founder, 2026-08-07): **free + £2.99 Pro IAP** (native `in_app_purch
 | 4b | security | mobile-security-auditor | done — **PASS** (0 Critical, 0 High, 3 Medium, 3 Low); SEC-1/2/3/4 fixed and re-verified 2026-08-09 | 2026-08-09 |
 | 5 | metadata | growth-monetization → release-manager | done — ASO (`docs/ASO.md`) + fastlane metadata written both stores | 2026-08-09 |
 | 6 | compliance | app-store-review-auditor | done — **PASS** re-verified (C-1/C-2/H-1/H-4 closed; H-2/H-3/M-1/M-2/M-3 carried as stage-7 gate conditions) | 2026-08-09 |
-| 7 | publish | store-publisher | uploaded both stores; **awaiting console-only steps before submit** (Apple: privacy label + IAP "Add for Review"; Play: declarations + first rollout) | 2026-08-09 |
+| 7 | publish | store-publisher | uploaded both stores; **awaiting console-only steps before submit** (Apple: privacy label + IAP "Add for Review"; Play: declarations + first rollout). Play listing screenshot `03_statusbar` recaptured from vc3 and re-uploaded 2026-08-15 (images-only edit; no track touched) | 2026-08-15 |
 | 8 | website | general-purpose (froggyeye-website skill) | done — page LIVE at https://honestsignal.froggyeye.com (brought forward; clears compliance C-2). Post-publish follow-ups: refresh_store_urls + postprocess once listings live; drop screenshot1.png after recapture; edit hero meta 'Launching on iOS & Android' | 2026-08-09 |
 
 ## Stage 1 (build) — completed 2026-08-07
@@ -1033,6 +1033,13 @@ all 36; each plated mask still carries its even-odd plate path.
   should be recaptured: it is framed from the settings capture, which has gained
   the "High-contrast icon" row, and its status bar shows the old plain mark.
   Deliberately not recaptured here.
+  **— done 2026-08-15 (store-publisher); superseded, do not act on this again.**
+  See "Play listing screenshot recaptured" below. One correction to the note
+  above: the shot has no status bar in it at all. The harness captures the
+  Flutter surface only (`convertFlutterSurfaceToImage`), so no system status bar
+  is ever in a raw capture — which is exactly why `screenshot_specs.md` §3 frames
+  the *control* that turns the indicator on rather than the indicator itself.
+  Only the missing "High-contrast icon" row was actually stale.
 - Play changelog for versionCode 3 written at
   `android/fastlane/metadata/android/en-GB/changelogs/3.txt` (496 chars, en-GB
   only — house rule 19: notes for a locale the listing lacks are swallowed).
@@ -1077,3 +1084,53 @@ from all three arms of `IndicatorIcons.resourceFor`. The
 coverage but the fixture leaves the field at its default, so it pins agreement
 rather than behaviour. The shipped behaviour is correct — the device capture
 proves it — but nothing stops the next change from silently severing it.
+
+## 1.0.1 released to Play production (conductor, 2026-08-14)
+
+- Code review: **PASS** (0 Critical/Major, 7 Minor N4–N10) — see the section above and `docs/audits/code-review.md`.
+- **History scrub before the public push:** the baseline commit had swept the previously-untracked fastlane trees into the tree — including `ios/fastlane/metadata/review_information/` (founder name + portfolio phone number) and both `report.xml` fastlane logs. Local-only commits were rewritten to exclude those paths, `.gitignore` now pins all three, and after the push the phone-number raw URL was confirmed **404** while the rest of the metadata is public as per house convention. The files remain on disk for `deliver`/local use.
+- Pushed as `195dedc` (rewritten hashes: baseline `9d2840d`, release `e5c26ae`, captures `d61845c`).
+- **Play:** vc3 AAB uploaded via the raw androidpublisher path (34 s; house-facts §28) with the en-GB changelog → internal `completed`, then promoted: production track PUT + plain commit **accepted** (no console click needed for an update, unlike the first rollout). Track read-back: production = `1.0.1 (3) completed`. Google's review/quick checks run automatically; users update when it clears.
+- **Apple:** untouched; 1.0.0 build 1 still WAITING_FOR_REVIEW. The 1.0.1 changes are Android-only — no iOS release is owed for this round.
+- Follow-ups in flight: Play listing screenshot `03_statusbar` recapture from the vc3 build (store-publisher); N4 + minor nits N5/N6/N9/N10 (flutter-architect, point release — no store upload owed until the next release rides); Lucky Numbers promo-page Play button (founder-approved hand edit, website session).
+
+## Play listing screenshot recaptured from vc3 (store-publisher, 2026-08-15)
+
+`03_statusbar` — the only Play listing image the 1.0.1 round left stale — was
+recaptured from the current source and re-uploaded. Nothing else on either store
+was touched: no track, no release, no metadata text, and the App Store set and
+`raw_ios/` were not opened (1.0.0 build 1 is still with Apple).
+
+- **What was actually stale.** The settings screen gained the "High-contrast
+  icon" row in 1.0.1, and the shipped artwork predated it. The 1.0.1 note also
+  said "its status bar shows the old plain mark" — it does not, and could not:
+  the harness captures the Flutter surface, so no raw capture has a system status
+  bar in it. That is the premise of `screenshot_specs.md` §3, which frames the
+  control rather than a composited mock-up of the icon.
+- **Capture.** `flutter drive` + `integration_test/screenshots_test.dart` with
+  `--dart-define=SCREENSHOT_MODE=true` on `Medium_Phone_API_36.1`, light
+  appearance, 1080 × 2400, tier marker `pro` written by the driver.
+- **Only `raw/03_settings.png` was adopted.** The other four captures were
+  restored to the versions that produced the live artwork, because a fresh
+  capture of them differs only in clock-dependent pixels (the history chart's
+  axis label reads the capture time) and the brief was to change one shot. The
+  new "About the status-bar icon" section that 1.0.1 added to How-it-works sits
+  below the fold and does not reach the framed shot. `./render.sh play` then
+  reproduced `01_lying`, `02_home`, `04_history` and `05_method`
+  **byte-for-byte identical** to the live set — which also demonstrates the
+  framing pipeline is deterministic on this machine.
+- **Upload.** Raw androidpublisher edit, not `supply`: Play orders screenshots by
+  upload order, so preserving position means deleting and re-uploading the whole
+  set, and the raw path makes it visible that no track or listing text is in the
+  edit. Staged set was SHA-1-matched against the local files *before* commit.
+- **Server read-back (fresh edit, after commit):** 5 phone screenshots, order
+  preserved, position 2 (0-indexed) now `62704ba776aac1a9a437e418309e662f8a1790d0`
+  = local `3_03_statusbar.png`; the other four SHA-1s unchanged; icon and feature
+  graphic unchanged; production track still `1.0.1 (3) completed`.
+- **Emulator hazard worth knowing:** two capture runs were spoiled by the shared
+  emulator's display size and dark/light appearance changing *mid-run* (captures
+  came out 1320 × 2868, and dark). Neither idle time nor a plain app launch
+  reproduced it, so something outside this session touches `emulator-5554`.
+  Re-asserting `cmd uimode night no` and `wm size reset` immediately before the
+  run, and checking the geometry and appearance of the resulting PNGs rather than
+  trusting the green test result, is the guard.
