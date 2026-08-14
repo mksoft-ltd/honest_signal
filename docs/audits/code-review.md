@@ -848,3 +848,295 @@ its resolution changed.
 ---
 
 Verdict: PASS
+
+---
+
+## 1.0.1 feedback round review — 2026-08-14 (mobile-code-reviewer)
+
+Scope: `git diff 7bcec13..64d53b1` (1.0.1, versionCode 3 — the Android
+status-bar indicator feedback round), plus the verification captures added in
+`409e0fb`. The `Verdict:` line at the end of this section is the current gate
+result for the repo; the `Verdict: PASS` above it is the 1.0.0 record and stands
+as history.
+
+Everything below was established by executing code against the tree, not by
+reading the author's fix notes. Where a file was temporarily mutated to test
+whether a regression test bites, it was restored with `git checkout --` and the
+MD5 re-checked; the hashes and the clean `git status` are recorded at the end.
+
+**Verdict: PASS.** 0 Critical, 0 Major. Seven Minor findings, none
+gate-blocking, listed as N4–N10 to continue the numbering from the 1.0.0 round.
+
+### Gates — re-run by the reviewer, not taken on trust
+
+| Gate | Claimed | Reviewer result |
+|---|---|---|
+| `flutter analyze` | clean | **No issues found!** |
+| `flutter test` | 279/279 | **279/279, 0 skipped** |
+| `flutter build appbundle --release` | 52.0 MB | **exit 0, 52.0 MB** (`build/app/outputs/bundle/release/app-release.aab`) |
+
+Kotlin is covered by the appbundle build, per house-facts §27 — the Dart gates
+compile none of `android/**/kotlin/**`.
+
+### The five new regression tests were checked, not trusted
+
+Each defect was reintroduced, the suite run, and the file restored. All five
+bite, and each fails *only* the test that owns it:
+
+| Reintroduced defect | Test that failed |
+|---|---|
+| `fromJson` … `?? true` → `?? false` | `settings_and_budget_test.dart` — *an install that predates 1.0.1 upgrades with it switched on* |
+| `clampedForTier` adds `highContrastIndicator: true` | `settings_and_budget_test.dart` — *it survives free-tier clamping* |
+| `R.drawable.ic_signal_dots_plate_4` removed from `IndicatorIcons.kt` | `release_invariants_test.dart` — *IndicatorIcons maps every one of them* |
+| the `fillAlpha="0.44"` evenOdd plate path stripped from `ic_signal_dots_plate_4.xml` | `release_invariants_test.dart` — *the plated masks actually carry a plate* |
+| `POST_PROMOTED_NOTIFICATIONS` removed from `AndroidManifest.xml` | `release_invariants_test.dart` — *declares exactly the permissions the spec justifies* |
+
+The `themes` constant in `release_invariants_test.dart` is asserted equal to
+`BarTheme.values.map((t) => t.name)`, so a fourth theme added without masks fails
+the suite rather than shipping a crash. That is the right shape of guard and is
+worth keeping in mind for the next theme.
+
+### The drawable set was verified independently of the generator
+
+The committed test checks that 36 files exist, that `IndicatorIcons.kt` names
+them, and that each plated file contains the two strings `evenOdd` and `0.44`.
+That is existence, not geometry. A checker was written from the PRODUCT_SPEC §8
+prose ("a filled plate at 44% alpha with the lit elements at 100% and a
+transparent moat cut between them… an unlit element gets its moat but keeps its
+interior at plate alpha") rather than from
+`android/tools/generate_indicator_icons.py`, so a bug in the generator could not
+agree with the checker. Across all 3 themes × 6 levels:
+
+- **plain**: exactly 5 elements, exactly `level` at full alpha and `5 - level` at
+  0.28 — all 18 correct.
+- **plate**: exactly one `evenOdd` path at `fillAlpha="0.44"`; its subpath
+  sequence is the rounded-rect outline, then for each of the 5 elements its
+  dilated cut, plus an inner restore subpath for the unlit ones only —
+  `1 + 5 + (5 − level)` subpaths, matched element-for-element against the level-0
+  file. All 18 correct, no exceptions.
+- the plate outline is byte-identical across all 18 files.
+- **the moat is 0.42 viewport units on every element of every theme**, checked
+  numerically rather than by eye: bars cut `w=3.475` vs lit `w=2.635`; dots cut
+  `r=1.583` vs lit `r=1.163`; and for wave, whose lit arcs are strokes rather
+  than fills, the filled outline in the plate sits at radius 4.378 from centre
+  (12, 18.2) — exactly the lit stroke's outer edge at `3.565 + 1.628/2` — while
+  the cut sits at 4.798. The glyph scale is consistent too: every plated
+  dimension is the plain one × 0.775, which is the 18.6/24 implied by the stated
+  plate inset.
+- the plain 18 changed only in float formatting (`fillAlpha="1.0"` → `"1"`) and
+  in arc endpoints by ≤0.005 viewport units (0.005 dp at 24 dp). The claim that
+  they "regenerate byte-for-byte identically apart from float formatting" holds
+  substantively.
+
+`android:fillType` is API 24+ and `minSdk` is 24, so the evenOdd plate is safe at
+the exact floor — no boundary bug there.
+
+All 36 masks survive R8 resource shrinking: `base/res/drawable/ic_signal_*.xml`
+in the release AAB is exactly 36 entries.
+
+### Every point the brief asked about, checked
+
+- **Channel handling on the upgrade path.** Untouched. `CHANNEL_ID` is still
+  `honest_signal_indicator_v2` and the channel is still created at
+  `IMPORTANCE_DEFAULT` with `deleteNotificationChannel(LEGACY_CHANNEL_ID)`; the
+  only lines the diff touches near it are the `NotificationCompat.Builder(this,
+  CHANNEL_ID)` call being hoisted to a local and two comments. Both channel IDs
+  are present in the release dex. house-facts §25 is not at risk in this round.
+- **The `setColorized` / promotion either-or, at the API boundary.**
+  `canPromote()` is `SDK_INT >= Build.VERSION_CODES.BAKLAVA (36) &&
+  NotificationManagerCompat.canPostPromotedNotifications()`. API 35 takes
+  `setColorized(true)`; API 36 takes the chip; API 36 with promoted
+  notifications revoked falls back to `setColorized(true)`. No off-by-one, and
+  the fallback is re-evaluated on every `buildNotification()` rather than
+  cached, which is the right call for a per-app setting the user can toggle
+  while the service runs. `setColor` is applied unconditionally, which
+  `setColorized` requires. See N7 for the one gap in the fallback's trigger.
+- **The plate set × the Pro `barTheme` feature.** `IndicatorIcons.resourceFor`
+  branches on `highContrast` inside all three theme arms, not just the default
+  one, and all three plated arrays are complete. A free user is clamped to
+  `BarTheme.bars` and gets `ic_signal_bars_plate_*`; a Pro user on dots or wave
+  gets the plated variant of their own theme. The toggle is orthogonal to the
+  theme in both directions.
+- **The free-tier clamping claim.** `clampedForTier` pins
+  `foregroundIntervalSeconds`, `backgroundIntervalSeconds`, `barTheme` and
+  `overlayEnabled` and deliberately does not name `highContrastIndicator`, so a
+  free user keeps whatever they chose. The claim is true and the test bites (see
+  the table above). Treating a legibility accommodation as free rather than as a
+  Pro theme is the right product call and the code matches it.
+- **Propagation.** `indicatorControllerProvider` listens to
+  `effectiveSettingsProvider` and calls `sync()` on every change, which sends
+  `ACTION_START`; the service's default branch runs `applyConfig` then
+  `startForegroundIndicator()`, which re-posts the notification, so flipping the
+  switch repaints immediately. It also calls `restartLoop()`, but `runCycle()`
+  returns early while the UI lease is live — and the user flipping a switch is
+  by definition in the app — so the new free toggle is not a way to burn the
+  daily data budget.
+- **Upgrade defaults are consistent on both sides.** Dart:
+  `json['highContrast'] as bool? ?? true`. Kotlin: `prefs.getBoolean(
+  KEY_HIGH_CONTRAST, highContrast)` with the field initialised `true`, including
+  on the `BootReceiver` path through `startIntent`. An install that predates
+  1.0.1 gets the plate from both directions, and a user who switches it off keeps
+  it off across a reboot because `applyConfig` persists it.
+- **Merged manifest.** Re-parsed from the freshly built release AAB's merged
+  manifest, not from source: `ACCESS_NETWORK_STATE, FOREGROUND_SERVICE,
+  FOREGROUND_SERVICE_SPECIAL_USE, INTERNET, POST_NOTIFICATIONS,
+  POST_PROMOTED_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED, SYSTEM_ALERT_WINDOW,
+  com.android.vending.BILLING,
+  com.froggyeye.honestsignal.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` —
+  `POST_PROMOTED_NOTIFICATIONS` is the only addition. `package`
+  `com.froggyeye.honestsignal`, `versionCode 3`, `versionName 1.0.1`,
+  `minSdkVersion 24`, `targetSdkVersion 36`, the four components, and the
+  `specialUse` foreground-service type with its
+  `PROPERTY_SPECIAL_USE_FGS_SUBTYPE` text all unchanged.
+- **The `androidx.core:core-ktx:1.17.0` pin.** The stated reason — that the
+  runtime classpath was already on 1.17.0 while the compile classpath sat at
+  1.13.1 — was checked by resolving both configurations with and without the
+  pin. Without it, `releaseRuntimeClasspath` already resolves
+  `androidx.core:core` to **1.17.0**; with it, `releaseCompileClasspath` joins it.
+  The pin therefore does not change the library version shipping in the APK, so
+  it carries none of the blast radius an androidx bump normally would.
+- **No iOS exposure.** The diff touches nothing under `ios/`, and both new
+  user-facing Dart blocks are inside `if (Platform.isAndroid)` — the
+  "High-contrast icon" switch in `settings_screen.dart` and the "About the
+  status-bar icon" paragraph in `how_it_works_screen.dart`. `IndicatorChannel`
+  no-ops on iOS via `isSupported`. `flutter test` runs on macOS where
+  `Platform.isAndroid` is false, so the 279 green tests — which include
+  `screens_test.dart` and `widgets_test.dart` over both screens — are themselves
+  a render of the non-Android branch. `ios/fastlane/metadata/` contains no
+  mention of a status bar, plate or chip, so nothing in the round can contradict
+  the 1.0.0 submission sitting in review. The `pubspec` bump to `1.0.1+3` affects
+  only a future iOS build, not the uploaded binary.
+- **Play changelog.** `android/fastlane/metadata/android/en-GB/changelogs/3.txt`
+  is **496 characters** (502 bytes; the three `•` are one UTF-16 unit each), so
+  inside Play's 500 limit with four to spare. `en-GB` is the only locale
+  directory, matching the only locale the listing has — house-facts §19 is
+  satisfied. The filename matches versionCode 3. No false claims: it states
+  plainly that "Android tints these icons itself, so coloured bars aren't
+  possible" rather than implying coloured status-bar icons, correctly scopes the
+  chip to Android 16 and the coloured notification to Android 15 and below, and
+  tells the user the plate can be switched off. See N10 for the one word worth
+  a second look.
+- **The verification captures are real and support their claims.**
+  `01_before_after_and_chip.png` shows the vc2 plain mark, the vc3 plated mark on
+  the same light status bar, and the promoted "HS" chip surviving beside ten
+  other notifications; `02_toggle_and_level0.png` shows the switch moving the
+  live icon between plated and plain, and the level-0 plate with five outlined
+  empty slots. Both match what the code produces.
+
+### Minor findings (N4–N10) — none blocking
+
+**N4 — nothing in the suite proves the new toggle does anything.** This is the
+one worth taking first. The setting can be severed at *either* end with all 279
+tests still green, which I confirmed by doing it:
+
+- hardcoding `highContrast: true` in place of `settings.highContrastIndicator`
+  in `indicator_controller.dart:79` and `_settings.highContrastIndicator` in
+  `measurement_controller.dart:233` → **279/279 pass**;
+- deleting the `if (highContrast)` branch from all three arms of
+  `IndicatorIcons.resourceFor`, so the plate is never selected → **279/279
+  pass**.
+
+The assertion that looks like coverage — `expect(channel.starts.single, {…
+'highContrast': true …})` in `indicator_controller_test.dart:188` — passes
+against the hardcode because that fixture leaves `highContrastIndicator` at its
+default `true`. It pins agreement, not behaviour. The five new tests are real and
+they bite, but what they pin is *persistence* (the value survives JSON and
+clamping) and *inventory* (36 files exist and are named); the wire from the
+switch to the drawable is untested at both ends. Concrete fix: give the
+controller test a fixture with `highContrastIndicator: false` and assert `false`
+arrives in `starts.single` and in `publishes.single`, so a hardcoded literal
+fails; and add a Kotlin-side assertion that `resourceFor(theme, level, true)`
+and `resourceFor(theme, level, false)` return *different* ids for all 18 pairs.
+The device evidence in `docs/verification/1.0.1/02_toggle_and_level0.png` shows
+the shipped behaviour is correct — this is about the next person not silently
+breaking it.
+
+**N5 — `SignalColours.kt`'s own invariant comment is already stale.** It says
+"both users of this file draw on their own dark ground whatever theme the phone
+is in", but the same commit adds a third user — `setColor` on the notification —
+which draws in the system shade, and the shade follows the phone's theme. The
+dark ramp's `fair` (`#D8B22E`) and `poor` (`#E8863B`) measure 1.94:1 and 2.53:1
+on the light surfaces the design stage rejected them for, which is exactly why
+`AppColors.light` exists. This is **not** a rendering defect: Android
+contrast-corrects notification accent colours and picks contrasting text over a
+colorized background, so the shade stays legible. But the comment is now the
+kind of stale load-bearing statement it was written to prevent, and it is the
+first thing someone will read before changing the ramp. Reword it to name the
+three users and say why the dark set is still the right choice for the
+notification (the system corrects it) rather than asserting a dark ground that
+no longer exists.
+
+**N6 — a comment overclaims against evidence in the same commit.**
+`HonestSignalService.kt:419-423` says `setColor` "is the colour of the Android 16
+status-bar chip below". The author's own capture
+`01_before_after_and_chip.png` shows the chip in the system's neutral grey while
+the score is 5 bars (`#1FA97A`). No user-facing text repeats the claim — the
+changelog and PRODUCT_SPEC §8 both stop at the shade entry — so nothing shipping
+is wrong; only the comment is. Trim it to what the capture supports.
+
+**N7 — the colorized fallback is keyed on permission, not on outcome.**
+`canPromote()` asks whether the app *may* post promoted notifications. Whether
+the system actually promotes a given post is a separate decision, visible only
+afterwards as `FLAG_PROMOTED_ONGOING` on the posted notification. An Android 16
+device that holds the permission but declines to promote therefore gets neither
+the chip nor the coloured card — strictly less than an Android 15 device gets.
+Promotion did land on the API 36.1 emulator, so this is a theoretical gap rather
+than an observed one, and the notification does hold the documented promotable
+characteristics (ongoing, FGS, short critical text, not colorized). The robust
+form, if it ever proves to matter in the field, is to read the posted
+notification's flags back from `getActiveNotifications()` and re-post colorized
+when promotion did not land.
+
+**N8 — `IndicatorChannel.updateConfig` is dead, and the round extends it.**
+Nothing in `lib/` calls it; the only references are its own definition and the
+fake. The commit adds `required bool highContrast` to it and to the Kotlin
+`configIntent`. Worth noting for whoever revives it: the `ACTION_CONFIG` branch
+runs `applyConfig(intent)` and `restartLoop()` but never `updateNotification()`,
+so a theme or plate change delivered that way would not repaint the icon until
+the next cycle completes. Live settings changes are unaffected — they go through
+`sync()` → `startIndicator` → `startForegroundIndicator()`, which re-posts. Either
+delete the dead path or give `ACTION_CONFIG` an `if (isRunning)
+updateNotification()`.
+
+**N9 — drop the default on `resourceFor`.** `fun resourceFor(theme: String?,
+bars: Int, highContrast: Boolean = true)` has exactly one caller, which passes
+the argument explicitly. The default exists only to be forgotten by a future
+second caller, and forgetting it silently overrides the user's setting rather
+than failing to compile.
+
+**N10 — "solid plate" describes a 44%-alpha plate.** The Settings subtitle
+("Draws the status-bar icon on a solid plate…") and the changelog ("It now sits
+on a solid plate") both use a word PRODUCT_SPEC §8 is careful not to. Reading
+"solid" as filled-rather-than-stroked is defensible and no user will feel misled
+by an icon that is visibly a plate. Flagged only because this app's whole
+positioning is that it does not round its own claims up; "on a plate" loses
+nothing.
+
+### Carried forward for the release stage
+
+`store_assets/screenshots/out/play/03_statusbar.png` is stale — the author
+flagged it in `PIPELINE.md` and deliberately did not recapture it. It is framed
+from the settings screen, which has gained the "High-contrast icon" row, and its
+status bar shows the old plain mark. It must be recaptured before the Play
+listing update, not before the binary upload.
+
+### Files temporarily mutated, and their restoration
+
+Seven mutations were applied to test regression-test bite and to probe coverage.
+Every one was reverted with `git checkout --`, `git status --porcelain` is empty
+at HEAD `409e0fb`, and the MD5s match the pre-mutation values:
+
+| File | MD5 after restore |
+|---|---|
+| `lib/features/settings/domain/app_settings.dart` | `6968b227d55e4d3cc2186d7c8c34fe90` |
+| `lib/features/indicator/data/indicator_controller.dart` | `c8686e83074b3e60ecb4fca93a5846b2` |
+| `lib/features/measurement/data/measurement_controller.dart` | `3e28ea6bdd900b650f2c5188b69aa2e5` |
+| `android/app/src/main/kotlin/com/froggyeye/honestsignal/IndicatorIcons.kt` | `a8888d8e132be205b478a34df1b120bf` |
+| `android/app/src/main/AndroidManifest.xml` | `fbf20ef8e6dc6f6f293ff4d35f6dd574` |
+| `android/app/src/main/res/drawable/ic_signal_dots_plate_4.xml` | `528bd2f7e24f43e73720884ac2a40f46` |
+| `android/app/build.gradle.kts` | `d6b484312d230a79908c2c0b940d6a89` |
+
+Gates re-run on the restored tree: `flutter analyze` **No issues found!** ·
+`flutter test` **279/279**.
+
+Verdict: PASS

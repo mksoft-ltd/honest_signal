@@ -17,7 +17,7 @@ Decisions (founder, 2026-08-07): **free + £2.99 Pro IAP** (native `in_app_purch
 | 1 | build | flutter-architect | done — stage-4 fix round applied 2026-08-09 | 2026-08-07 |
 | 2 | design | ui-designer | done | 2026-08-08 |
 | 3 | test | mobile-qa-architect | done | 2026-08-08 |
-| 4a | code-review | mobile-code-reviewer | done — **PASS** re-verified (2 Critical + 3 Major + N1/N2 fixed; 13 Minor open) | 2026-08-09 |
+| 4a | code-review | mobile-code-reviewer | done — **PASS**. 1.0.0: 2 Critical + 3 Major + N1/N2 fixed and re-verified; 13 Minor open. **1.0.1 (vc3) round re-reviewed 2026-08-14: PASS** — 0 Critical, 0 Major, 7 Minor (N4–N10), gates re-run and all 5 new regression tests confirmed to bite | 2026-08-14 |
 | 4b | security | mobile-security-auditor | done — **PASS** (0 Critical, 0 High, 3 Medium, 3 Low); SEC-1/2/3/4 fixed and re-verified 2026-08-09 | 2026-08-09 |
 | 5 | metadata | growth-monetization → release-manager | done — ASO (`docs/ASO.md`) + fastlane metadata written both stores | 2026-08-09 |
 | 6 | compliance | app-store-review-auditor | done — **PASS** re-verified (C-1/C-2/H-1/H-4 closed; H-2/H-3/M-1/M-2/M-3 carried as stage-7 gate conditions) | 2026-08-09 |
@@ -1036,3 +1036,44 @@ all 36; each plated mask still carries its even-odd plate path.
 - Play changelog for versionCode 3 written at
   `android/fastlane/metadata/android/en-GB/changelogs/3.txt` (496 chars, en-GB
   only — house rule 19: notes for a locale the listing lacks are swallowed).
+
+### Stage 4a — 1.0.1 round re-reviewed 2026-08-14 (mobile-code-reviewer)
+
+**Verdict: PASS.** 0 Critical, 0 Major, 7 Minor (N4–N10). Full detail in
+`docs/audits/code-review.md` under "1.0.1 feedback round review — 2026-08-14".
+Nothing blocks the versionCode 3 upload.
+
+Gates re-run by the reviewer rather than taken from the author's note: `flutter
+analyze` clean · `flutter test` **279/279, 0 skipped** · `flutter build
+appbundle --release` **exit 0, 52.0 MB**.
+
+Checked by executing code, not by reading:
+
+- **All five new regression tests bite.** Each defect was reintroduced, the
+  suite run, the file restored and its MD5 re-checked; each failure was
+  isolated to the test that owns it. `git status` is clean at `409e0fb`.
+- **The 36 masks were verified against a checker written from PRODUCT_SPEC §8
+  prose, not from `generate_indicator_icons.py`**, so a generator bug could not
+  agree with the check. Alpha counts, plate subpath structure, element-for-
+  element matching and the 0.42-unit moat are correct on all 3 themes × 6
+  levels, including wave, whose lit arcs are strokes and whose plate cuts are
+  their filled outlines. All 36 survive R8 resource shrinking in the AAB.
+- **Channel untouched** (`honest_signal_indicator_v2`, IMPORTANCE_DEFAULT, v1
+  still deleted); **API boundary correct** (35 → colorized, 36 → chip, 36 with
+  promotion revoked → colorized); **plate × Pro theme orthogonal** in both
+  directions; **merged manifest from the built AAB gains only
+  `POST_PROMOTED_NOTIFICATIONS`**; **no iOS exposure** (nothing under `ios/`
+  changed and both new Dart blocks are inside `Platform.isAndroid`); **changelog
+  496 chars, en-GB only, no false claims**.
+- **The core-ktx pin was checked both ways**: without it the release *runtime*
+  classpath already resolves `androidx.core:core` to 1.17.0, so the pin only
+  aligns the compile classpath and does not change the library that ships.
+
+The Minor worth taking first is **N4**: the high-contrast toggle has no test
+that proves it does anything. Hardcoding `highContrast: true` at both Dart call
+sites leaves 279/279 green, and so does deleting the `if (highContrast)` branch
+from all three arms of `IndicatorIcons.resourceFor`. The
+`'highContrast': true` assertion in `indicator_controller_test.dart` looks like
+coverage but the fixture leaves the field at its default, so it pins agreement
+rather than behaviour. The shipped behaviour is correct — the device capture
+proves it — but nothing stops the next change from silently severing it.
