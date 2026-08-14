@@ -1009,8 +1009,8 @@ Android 16 this remains OS-controlled and the founder should say so.
 - **Colorized fallback**: forced `canPromote()` false in a throwaway debug build
   to reach the Android 15-and-below path on this API 36 device — the shade card
   renders in the score colour. Reverted; not a real API 34 device.
-- Light and dark status bars both captured. Screenshots in the session
-  scratchpad (`shots/`, `ab1`–`ab5.png`).
+- Light and dark status bars both captured. The captures and what each one
+  proves are in `docs/verification/1.0.1/`.
 
 ### Gates
 
