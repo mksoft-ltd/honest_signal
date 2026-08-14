@@ -460,6 +460,15 @@ Hive's 32-bit integer key limit (history would have crashed on the first sample
 on-device) and a re-entrancy hole where a timer tick landing mid-cycle started a
 second set of probes and double-charged the data budget.
 
+**Re-run 2026-08-09, after the True Signal → Honest Signal rename.** The table
+above is a stage-1 snapshot and its names have been updated to the current ones;
+the row that matters for the rename was re-verified rather than merely retyped —
+the release AOT retains `honestSignalBackgroundMain` in all three ABIs and the
+old `trueSignalBackgroundMain` appears in none of them. The suite has also grown
+since: `flutter test` is now **271/271**, and the merged release manifest carries
+`package="com.froggyeye.honestsignal"` with zero occurrences of the old token
+anywhere in the APK.
+
 ## 13. Notes for downstream stages
 
 - **ui-designer:** the bar mark is drawn three times — `signal_bars.dart`

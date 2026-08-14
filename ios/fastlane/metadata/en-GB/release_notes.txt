@@ -1,0 +1,5 @@
+First release.
+
+Honest Signal measures what your connection can actually do — four timed
+latency probes and a real 120 KB transfer sample per cycle, scored 0 to 5 bars,
+with the full scoring method written down inside the app.

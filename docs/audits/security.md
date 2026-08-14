@@ -817,4 +817,34 @@ skipped**.
 
 ---
 
+### Naming note — this audit predates the rename (added 2026-08-09)
+
+Everything above was written and verified against the **True Signal** build. On
+2026-08-09 the app was renamed to **Honest Signal**; the findings are
+**deliberately not rewritten**, being a dated record of what was inspected in
+the binary. Read `com.froggyeye.truesignal` as `com.froggyeye.honestsignal`,
+`TrueSignalService` as `HonestSignalService`, `trueSignalBackgroundMain` as
+`honestSignalBackgroundMain`, and the `true_signal_*` SharedPreferences files as
+`honest_signal_*`.
+
+**Three identity-bearing checks were re-run against the renamed release build**,
+because a rename invalidates the artifact they were verified against, and all
+three still hold: the merged release manifest carries
+`package="com.froggyeye.honestsignal"` with `allowBackup="false"`,
+`dataExtractionRules` and `networkSecurityConfig` intact; the AOT snapshot
+retains the renamed background entrypoint in all three ABIs; and the iOS
+privacy-symbol scan finds zero references to `AVCaptureDevice`,
+`PHPhotoLibrary`, `UIImagePickerController`, `CLLocationManager`,
+`CNContactStore`, `ATTrackingManager` or `CTTelephonyNetworkInfo`, so "no
+purpose strings required" still stands.
+
+The privacy-policy URL asserted in `release_invariants_test.dart` now points at
+`mksoft-ltd/honest_signal`. **Confirmed live 2026-08-09: HTTP 200.** The check
+was made by extracting the string from `AppConstants.privacyPolicyUrl` and
+fetching *that*, rather than a URL typed into a message — the two drifting apart
+is the failure this house rule exists to catch. `AppConstants.supportUrl`
+(`https://honestsignal.froggyeye.com`) was verified the same way: **200**.
+
+---
+
 Verdict: PASS

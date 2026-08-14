@@ -14,6 +14,7 @@ import 'package:honestsignal/features/measurement/presentation/widgets/freshness
 import 'package:honestsignal/features/measurement/presentation/widgets/history_chart.dart';
 import 'package:honestsignal/features/purchases/data/purchase_controller.dart';
 import 'package:honestsignal/features/purchases/presentation/paywall_screen.dart';
+import 'package:honestsignal/features/settings/presentation/settings_screen.dart';
 import 'package:honestsignal/features/settings/data/settings_repository.dart';
 import 'package:honestsignal/features/settings/domain/app_settings.dart';
 import 'package:honestsignal/shared/widgets/pro_lock.dart';
@@ -100,6 +101,25 @@ void main() {
       expect(find.text('History and graphs'), findsOneWidget);
       expect(find.text('Your own sampling rate'), findsOneWidget);
       expect(find.text('Indicator themes'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('sells nothing the buyer already has, or cannot get here',
+        (tester) async {
+      // H-1. These tests run with `Platform.isAndroid == false`, which is the
+      // iPhone path — the one the compliance audit failed on.
+      await tester.pumpWidget(host(const PaywallScreen()));
+
+      // The daily budget is adjustable on EVERY tier (`clampedForTier` never
+      // touches dailyBudgetMb) and both store listings say so. Selling it here
+      // made the listing contradict itself.
+      expect(find.textContaining('daily data budget'), findsNothing);
+      // The background interval is Android-only, so "once an hour" describes
+      // nothing an iPhone buyer receives.
+      expect(find.textContaining('once an hour'), findsNothing);
+      // What is actually true on iOS.
+      expect(find.textContaining('every 2 seconds'), findsOneWidget);
+      expect(find.textContaining('in the status bar'), findsNothing);
       await unmount(tester);
     });
 
@@ -450,6 +470,30 @@ void main() {
       expect(find.text('2/5'), findsOneWidget);
       // Latency still looks excellent — which is the whole point.
       expect(find.text('stalled'), findsOneWidget);
+      await unmount(tester);
+    });
+  });
+
+  group('settings', () {
+    testWidgets('a Pro buyer can change the indicator style on every platform '
+        'the feature is sold on', (tester) async {
+      // C-1, the compliance Critical. `_ThemePicker` is the only writer of
+      // `barTheme` in the app, and it used to sit inside `if
+      // (Platform.isAndroid)`. These tests run with `Platform.isAndroid ==
+      // false` — the iPhone path — so before the fix nothing here rendered and
+      // an iPhone buyer paid for a feature with no control anywhere.
+      await tester.pumpWidget(host(const SettingsScreen()));
+      await tester.pump();
+
+      expect(find.text('Indicator style'), findsOneWidget);
+      // Platform-true wording: there is no status bar to theme on iOS, so
+      // promising one would be the same inaccuracy in miniature.
+      expect(
+        find.textContaining('Bars, dots or wave — in the app'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('in the status bar'), findsNothing);
+      expect(tester.takeException(), isNull);
       await unmount(tester);
     });
   });

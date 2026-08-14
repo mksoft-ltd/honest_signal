@@ -1,0 +1,1 @@
+wifi,ping,jitter,test,monitor,meter,connection,internet,bandwidth,5g,checker,stability,dropout,4g

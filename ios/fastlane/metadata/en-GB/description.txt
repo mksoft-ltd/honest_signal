@@ -1,0 +1,47 @@
+Your phone's signal icon reports radio strength — how loudly the nearest mast or router is shouting. It says nothing about whether data is actually moving. Everyone has stood somewhere with five bars and a page that will not load.
+
+Honest Signal measures the connection instead of listening to the radio. Every cycle it sends four timed latency probes and downloads a real 120 KB transfer sample, then scores what the connection can actually do — from 0 to 5 bars, with a plain-English verdict underneath and the real numbers next to it.
+
+WHAT IT MEASURES
+
+• Latency — the median round-trip time across four probes
+• Jitter — how much that round trip wobbles between probes
+• Packet loss — how many of the four probes never came back
+• Throughput — timed from a real download, not guessed from ping
+• Network type — Wi-Fi or mobile data, shown beside the score
+
+THE CASE A PING-ONLY TOOL MISSES
+
+A link can answer pings promptly while no real data moves through it. Latency and jitter both look excellent in that state, so anything that only pings will call it healthy. Honest Signal takes a real transfer sample, and when the probes answer but the download will not complete it caps the score at 2 bars and tells you why. That is the "full bars, no data" failure this app exists to expose, and you cannot see it by pinging.
+
+NO MYSTERY SCORE
+
+"How the score works" is a screen in the app, not a footnote. Every curve, weight, threshold and cap is written down: which measurements are blended, what each is worth, where each one reaches zero, and the rules that cap the display no matter what the arithmetic says. If you disagree with the method, you can at least read it.
+
+ALMOST NO DATA
+
+A round of four latency probes costs about 2.8 KB. A transfer sample costs about 120 KB and is taken far less often. A hard daily data budget — 25 MB by default, adjustable from 5 to 250 MB on every tier — sits on the home screen as a live counter rather than being buried in settings. When the budget is spent, latency probes keep running so you still get a reading, and only the transfer sample pauses until midnight.
+
+THIS IS NOT A SPEED TEST
+
+A speed test answers "how fast is this right now, if I spend a couple of hundred megabytes finding out". Honest Signal answers "is this connection actually working", repeatedly, for almost nothing. It does not report dBm or radio strength: the whole premise is that radio strength is the wrong number.
+
+HONEST ABOUT ITS LIMITS
+
+iOS does not let an app measure while it is closed, and Honest Signal never pretends otherwise. Every reading carries its age, and once a reading is a couple of minutes old the app says outright that measuring has stopped and offers a pull to refresh.
+
+HONEST SIGNAL PRO — one-off purchase, no subscription
+
+• History — the last hour and the last 24 hours as a step chart, with summary statistics, so a drop-out you felt is a drop-out you can point at
+• Custom sampling intervals, from 2 to 60 seconds
+• Indicator themes: bars, dots or wave
+
+Buy once, keep it. Restore purchases from the paywall or Settings. The paywall names and explains each feature before it mentions the price.
+
+PRIVACY
+
+No account, no sign-in, no analytics, no advertising, no tracking and no crash reporting. There is no server, so there is nothing for us to receive. Your measurements, settings and the record of your purchase stay in the app's private storage on your device and go when you uninstall.
+
+Measuring a connection means using it, so the app makes real network requests: small, anonymous HTTPS requests to well-known public connectivity-check endpoints operated by Google and Cloudflare — the same kind of endpoint your phone's operating system already uses to spot Wi-Fi sign-in pages. They carry no identifier, no cookie and nothing about you, and nothing comes back except the timing. You can cap the daily budget, lengthen the interval, or switch off measuring on mobile data entirely.
+
+Useful apps. No ads. No dark patterns.

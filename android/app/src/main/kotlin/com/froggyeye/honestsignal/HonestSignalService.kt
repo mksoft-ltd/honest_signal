@@ -32,7 +32,17 @@ import io.flutter.plugin.common.MethodChannel
 class HonestSignalService : Service() {
 
     companion object {
-        private const val CHANNEL_ID = "honest_signal_indicator"
+        /**
+         * Bumped to `_v2` when the importance changed. A channel's importance is
+         * fixed at creation and **cannot be raised** by a later update — the user
+         * owns it from then on — so an install that already created the v1
+         * channel would keep IMPORTANCE_LOW, and keep having no status-bar icon,
+         * forever. A new ID is the only way to move an existing install.
+         */
+        private const val CHANNEL_ID = "honest_signal_indicator_v2"
+
+        /** Deleted on channel setup so the dead v1 entry does not linger in Settings. */
+        private const val LEGACY_CHANNEL_ID = "honest_signal_indicator"
         private const val NOTIFICATION_ID = 4201
         private const val PREFS = "honest_signal_service"
 
@@ -342,19 +352,34 @@ class HonestSignalService : Service() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val manager = getSystemService(NotificationManager::class.java) ?: return
-        // IMPORTANCE_LOW: visible in the status bar (which is the whole point)
-        // but silent and never intrusive. IMPORTANCE_MIN would hide the icon.
+        // IMPORTANCE_DEFAULT, deliberately, despite this notification being
+        // silent. From Android 11 the status bar hides the icon of anything
+        // below IMPORTANCE_DEFAULT — those land in the shade's "Silent" section
+        // only. This channel previously used IMPORTANCE_LOW on the belief that
+        // it was "visible in the status bar but never intrusive"; that was true
+        // before Android 11 and is false now, and it cost the app its headline
+        // Android feature.
+        //
+        // DEFAULT is the lowest importance that still gets an icon. It does not
+        // peek — heads-up needs IMPORTANCE_HIGH — and the sound and vibration it
+        // would otherwise carry are removed on the channel below and again on
+        // the builder, so the result is an icon and nothing else.
         val channel = NotificationChannel(
             CHANNEL_ID,
             "Signal indicator",
-            NotificationManager.IMPORTANCE_LOW,
+            NotificationManager.IMPORTANCE_DEFAULT,
         ).apply {
             description = "Shows your measured connection quality in the status bar."
             setShowBadge(false)
             enableVibration(false)
+            vibrationPattern = null
+            enableLights(false)
             setSound(null, null)
         }
         manager.createNotificationChannel(channel)
+        // Order matters only in that both must happen; the v1 channel is dead
+        // and leaving it would show the user a stale duplicate in Settings.
+        manager.deleteNotificationChannel(LEGACY_CHANNEL_ID)
     }
 
     private fun buildNotification(): Notification {
@@ -383,7 +408,15 @@ class HonestSignalService : Service() {
             .setOngoing(true)
             .setShowWhen(false)
             .setOnlyAlertOnce(true)
+            // Belt and braces with the channel's own silencing: the channel
+            // decides whether an icon appears, this decides whether anything is
+            // heard. Without it, raising the channel to DEFAULT would make every
+            // score change chime.
+            .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_STATUS)
+            // Pre-O only — from API 26 the channel's importance governs, and
+            // PRIORITY_LOW is still right on 24/25, where a low-priority
+            // notification does show a status-bar icon.
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .build()

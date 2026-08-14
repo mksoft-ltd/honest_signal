@@ -6,7 +6,7 @@
      Here, whatever the harness captured is what appears.
 
      Query parameters, all supplied by render.sh from specs.json:
-       ?src=      raw capture filename, relative to raw/
+       ?src=      raw capture filename, relative to ?dir= (default raw/)
        &head=     headline
        &sub=      subheadline (optional)
        &badge=    small pill above the headline (optional, e.g. "Pro")
@@ -122,5 +122,5 @@
   document.getElementById('head').textContent = q.get('head') || '';
   document.getElementById('sub').textContent = q.get('sub') || '';
   document.getElementById('badge').textContent = q.get('badge') || '';
-  document.getElementById('shot').src = 'raw/' + (q.get('src') || '');
+  document.getElementById('shot').src = (q.get('dir') || 'raw') + '/' + (q.get('src') || '');
 </script>

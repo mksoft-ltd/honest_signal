@@ -27,8 +27,8 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.only(bottom: 32),
         children: [
+          const _SectionHeader('Indicator'),
           if (Platform.isAndroid) ...[
-            const _SectionHeader('Indicator'),
             SwitchListTile(
               title: const Text('Status-bar indicator'),
               subtitle: const Text(
@@ -52,14 +52,23 @@ class SettingsScreen extends ConsumerWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/settings/overlay'),
             ),
-            _ThemePicker(
-              current: effective.barTheme,
-              isPro: isPro,
-              onChanged: (value) =>
-                  controller.update((s) => s.copyWith(barTheme: value)),
-              onLocked: () => context.push('/pro'),
-            ),
           ],
+          // Deliberately NOT inside the Android block. This is the only writer
+          // of `barTheme` in the app, and Pro sells "indicator themes" on both
+          // stores — gating it behind Android left an iPhone buyer paying for a
+          // feature with no control anywhere in the app. The mark itself is
+          // already themed on iOS (`home_screen` passes barTheme to SignalBars),
+          // so only the control was missing.
+          _ThemePicker(
+            current: effective.barTheme,
+            isPro: isPro,
+            description: Platform.isAndroid
+                ? 'Bars, dots or wave — in the app and in the status bar.'
+                : 'Bars, dots or wave — in the app.',
+            onChanged: (value) =>
+                controller.update((s) => s.copyWith(barTheme: value)),
+            onLocked: () => context.push('/pro'),
+          ),
           const _SectionHeader('Measurement'),
           _IntervalTile(
             title: 'While the app is open',
@@ -196,36 +205,55 @@ class _ThemePicker extends StatelessWidget {
   const _ThemePicker({
     required this.current,
     required this.isPro,
+    required this.description,
     required this.onChanged,
     required this.onLocked,
   });
 
   final BarTheme current;
   final bool isPro;
+
+  /// What the chosen style actually affects, which differs by platform: on iOS
+  /// there is no status bar to theme, so promising one would be the same
+  /// inaccuracy in miniature.
+  final String description;
   final ValueChanged<BarTheme> onChanged;
   final VoidCallback onLocked;
 
   @override
   Widget build(BuildContext context) {
+    final appTheme = Theme.of(context);
     return ListTile(
       title: const Text('Indicator style'),
-      subtitle: Padding(
-        padding: const EdgeInsets.only(top: 10),
-        child: Row(
-          children: [
-            for (final theme in BarTheme.values)
-              Padding(
-                padding: const EdgeInsets.only(right: 14),
-                child: _ThemeSwatch(
-                  theme: theme,
-                  selected: theme == current,
-                  locked: !isPro && !theme.isFree,
-                  onTap: () =>
-                      (!isPro && !theme.isFree) ? onLocked() : onChanged(theme),
-                ),
-              ),
-          ],
-        ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            description,
+            style: appTheme.textTheme.bodySmall?.copyWith(
+              color: appTheme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              children: [
+                for (final barTheme in BarTheme.values)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 14),
+                    child: _ThemeSwatch(
+                      theme: barTheme,
+                      selected: barTheme == current,
+                      locked: !isPro && !barTheme.isFree,
+                      onTap: () => (!isPro && !barTheme.isFree)
+                          ? onLocked()
+                          : onChanged(barTheme),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

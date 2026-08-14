@@ -50,3 +50,8 @@ app.*.map.json
 /store_assets/screenshots/raw/*
 !/store_assets/screenshots/raw/.gitkeep
 /store_assets/screenshots/out/
+
+# Store review contact details (names, phone) — repo is public; keep these local-only
+/ios/fastlane/metadata/review_information/
+/ios/fastlane/report.xml
+/android/fastlane/report.xml

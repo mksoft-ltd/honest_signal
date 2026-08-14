@@ -1,0 +1,1 @@
+Your bars show radio strength, not whether data is moving. Honest Signal times four probes and a real 120 KB transfer, then scores what the connection can actually do.

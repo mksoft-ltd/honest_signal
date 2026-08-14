@@ -832,4 +832,19 @@ skipped**.
 
 ---
 
+### Naming note — this audit predates the rename (added 2026-08-09)
+
+Everything above was written and verified while the app was called **True
+Signal**. On 2026-08-09 it was renamed to **Honest Signal**, and the findings
+have **deliberately not been rewritten** — they are a dated record of what was
+inspected. Read every `com.froggyeye.truesignal`, `TrueSignalService`,
+`TrueSignalApp`, `trueSignalBackgroundMain` and
+`android/app/src/main/kotlin/com/froggyeye/truesignal/` above as the old name of
+the thing now called `com.froggyeye.honestsignal`, `HonestSignalService`,
+`HonestSignalApp`, `honestSignalBackgroundMain` and
+`.../kotlin/com/froggyeye/honestsignal/`. The code itself moved; no finding or
+its resolution changed.
+
+---
+
 Verdict: PASS

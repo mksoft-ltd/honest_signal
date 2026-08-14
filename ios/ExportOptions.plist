@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  App Store export options.
+
+  Manual signing, not automatic: the App Store Connect API key has the App
+  Manager role, which cannot mint certificates or profiles via Xcode cloud
+  signing (`xcodebuild -allowProvisioningUpdates` fails with "Cloud signing
+  permission error"). The profile named below is created once via
+  POST /v1/profiles and installed into ~/Library/MobileDevice/Provisioning
+  Profiles/.
+-->
+<plist version="1.0">
+<dict>
+	<key>method</key>
+	<string>app-store-connect</string>
+	<key>teamID</key>
+	<string>696939LPWV</string>
+	<key>signingStyle</key>
+	<string>manual</string>
+	<key>signingCertificate</key>
+	<string>Apple Distribution</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>com.froggyeye.honestsignal</key>
+		<string>HonestSignal App Store</string>
+	</dict>
+	<key>uploadSymbols</key>
+	<true/>
+	<key>manageAppVersionAndBuildNumber</key>
+	<false/>
+	<key>destination</key>
+	<string>export</string>
+</dict>
+</plist>

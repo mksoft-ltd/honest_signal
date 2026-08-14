@@ -19,10 +19,10 @@ Decisions (founder, 2026-08-07): **free + £2.99 Pro IAP** (native `in_app_purch
 | 3 | test | mobile-qa-architect | done | 2026-08-08 |
 | 4a | code-review | mobile-code-reviewer | done — **PASS** re-verified (2 Critical + 3 Major + N1/N2 fixed; 13 Minor open) | 2026-08-09 |
 | 4b | security | mobile-security-auditor | done — **PASS** (0 Critical, 0 High, 3 Medium, 3 Low); SEC-1/2/3/4 fixed and re-verified 2026-08-09 | 2026-08-09 |
-| 5 | metadata | growth-monetization → release-manager | in-progress — ASO done (`docs/ASO.md`), release-manager next | 2026-08-09 |
-| 6 | compliance | app-store-review-auditor | pending | |
-| 7 | publish | store-publisher | pending | |
-| 8 | website | general-purpose (froggyeye-website skill) | pending | |
+| 5 | metadata | growth-monetization → release-manager | done — ASO (`docs/ASO.md`) + fastlane metadata written both stores | 2026-08-09 |
+| 6 | compliance | app-store-review-auditor | done — **PASS** re-verified (C-1/C-2/H-1/H-4 closed; H-2/H-3/M-1/M-2/M-3 carried as stage-7 gate conditions) | 2026-08-09 |
+| 7 | publish | store-publisher | uploaded both stores; **awaiting console-only steps before submit** (Apple: privacy label + IAP "Add for Review"; Play: declarations + first rollout) | 2026-08-09 |
+| 8 | website | general-purpose (froggyeye-website skill) | done — page LIVE at https://honestsignal.froggyeye.com (brought forward; clears compliance C-2). Post-publish follow-ups: refresh_store_urls + postprocess once listings live; drop screenshot1.png after recapture; edit hero meta 'Launching on iOS & Android' | 2026-08-09 |
 
 ## Stage 1 (build) — completed 2026-08-07
 
@@ -378,10 +378,11 @@ new package ID means a fresh data directory regardless); Dart package
 **Deliberately NOT touched:**
 
 - `ios/Flutter/Generated.xcconfig`, `flutter_export_environment.sh` and
-  `ephemeral/*.env` — generated files holding the absolute path
-  `/Users/kevinlam/projects/true_signal`, which is still **correct** because the
-  directory has not been renamed. A blind rename here would have broken the iOS
-  build.
+  `ephemeral/*.env` — generated files holding the absolute project path. A blind
+  rename here would have broken the iOS build. **Confirmed self-healing:** after
+  the directory was renamed to `/Users/kevinlam/projects/honest_signal`, the next
+  `flutter build ios --simulator --debug` regenerated them with the new path and
+  succeeded. No manual edit was ever needed.
 - `store_assets/` — design-truesignal's territory this round.
 - `docs/audits/*.md` — signed, dated audit artifacts. They still say "True
   Signal" and cite `TrueSignalService.kt` / `com/froggyeye/truesignal/`. Left as
@@ -406,3 +407,539 @@ references to `AVCaptureDevice`, `PHPhotoLibrary`, `UIImagePickerController`,
 `CLLocationManager`, `CNContactStore`, `ATTrackingManager` or
 `CTTelephonyNetworkInfo`, so the "no purpose strings required" finding still
 holds under the new identity.
+
+## Rename completion + URL liveness (conductor, 2026-08-09)
+- Directory renamed: `~/projects/true_signal` → `~/projects/honest_signal` (iOS generated xcconfigs regenerate on next build).
+- Repo pushed public: https://github.com/mksoft-ltd/honest_signal (sensitive-file scan clean; no keystore exists yet).
+- Privacy policy URL LIVE (200): https://raw.githubusercontent.com/mksoft-ltd/honest_signal/refs/heads/main/PRIVACY_POLICY.md
+- Subdomain LIVE (200, SSL): https://honestsignal.froggyeye.com (content = stage 8; placeholder acceptable for review).
+- Resequence per ASO finding: subdomain + repo push were pre-stage-7 blockers (both URLs are compiled into the binary) — DONE. Stage 8 keeps only promo-page content/SEO/site-grid work.
+- Stage 7 must RECAPTURE screenshots from the renamed binary (design deleted raw/ deliberately — old captures showed "True Signal" in-app).
+
+## Stage 5b (store metadata) — completed 2026-08-09 (release-manager)
+
+Store text written into the fastlane layouts, **en-GB only on both stores** —
+the Play record was created en-GB and the ASC record's `primaryLocale` was
+confirmed `en-GB` by live API read of app `6799269422`. No en-US mirror was
+written: house-facts #19 (release notes for a locale the listing does not have
+are accepted, never shown, and pollute later reads).
+
+Files written:
+
+- `ios/fastlane/metadata/en-GB/` — `name`, `subtitle`, `keywords`,
+  `promotional_text`, `description`, `release_notes`, `support_url`,
+  `marketing_url`, `privacy_url`
+- `ios/fastlane/metadata/` — `copyright.txt` (`© 2026 Froggy Eye Ltd`),
+  `primary_category.txt` (`UTILITIES`), `secondary_category.txt`
+  (`PRODUCTIVITY`)
+- `ios/fastlane/metadata/review_information/` — `notes.txt`, `first_name`,
+  `last_name`, `email_address`, `phone_number` (`+447415533188`),
+  `demo_account_required` (`false`)
+- `ios/fastlane/app_privacy_details.json` — `DATA_NOT_COLLECTED`
+- `android/fastlane/metadata/android/en-GB/` — `title`, `short_description`,
+  `full_description`, `changelogs/1.txt` + `changelogs/default.txt`
+  (versionCode 1, from `pubspec` `1.0.0+1`; nothing is live on either store, so
+  there is no drift to reconcile under house-facts #20)
+- `android/fastlane/data_safety_answers.md` — Data safety, App content, IARC
+  questionnaire, the `specialUse` FGS declaration text, the
+  `SYSTEM_ALERT_WINDOW` justification, and the declarations that must **not** be
+  filed
+
+No `video.txt` was written for Play. There is no promo video, and the sibling
+shipped apps omit the file rather than shipping it empty; an empty file makes
+`supply` write an empty string to the listing.
+
+Every length-capped field was checked programmatically. **Three fields sit at
+exactly their limit and must not be edited without a re-count:** both titles
+(30/30) and the App Store subtitle (30/30). Keywords 97/100, promotional text
+167/170, App Store description 3982/4000, review notes 3984/4000, Play full
+description 3973/4000, Play changelog 445/500.
+
+Copy constraints honoured: no absolute network claim (Play Billing's Firelog
+client ships — security audit SEC-5); no background-measurement claim on iOS,
+which the App Store description states outright as a limitation; the Android
+status-bar indicator and floating bubble appear only in the Play listing; no
+occurrence of the rival's strings (`TrueSignal` unspaced, "bars lie"); and no
+new data-retention figure — 25 hours stays single-sourced in
+`PRIVACY_POLICY.md` and the data-safety sheet, while the "last 24 hours" in
+store copy is the History *view range*, not retention.
+
+**Open for stages 6/7** (detail and reasoning in `data_safety_answers.md` §9):
+
+1. Play's foreground-service declaration needs **a link to a video** showing the
+   status-bar indicator working with the app closed. No such recording exists.
+   Most likely thing to stall the Play submission; does not affect Apple.
+2. `android/upload-keystore.jks` + `key.properties` still not generated.
+3. IAP `com.froggyeye.honestsignal.pro` not created on either store. Play needs
+   a billing-permission artifact **active in a track** first; feed the price as
+   **£2.4917** ex-VAT for a £2.99 shelf price.
+4. Apple's privacy nutrition label must be **published in ASC by the founder**
+   (the API 404s on `appDataUsages`) — the JSON here is the source of truth for
+   what to enter.
+5. Privacy-policy URL is raw Markdown. It is the house convention and returns
+   200, but it renders as plain text; the blessed HTML alternative is GitHub
+   Pages. Switching is a **code change** (`AppConstants.privacyPolicyUrl` is
+   compiled in and asserted in `release_invariants_test.dart`), so stage 6 should
+   rule on it rather than stage 7 discovering it.
+6. Uploading `name.txt` renames the ASC record from "Honest Signal" to the full
+   30-char title "Honest Signal: Network Quality". Apple checks name uniqueness
+   at that point, so a `deliver` failure there is a name collision, not a
+   formatting error.
+
+## Stage 6 (store compliance) — FAILED 2026-08-09
+
+Full report: `docs/audits/store-compliance.md`. **Verdict: FAIL** — 2 Critical,
+4 High, 3 Medium, 3 Low. Audited against the built artifacts (merged release
+manifest parsed as XML, the release APK, the built `Runner.app`, the resolved pub
+cache, the live GitHub API and live URLs), not against the stage notes.
+
+**Blocking:**
+
+- **C-1 (Apple 2.3.1 / 3.1.1)** — iOS Pro sells a feature the iOS build does not
+  implement. `_ThemePicker` is the only writer of `barTheme` anywhere in `lib/`
+  and it sits inside `if (Platform.isAndroid) ...[ … ]` in `settings_screen.dart`
+  (lines 30–62), so on iPhone the theme is permanently `bars` and a £2.99 unlock
+  changes nothing about it. Advertised in three places, and the third points the
+  reviewer straight at it: `ios/fastlane/metadata/en-GB/description.txt:37`,
+  `paywall_screen.dart:94-98` (not platform-gated, unlike the "Floating
+  indicator" bullet directly above it), and
+  `review_information/notes.txt:33`. The capability exists — `home_screen.dart:90`
+  already themes the iOS mark — so the preferred fix is to ungate the picker and
+  make its subtitle platform-aware, not to delete the claim.
+- **C-2 (Apple 1.5)** — `support_url.txt` and `marketing_url.txt` both hold
+  `https://honestsignal.froggyeye.com`, which returns **200 serving Hostinger's
+  default parking page** ("All you have to do now is upload your website files").
+  The 200 is why stage 5 and the "placeholder acceptable for review" note above
+  both recorded it as live; **it is not acceptable** — a reviewer reads the page
+  and sees another company's onboarding instructions. `luckynumbers.froggyeye.com`
+  serves a real page, so the subdomain exists with an empty docroot. Fix: bring
+  stage 8's page forward, or fall back to `https://froggyeye.com` (metadata-only —
+  `AppConstants.supportUrl` has **no consumer in `lib/`**, only a test assertion,
+  so the binary is unaffected either way).
+
+**Also required before submission:** H-1 (paywall claims "as rarely as once an
+hour" — Android-only — and "set your own daily data budget", which
+`clampedForTier` never restricts on either tier, contradicting both store
+descriptions); H-2 (Play FGS demo video still does not exist); H-3 (the release
+APK is **debug-signed**, `CN=Android Debug`, verified with `apksigner`); H-4 (the
+privacy-URL ruling below).
+
+> **⚠ H-3 above is SUPERSEDED — do not act on it.** The upload keystore was
+> generated at the start of stage 7 (2026-08-09 09:46) and every release artifact
+> since is signed `CN=Froggy Eye Ltd`; see "Signing (closes compliance H-3)" in
+> the stage-7 section for the certificate read-back. **Never run
+> `keytool -genkeypair` against `android/upload-keystore.jks` again** — an
+> artifact has already been uploaded to Play under that key, so overwriting it
+> makes every future AAB fail Play's upload-certificate check, recoverable only
+> by an upload-key reset request to Google. This pointer exists because the stale
+> line above already misled one agent into reporting H-3 as open.
+
+**Privacy-policy URL — RULED: switch to rendered HTML before the submission
+build.** On its own the raw `.md` is a soft risk (200, `text/plain` with
+`nosniff`, so it displays inline and is legible, and its content is adequate for
+5.1.1) and I would have passed it with a recommendation. What makes it required
+is that C-1 and H-1 both change compiled Dart, so **a code round is mandatory
+anyway** — the marginal cost of one constant plus one test assertion is ~zero and
+it retires a recurring portfolio risk. Target
+`https://mksoft-ltd.github.io/honest_signal/privacy_policy.html`: it is
+independent of stage 8's timing, unlike a froggyeye.com path. Note
+`gh api repos/mksoft-ltd/honest_signal` reports **`has_pages: false`** and the
+HTML file is not in the tree — enabling Pages is a separate step that has been
+skipped after a "successful" push before (ByeByeJob). Update the constant,
+`release_invariants_test.dart:35`, `privacy_url.txt` and
+`data_safety_answers.md` §1 together, then curl the URL **extracted from the
+constant** and confirm 200 `text/html`.
+
+**Verified clean, so stage 7 need not re-litigate:** 16 KB page alignment (all
+nine `.so` ≥16384 `p_align` — a Play requirement for targetSdk 35+ that nothing
+else in this pipeline had checked), Play Billing **8.0.0** in the dex, targetSdk
+36 / minSdk 24, the nine-permission merged manifest with no `AD_ID`,
+`allowBackup="false"` + the four `domain` excludes, cleartext disabled,
+`ITSAppUsesNonExemptEncryption=false` in the **built** plist, `MinimumOSVersion
+15.0`, `TARGETED_DEVICE_FAMILY = 1` in all three configs, zero privacy-class
+symbols in the built binary, no app-level `PrivacyInfo.xcprivacy` needed
+(`path_provider_foundation` resolved to 2.6.0, which is FFI-based and ships no
+plugin), and **no IAP bypass in a release binary** — `ScreenshotMode.isEnabled`
+is `_flag && !kReleaseMode` and `debugForcePro()` is inside `assert(() { … }())`.
+
+I agree with SEC-5's stage-6 note: **"No data collected" holds on both stores**
+and `data_safety_answers.md` says the right things. Checked rather than
+inherited — the datatransport CCT backend is Play Billing's own client inside
+Play's purchase-processing carve-out, the probes carry no identifier, and
+`pubspec.yaml` genuinely holds no analytics/ads/attribution/crash SDK.
+
+**iOS 2.5.4 is not engaged at all** (no `UIBackgroundModes` in source or in the
+built plist). **4.2 is Low** — the iOS free tier is live measurement, five
+metrics, a verdict, freshness, a budget counter and the published method, with
+history charts on Pro. The description's "HONEST ABOUT ITS LIMITS" section and
+the in-app staleness copy are what keep it low and **must not be edited away**.
+
+**`specialUse` assessment: probably survives, Medium risk, expect one round of
+correspondence.** The 6-hour `dataSync` cap rebuttal is correct and should be
+filed verbatim. Three additions are in the report: lead with "the notification's
+icon *is* the feature", state that the user can stop it from inside the app, and
+pre-empt the likelier counter-argument — not "use dataSync" but "use WorkManager
+and a plain notification" — with WorkManager's 15-minute floor and Doze
+deferral, which for an app whose claim is that the number is honest makes the
+reading not degraded but false.
+
+**Additions to the stage-5 checklist:** the two Criticals and H-1; re-run
+analyze + suite and rebuild both platforms after the code round; capture
+screenshots from the post-C-1 binary (`raw/` holds only `.gitkeep`) and open
+every rendered PNG; check `05_pro` — ASC's IAP review screenshot — for the
+Android-only "Floating indicator" bullet, since the harness is Android-only by
+design (M-1); generate the **512×512 Play icon**, which does not exist while the
+1024 masters make the set look complete; and create both fastlane image
+directories, neither of which exists.
+
+## Stage 6 fix round — C-1 / H-1 / H-4 — 2026-08-09 (flutter-architect)
+
+Gates: `flutter analyze` clean · `flutter test` **273/273, 0 skipped** (2 new) ·
+`flutter build apk --release` ✅ 52.9 MB · `flutter build ios --simulator
+--debug` ✅. Both platforms rebuilt as required.
+
+**C-1 (Critical).** `_ThemePicker` moved out of the `if (Platform.isAndroid)`
+block in `settings_screen.dart`; the `Indicator` section header now renders on
+both platforms with the two Android-only tiles gated inside it. The picker takes
+a `description` that is platform-true — "in the app and in the status bar" on
+Android, "in the app" on iOS — because there is no status bar to theme on
+iPhone. Nothing else changed: `home_screen` already fed `barTheme` to
+`SignalBars` on iOS, so the capability existed and only the control was missing.
+
+**H-1 (High).** Both offending paywall bullets are now platform-specific. The
+daily-data-budget claim is **gone entirely** — `clampedForTier` never touches
+`dailyBudgetMb`, so it is free on both tiers and both store listings say "on
+every tier" out loud. The interval bullet no longer promises a background rate
+on iOS, where there is no background measurement.
+
+**Regression tests — verified to bite.** There was no `SettingsScreen` widget
+test at all. Added two, in `screens_test.dart`. Widget tests run with
+`Platform.isAndroid == false`, which *is* the iPhone path, so they test exactly
+the case that failed. Confirmed by reintroducing both defects: the C-1 test fails
+`Found 0 widgets with text "Indicator style"`, and the H-1 test fails
+`Found 1 widget with text containing daily data budget`. Both restored.
+
+**H-4 (High).** Privacy-policy URL moved to the rendered-HTML variant in all
+four places — `AppConstants.privacyPolicyUrl`, `release_invariants_test.dart`,
+`ios/fastlane/metadata/en-GB/privacy_url.txt`,
+`android/fastlane/data_safety_answers.md` — verified byte-identical across all
+four. The doc comment on the constant, which still described it as the raw
+Markdown URL, was corrected. The test now also asserts the URL ends in `.html`,
+so a future edit cannot quietly go back to raw Markdown.
+
+Verified by extracting the string **from the constant** and fetching that:
+
+```
+https://mksoft-ltd.github.io/honest_signal/privacy_policy.html
+  status=200  content-type=text/html; charset=utf-8
+```
+
+The rebuilt release APK contains that URL and **zero** occurrences of the old
+`raw.githubusercontent.com` one.
+
+**`privacy_policy.html` is now generated, not hand-written.** The committed copy
+rendered every hard-wrapped source line as its own `<p>` — 47 paragraphs for 25
+Markdown blocks, and no `<ul>` at all. `scripts/build_privacy_html.py`
+(dependency-free) now renders it: 8 `<h2>` for 8 Markdown headings, 3 `<ul>`
+holding 9 `<li>` for 9 bullets, inline bold/italic/code/links, and paragraphs
+joined properly. `PRIVACY_POLICY.md` remains the source of truth; re-run the
+script after any edit.
+
+### ⚠ Outstanding — needs a push, not a code change
+
+**The live page still serves the OLD rendering.** The improved
+`privacy_policy.html` is regenerated locally but **not committed or pushed**, so
+`mksoft-ltd.github.io` still returns the 47-paragraph version (confirmed by
+diffing the live response against the local file). H-4's *requirement* — 200,
+`text/html` — is already satisfied by the live page, so this is a quality gap
+rather than a compliance gap, but it should ship before submission.
+
+I did not push: the repo is **public**, and the working tree carries a lot of
+uncommitted pipeline output (`ios/fastlane/`, `android/fastlane/`,
+`docs/audits/store-compliance.md` are all untracked). Deciding what becomes
+public belongs to the conductor, and the security audit's own advice is to check
+what a `git add .` would sweep in before the first push.
+
+## Stage 6 — re-verified PASS 2026-08-09
+
+Fix round by flutter-architect (C-1, H-1, H-4) re-verified by
+app-store-review-auditor. Stage 8 incidentally closed C-2. **Verdict: PASS** —
+every defect in code and metadata is closed. Detail in the "Re-verification"
+section of `docs/audits/store-compliance.md`.
+
+Gates re-run by the auditor rather than quoted: `flutter analyze` clean ·
+`flutter test` **273/273, 0 skipped**.
+
+- **C-1** — `_ThemePicker` is out of the `Platform.isAndroid` block and genuinely
+  functional on iOS (Pro gate routes a locked tap to the paywall; `onChanged`
+  writes through the real controller). Their regression test was **checked, not
+  trusted**: re-gating the picker reproduces `Found 0 widgets with text
+  "Indicator style"`, and the file was restored to `md5
+  06402cf76d7fc93121ab012f90b51f60`. Their point about widget tests running with
+  `Platform.isAndroid == false` — the same branch an iPhone takes — is correct
+  and is why this test is meaningful rather than decorative.
+- **H-1** — both bullets checked against the constants, not the prose: iOS "every
+  2 seconds… instead of the standard 5" matches `minForegroundInterval`/
+  `defaultForegroundInterval`; Android "once a minute to once an hour" matches
+  60/3600 s. Deleting the data-budget claim rather than rewording it was right.
+  Test bites (`Found 1 widget with text containing daily data budget`); restored.
+- **H-4** — all four copies agree; the URL was **extracted from the constant and
+  that string fetched**: 200 `text/html`. **Their caveat is stale** — commit
+  `70e696c` is on `main`, `main` is in sync with `origin/main`, and the live page
+  is **byte-identical** to the local file (4,547 bytes, 15 `<p>`, 8 `<h2>`,
+  3 `<ul>`), with viewport/charset/title. No push decision is outstanding; the
+  fastlane trees, `scripts/` and the audit remain untracked and private.
+- **C-2** — `honestsignal.froggyeye.com` now serves the real promo page. Body
+  read, not just the status code: Android-only features are qualified in place
+  and the FAQ says outright that the status-bar indicator does not work on
+  iPhone. Its unqualified "Indicator themes" Pro line is correct **because** C-1
+  was fixed by ungating rather than by deleting the claim.
+
+**Carried into stage 7 as gate conditions** (not compliance defects — stage 7
+produces these): H-2 the FGS demo video, which needs a signed build on a device
+and is therefore downstream of H-3; H-3 the upload keystore — checked the hazard
+of generating one in a now-public repo, and `android/.gitignore` already excludes
+`key.properties`, `**/*.keystore` and `**/*.jks` (confirmed with
+`git check-ignore -v`), so it is safe; M-1 the `05_pro` IAP review screenshot vs
+the Android-only paywall bullet; M-2 the 512×512 Play icon and the fact that no
+screenshots exist at all; M-3 the `specialUse` declaration wording.
+
+> **All five were produced in stage 7 — none is outstanding.** H-3 the keystore
+> (2026-08-09 09:46; **never re-run `keytool -genkeypair` against it** — see the
+> superseded note in the stage-6 FAILED block above for why), H-2 the demo video
+> (live), M-1 the IAP review screenshot (recaptured on iOS — the Android one
+> showed "billed by Google Play"), M-2 the 512×512 icon and both screenshot sets,
+> M-3 filed with the declaration text. Detail in the stage-7 section.
+
+**Trap for whoever re-checks a `Platform.isX ?` fix in the APK — the Android
+artifact cannot verify an iOS branch.** Two mechanisms, both of which look like a
+broken build: any literal containing a non-Latin-1 character (an em-dash, so most
+of this app's copy) is stored as a Dart **TwoByteString** and is invisible to an
+ASCII byte grep — search UTF-16LE instead; and `Platform.isAndroid` is
+`@pragma("vm:platform-const")` in this SDK, so AOT folds the ternary and
+tree-shakes the dead branch, meaning the iOS strings are *supposed* to be absent
+from `libapp.so`. Verify iOS-branch copy in the widget suite or an iOS build.
+
+## Critical Android fix — status-bar icon hidden by IMPORTANCE_LOW — 2026-08-09
+
+The channel used `IMPORTANCE_LOW` on the belief, recorded in a comment, that it
+was "visible in the status bar but never intrusive". That was true before
+Android 11 and false since: anything below `IMPORTANCE_DEFAULT` gets **no
+status-bar icon** and lands in the shade's Silent section only. The status-bar
+icon is the product's headline Android feature, so the app was shipping without
+it. Comment corrected in place.
+
+**Fix.** Channel raised to `IMPORTANCE_DEFAULT` and kept genuinely silent —
+`setSound(null, null)`, `enableVibration(false)`, `vibrationPattern = null`,
+`enableLights(false)` on the channel, plus `setSilent(true)` on the builder.
+Channel ID bumped to `honest_signal_indicator_v2` because **importance is fixed
+at creation and cannot be raised by a later update**; the v1 channel is deleted
+by ID on setup. `setPriority(PRIORITY_LOW)` is kept deliberately: it applies only
+below API 26, where a low-priority notification *does* show a status-bar icon.
+
+**Verified by running it, on the stock emulator (API 36 / Android 16,
+`sdk_gphone64_arm64`), release build, real network — not by reading.**
+
+| Check | Evidence |
+|---|---|
+| Bug reproduced first | Rebuilt with v1/`IMPORTANCE_LOW`, clean install: `mImportance=2`, **no icon** in the status bar. Confirms the publisher's finding independently. |
+| (a) Icon renders | 5-bar icon present after the clock. Proven by A/B: `am force-stop` removes it and the neighbouring icons shift left; restart brings it back. |
+| (b) No sound / vibration | `isNoisy=false`, `sound=null`, `vibrate=null`, channel `mSound=null`, `mVibrationEnabled=false`, notification flag `SILENT`. |
+| (b) No heads-up peek | `headsUpContentView=null`, no HeadsUpManager entries, and **six rapid screenshots across a live score change show no banner**. |
+| (c) Icon updates with score | Killing the network changed the drawable `0x7f060023` → `0x7f06001e`, confirmed visually (solid 5 bars → dimmed mark) and back again on restore. |
+| Upgrade path | Installed the broken v1 build, then upgraded **over it** without uninstalling: icon appears, `v2 mImportance=3 mDeleted=false`, `v1 mImportance=2 mDeleted=true`. This is the case the ID bump exists for. |
+
+One field worth not misreading: the record shows `requestedImportance=2`
+alongside `naturalImportance=3`. The 2 is `NotificationCompat`'s mapping of the
+pre-O `PRIORITY_LOW`; from API 26 the channel governs and the effective
+`importance=3`. Likewise `mIsInterruptive=true` appears on a content update —
+that is Android's ranking bookkeeping, not a peek; `isNoisy=false` and the frame
+captures are the alerting evidence.
+
+**Version.** `pubspec.yaml` → `1.0.0+2`; merged release manifest confirms
+`versionCode="2"`, `versionName="1.0.0"`, `foregroundServiceType="specialUse"`.
+**iOS was not rebuilt** — build 1 is already uploaded and valid.
+
+Gates: `flutter analyze` clean · `flutter test` **273/273, 0 skipped** ·
+`flutter build appbundle --release` ✅ 51.9 MB.
+
+## Stage 7 (publish) — 2026-08-09 (store-publisher)
+
+Both stores hold the build, the listing and the IAP. **Nothing is submitted for
+review yet** — what is left is console-only on both sides and is listed at the
+bottom.
+
+Every store write below was confirmed by reading it back from the API. Exit
+codes were not treated as evidence: `deliver` in particular reports success
+while its own read-back is still lagging.
+
+### Signing (closes compliance H-3)
+
+`android/upload-keystore.jks` generated per house pattern §7 (alias `upload`,
+RSA 2048, 10000 days, `CN=Froggy Eye Ltd`), with `android/key.properties`. Both
+confirmed git-ignored by `git check-ignore -v` before anything was built.
+
+Verified on the **packaged artifact**, not the Gradle config: the AAB's
+`META-INF/UPLOAD.RSA` certificate SHA-256 is
+`0A:B1:B0:CE:39:C7:E6:AB:7A:92:45:53:09:C1:70:87:0A:08:4B:98:13:B1:19:2F:41:2C:C8:44:3A:1B:A9:0E`,
+byte-identical to the keystore's, and `jarsigner -verify` reports `jar verified`.
+
+### Screenshots — the App Store and Play sets come from different devices
+
+Compliance M-1 flagged the Android-only bullet on `05_pro`. Opening every
+capture showed the problem is wider: **three shots carried Android-only text
+into the App Store set**, and two of them are the first two things a reviewer
+sees. The app's code is platform-correct in all three cases — only the captures
+were wrong.
+
+| Shot | Android capture says | iOS actually renders |
+|---|---|---|
+| `00_onboarding` (App Store #1) | "Next, **Android** will ask whether Honest Signal may show notifications… status bar" | nothing — the paragraph is inside `if (Platform.isAndroid)` (`onboarding_screen.dart:47`) |
+| `01_home` (App Store #2) | "As reported by **Android**" | "As reported by iOS" (`home_screen.dart:266`) |
+| `05_pro` (Apple's IAP review screenshot) | "Floating indicator" bullet, "…in the status bar", "billed by **Google Play**" | bullet absent, "in the app", "billed by **Apple**" |
+
+So the App Store set is now captured on an **iPhone 17 Pro Max simulator** (the
+same 6.9" 1320x2868 panel as the 16 Pro Max), light appearance, status bar
+pinned to 09:41. The committed harness cannot do this — `binding.takeScreenshot`
+returns the launch storyboard on the iOS simulator, which is why it is
+Android-only by design. The captures were taken host-side with
+`xcrun simctl io screenshot`, synchronised by a stdout marker from a temporary
+test file that was deleted afterwards. The committed harness is untouched.
+
+`render.sh` now frames the Play set from `raw/` and the App Store set from
+`raw_ios/` (`RAW_DIR` overrides; `frame.html` takes a `dir` parameter). Before
+this, both sets framed from `raw/` — the trap that produced the problem above.
+
+All nine rendered PNGs were opened and looked at, and all are md5-distinct.
+Play gets 5 shots with the status-bar shot at #2, App Store gets 4 with
+how-it-works at #3 — the order in `docs/ASO.md` §4, not the one in
+`screenshot_specs.md`.
+
+Also generated the **512x512 Play icon** from `store_assets/icon/icon_master.png`
+(M-2 — it did not exist) and wired in the 1024x500 feature graphic.
+
+### The status-bar indicator did not work (found here, fixed by flutter-architect)
+
+Recording the H-2 demo video exposed that the foreground service posted its
+notification but **no status-bar icon appeared** — the app's headline Android
+feature, and the whole basis of the `specialUse` declaration.
+
+Proven on the stock emulator with a control, not inferred: our notification
+(`IMPORTANCE_LOW`) had no status bar icon and sat in the shade's "Silent"
+group, while a `DEFAULT`-importance notification posted via
+`cmd notification post` showed its icon immediately. Since Android 11, stock
+Android hides status-bar icons for silent notifications;
+`HonestSignalService.kt` carried a comment asserting the opposite.
+
+Fixed by flutter-architect (channel `honest_signal_indicator_v2`,
+`IMPORTANCE_DEFAULT`, still silent) and **re-verified here independently** on
+the release APK: icon present in the status bar, `mImportance=3`, `sound=null`,
+`vibrate=null`, `headsUpContentView=null`.
+
+### FGS demo video (closes compliance H-2)
+
+**https://honestsignal.froggyeye.com/fgs-demo.mp4** — live, HTTP 200,
+`video/mp4`, 2,133,646 bytes, valid `ftypisom`. 85 s, 1080x2400, h264,
+faststart.
+
+Captioned so it stands on its own without narration. It shows the live reading
+in the app; the ongoing notification with its "Turn off" action; leaving the app
+by Home **and** by swiping it out of Recents; the icon still updating with the
+app closed; Wi-Fi and mobile data cut so the score and icon fall; and both
+recovering. Recorded with `adb screenrecord`, captions composited with ffmpeg
+`overlay` (this ffmpeg has no `drawtext`). Frames from the finished encode were
+sampled and checked.
+
+Recorded twice — the first take had a leftover debug notification in the shade.
+
+### Apple — staged, 2 console steps from submission
+
+| Item | State |
+|---|---|
+| Build | 1.0.0 (1), `processingState VALID`, attached to the version |
+| IPA identity | `MinimumOSVersion 15.0`, `UIDeviceFamily [1]`, `ITSAppUsesNonExemptEncryption false`, signed `Apple Distribution: Froggy Eye Ltd (696939LPWV)` |
+| Version | 1.0.0, `PREPARE_FOR_SUBMISSION`, `releaseType AFTER_APPROVAL` |
+| Name | "Honest Signal: Network Quality" — **no collision**; the rename went through |
+| Metadata | en-GB only; description 3981, keywords 97, promo 167 chars |
+| Screenshots | exactly 4, `APP_IPHONE_67`, all `COMPLETE` — counted server-side, not trusted from the log |
+| Categories | UTILITIES / PRODUCTIVITY (`deliver` left these null; set via API) |
+| Price | free — price schedule created and read back as `customerPrice 0.0` |
+| Territories | 175, `availableInNewTerritories: true` |
+| Age rating | all-`NONE` / all-`false`, no override (expect 4+) |
+| Content rights | `DOES_NOT_USE_THIRD_PARTY_CONTENT` |
+| Review contact | Kevin Lam, `+447415533188`, `info@froggyeye.com`, notes 3983 chars |
+| IAP | `com.froggyeye.honestsignal.pro`, NON_CONSUMABLE, **READY_TO_SUBMIT**, GBR £2.99 read back, iOS-captured review screenshot `COMPLETE` |
+| Review submission | `8dd8f497-16a9-4c7b-8352-a34df5944a93`, empty, waiting |
+
+iOS export needed a manual App Store profile — the App Manager API key is
+refused for Xcode cloud signing. `HonestSignal App Store` was created via
+`POST /v1/profiles` and `ios/ExportOptions.plist` is committed so the lane is
+reproducible.
+
+### Play — uploaded, declarations outstanding
+
+AAB **versionCode 2** on the internal track, `status: completed` (deliberately
+not `draft`: a draft artifact does not grant billing permission, and the IAP
+needs it). Listing read back with title, short and full description, 1 icon,
+1 feature graphic, 5 phone screenshots, en-GB only, changelog on `changelogs/2`.
+
+IAP `com.froggyeye.honestsignal.pro` is **ACTIVE**, `legacyCompatible: true`,
+GB shelf price **£2.99** across 173 regions — fed as £2.4917 ex-VAT, and the GB
+shelf price was checked in the conversion response before the product was
+written.
+
+The production track is deliberately untouched: a new app's first production
+rollout has to happen in the console, and staging a half-release would only
+confuse the publishing overview.
+
+### Console-only work left
+
+Neither store has an API for these. Answers are pre-written in
+`android/fastlane/data_safety_answers.md`; the FGS text is §6, the
+`SYSTEM_ALERT_WINDOW` justification §7.
+
+**Apple** — 2 steps, then one command:
+1. *Founder only.* App Privacy → "Data Not Collected" → **Publish** (the
+   separate Publish button matters). The API exposes no privacy relationship at
+   all — `appDataUsages`, `appDataUsagesPublishState` and `appPrivacyDetails`
+   all 404. Until it is published the version cannot join a review submission.
+2. On the **IAP's own page**: "Add for Review" → pick the existing Draft
+   submission. There is no API for this: `POST /reviewSubmissionItems` rejects
+   both `inAppPurchase` and `inAppPurchaseV2`; `appStoreVersion` is the only
+   reviewable relationship it accepts.
+3. Then `ruby scripts/asc_finish_submission.rb` — it adds the version, **refuses
+   to submit unless the submission holds both items**, and submits.
+
+**Play** — all in App content / Store settings, then the first rollout:
+privacy policy URL, App access (no login needed), Ads = No, Data safety (no
+collection), Content rating (IARC non-game questionnaire — **the IARC Terms of
+Use acceptance is a legal acceptance and needs the founder**), Target audience
+18+, News/COVID/Government/Financial/Health all No, **Foreground service
+permissions** (text from §6 plus the video URL above), **Advertising ID = No**
+(the hidden quick-checks blocker), Store settings, and **Countries/regions,
+which are empty by default and will silently block the release**. Then a
+production release from versionCode 2 and Publishing overview → Send for review.
+
+One finding for the portfolio: `POST /androidpublisher/v3/applications/{pkg}/dataSafety`
+**does** exist and would file Data safety without the console, but its
+`safetyLabels` field takes Play's Data-safety **CSV**, not JSON ("Invalid header
+row. Download the sample CSV file"), no sibling app has one to copy, and there
+is no GET to read the result back. Not worth guessing a schema for a compliance
+declaration that cannot be verified.
+
+### Repeating the release
+
+```bash
+cd ios     && bundle exec fastlane release          # build, upload, submit
+cd android && bundle exec fastlane internal_upload   # AAB -> internal
+cd android && bundle exec fastlane promote           # internal -> production
+```
+`ios/fastlane/metadata_only` re-uploads text and screenshots without a build.
+Both `deliver` and `supply` overwrite server state, so re-running a stage is the
+normal fix rather than something to avoid.
+
+## Stage 7 completion — BOTH STORES SUBMITTED FOR REVIEW (conductor, 2026-08-09)
+- APPLE: privacy label published (founder-delegated click-through: Data Not Collected); IAP attached to draft submission via console "Add for Review"; scripts/asc_finish_submission.rb added the version, verified 2 items, submitted → version state WAITING_FOR_REVIEW.
+- PLAY: all declarations completed in console (privacy policy URL, app access=no restrictions, ads=no, IARC content rating [ESRB E/PEGI 3; Brazil 14 via purchases — expected], target audience 18+, data safety=no collection, advertising ID=no, government=no, financial=none, health=none, FGS specialUse declaration with video https://honestsignal.froggyeye.com/fgs-demo.mp4); store settings: Tools, info@froggyeye.com, honestsignal.froggyeye.com; countries: all (176 + rest of world); production release "2 (1.0.0)" from versionCode 2 with copied en-GB notes; Publishing overview → 11 changes SENT FOR REVIEW (banner: "Changes in review"; quick checks auto-transmit on pass).
+- Post-approval follow-ups (when apps go LIVE): website store buttons (refresh_store_urls.py + postprocess.py --only honestsignal + deploy), drop screenshot1.png onto the promo page, edit hero meta "Launching on iOS & Android", delete old True Signal Play draft (founder, optional).
+- Re-release one-liners: `cd ios && bundle exec fastlane release` · `cd android && bundle exec fastlane internal_upload` then `promote`.

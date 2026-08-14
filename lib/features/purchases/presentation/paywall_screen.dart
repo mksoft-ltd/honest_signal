@@ -85,16 +85,27 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               body: 'A tiny draggable bubble over other apps. Off by default; '
                   'you grant the permission yourself and can revoke it any time.',
             ),
-          const _Feature(
+          // Both bodies are platform-specific on purpose. The background
+          // interval exists only on Android, and the daily data budget is
+          // adjustable on *every* tier — `clampedForTier` never touches
+          // `dailyBudgetMb` — so selling it here contradicted both store
+          // listings, which say "on every tier" out loud.
+          _Feature(
             icon: Icons.tune,
             title: 'Your own sampling rate',
-            body: 'Measure as often as every 2 seconds, or as rarely as once an '
-                'hour, and set your own daily data budget.',
+            body: Platform.isAndroid
+                ? 'Measure as often as every 2 seconds while the app is open, '
+                      'and choose a background rate from once a minute to once '
+                      'an hour.'
+                : 'Measure as often as every 2 seconds while the app is open, '
+                      'instead of the standard 5.',
           ),
-          const _Feature(
+          _Feature(
             icon: Icons.palette_outlined,
             title: 'Indicator themes',
-            body: 'Bars, dots or wave — in the app and in the status bar.',
+            body: Platform.isAndroid
+                ? 'Bars, dots or wave — in the app and in the status bar.'
+                : 'Bars, dots or wave — in the app.',
           ),
           const SizedBox(height: 20),
           if (state.isPro)

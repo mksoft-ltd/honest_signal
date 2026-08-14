@@ -33,9 +33,12 @@ void main() {
         // submission, and the binary and the listing must not disagree.
         expect(
           AppConstants.privacyPolicyUrl,
-          'https://raw.githubusercontent.com/mksoft-ltd/honest_signal/'
-          'refs/heads/main/PRIVACY_POLICY.md',
+          'https://mksoft-ltd.github.io/honest_signal/privacy_policy.html',
         );
+        // Rendered HTML, not raw Markdown. GitHub serves a raw .md as
+        // text/plain, which App Review has treated as not being a privacy
+        // policy page (5.1.1(i)).
+        expect(AppConstants.privacyPolicyUrl, endsWith('.html'));
       },
     );
 

@@ -1,0 +1,71 @@
+default_platform(:ios)
+
+# Honest Signal — App Store lanes.
+#
+# The metadata locale is en-GB only (the ASC record's primaryLocale). Do not add
+# an en-US mirror: notes for a locale the listing does not have are accepted by
+# the API, never shown, and pollute later reads.
+#
+# Deliberately NOT in these lanes, because neither works with an API key:
+#   * upload_app_privacy_details_to_app_store — no api_key option at all; it
+#     needs an interactive Apple ID. The privacy nutrition label is a one-time
+#     console click (App Privacy -> answers -> Publish). fastlane/
+#     app_privacy_details.json holds the answers to enter.
+#   * price_tier — deliver's legacy price PATCH fails with "included resource is
+#     not linked". Free apps need no price call at all; a paid one is set once
+#     via POST /v1/appPriceSchedules.
+
+def asc_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch("ASC_KEY_ID"),
+    issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+    key_filepath: ENV.fetch("ASC_KEY_PATH")
+  )
+end
+
+platform :ios do
+  desc "Upload metadata + screenshots only (no binary, no submission)"
+  lane :metadata_only do
+    deliver(
+      api_key: asc_key,
+      skip_binary_upload: true,
+      force: true,
+      run_precheck_before_submit: false,
+      submit_for_review: false,
+      overwrite_screenshots: true,
+      sync_screenshots: true,
+      precheck_include_in_app_purchases: false
+    )
+  end
+
+  desc "Upload the already-built IPA to TestFlight"
+  lane :upload_build do
+    pilot(
+      api_key: asc_key,
+      ipa: "../build/ios/ipa/Honest Signal.ipa",
+      skip_waiting_for_build_processing: true,
+      skip_submission: true
+    )
+  end
+
+  desc "Build and submit to the App Store"
+  lane :release do
+    Dir.chdir("../..") { sh("flutter", "build", "ipa", "--release") }
+    deliver(
+      api_key: asc_key,
+      ipa: "../build/ios/ipa/Honest Signal.ipa",
+      submit_for_review: true,
+      automatic_release: true,
+      force: true,
+      overwrite_screenshots: true,
+      sync_screenshots: true,
+      run_precheck_before_submit: true,
+      precheck_include_in_app_purchases: false,
+      submission_information: {
+        add_id_info_uses_idfa: false,
+        export_compliance_uses_encryption: false,
+        content_rights_contains_third_party_content: false
+      }
+    )
+  end
+end

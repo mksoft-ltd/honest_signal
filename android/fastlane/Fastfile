@@ -1,0 +1,62 @@
+default_platform(:android)
+
+# Honest Signal — Google Play lanes.
+#
+# Listing locale is en-GB only (the Play record was created en-GB). Release
+# notes for any other locale are accepted by the API and silently never shown,
+# and the phantom locale pollutes later reads — so metadata/android/ holds
+# en-GB and nothing else.
+
+platform :android do
+  desc "Build and upload to the internal track with the full listing"
+  lane :internal do
+    Dir.chdir("../..") { sh("flutter", "build", "appbundle", "--release") }
+    supply(
+      aab: "../build/app/outputs/bundle/release/app-release.aab",
+      track: "internal",
+      release_status: "draft",
+      skip_upload_apk: true
+    )
+  end
+
+  desc "Upload the already-built AAB to the internal track"
+  #
+  # `completed`, not `draft`: Play will not let you create in-app products until
+  # a billing-permission artifact is ACTIVE in some track, and a draft release
+  # does not count. Internal does.
+  lane :internal_upload do
+    supply(
+      aab: "../build/app/outputs/bundle/release/app-release.aab",
+      track: "internal",
+      release_status: "completed",
+      skip_upload_apk: true
+    )
+  end
+
+  desc "Build and upload to production"
+  lane :release do
+    Dir.chdir("../..") { sh("flutter", "build", "appbundle", "--release") }
+    supply(
+      aab: "../build/app/outputs/bundle/release/app-release.aab",
+      track: "production",
+      # A brand-new app is itself a draft: the API rejects "completed" until the
+      # first rollout has happened in the console. Flip to "completed" for the
+      # second release onwards.
+      release_status: "draft",
+      skip_upload_apk: true
+    )
+  end
+
+  desc "Promote internal to production"
+  lane :promote do
+    supply(
+      track: "internal",
+      track_promote_to: "production",
+      skip_upload_aab: true,
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end
