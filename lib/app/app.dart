@@ -24,7 +24,12 @@ class _HonestSignalAppState extends ConsumerState<HonestSignalApp> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(purchaseControllerProvider).init();
-      ref.read(indicatorControllerProvider).sync(ref.read(effectiveSettingsProvider));
+      final settings = ref.read(effectiveSettingsProvider);
+      if (settings.hasSeenOnboarding) {
+        ref
+            .read(indicatorControllerProvider)
+            .sync(settings, requestPermission: false);
+      }
     });
   }
 

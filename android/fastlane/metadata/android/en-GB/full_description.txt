@@ -1,6 +1,6 @@
 Your phone's signal icon reports radio strength — how loudly the nearest mast or router is shouting. It says nothing about whether data is moving. Everyone has stood somewhere with five bars and a page that will not load.
 
-Honest Signal measures the connection instead. Every cycle it sends four timed latency probes and downloads a real 120 KB transfer sample, then blends latency, jitter, packet loss and throughput into a connection quality score from 0 to 5 bars — on Wi-Fi, 4G or 5G — with a plain-English verdict and the numbers beside it.
+Honest Signal measures the connection instead. Each cycle sends up to four timed latency probes; periodic cycles also download a real 120 KB transfer sample. It blends latency, jitter, packet loss and throughput into a connection quality score from 0 to 5 bars — on Wi-Fi, 4G or 5G — with a plain-English verdict and the numbers beside it.
 
 A LIVE SCORE IN YOUR STATUS BAR
 
@@ -26,7 +26,7 @@ NO MYSTERY SCORE
 
 ALMOST NO DATA
 
-Four latency probes cost about 2.8 KB; a transfer sample about 120 KB, taken far less often. A hard daily budget — 25 MB by default, 5 to 250 MB on every tier — is a live counter on the home screen. When it is spent, latency probes keep running and only the transfer sample pauses until midnight. You can also lengthen the interval or run on Wi-Fi only.
+Four latency probes cost about 2.8 KB; a transfer sample about 120 KB, taken far less often. A daily traffic counter — 25 MB by default, 5 to 250 MB on every tier — sits on the home screen. At the limit, transfer samples pause until midnight; small latency probes keep running. You can also lengthen the interval or run on Wi-Fi only.
 
 THIS IS NOT A SPEED TEST
 
@@ -45,6 +45,6 @@ PRIVACY
 
 No account, no sign-in, no analytics, no advertising, no tracking, no crash reporting. We run no server, so there is nothing to receive. Measurements, settings and your purchase record stay in the app's private storage, are excluded from cloud backup and device-to-device transfer, and go when you uninstall.
 
-Measuring a connection means using it, so the app makes real requests: small anonymous HTTPS requests to public connectivity-check endpoints run by Google and Cloudflare — the kind Android uses to spot Wi-Fi sign-in pages. They carry no identifier and nothing about you.
+Measuring a connection means using it. The app makes small HTTPS requests to public connectivity-check endpoints run by Google and Cloudflare. They carry no account or app identifier, but the operators can see your IP address. Readings stay on your device.
 
 Useful apps. No ads. No dark patterns.

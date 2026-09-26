@@ -40,6 +40,32 @@ void main() {
       },
     );
 
+    test('a passive sync observes denial without opening the prompt', () async {
+      final channel = FakeIndicatorChannel(
+        notificationsGranted: false,
+        notificationRequestGranted: true,
+      );
+      final controller = IndicatorController(channel: channel);
+
+      await controller.sync(const AppSettings(), requestPermission: false);
+
+      expect(channel.calls, isNot(contains('requestNotificationPermission')));
+      expect(channel.starts, isEmpty);
+      expect(controller.status.notificationsAllowed, isFalse);
+    });
+
+    test(
+      'notification recovery opens the Android app settings route',
+      () async {
+        final channel = FakeIndicatorChannel(notificationsGranted: false);
+        final controller = IndicatorController(channel: channel);
+
+        await controller.openNotificationSettings();
+
+        expect(channel.calls, contains('openNotificationSettings'));
+      },
+    );
+
     test('a declined permission leaves the service stopped rather than '
         'starting one nobody can see', () async {
       // The status-bar indicator *is* the notification. Starting a foreground
@@ -203,9 +229,7 @@ void main() {
         final channel = FakeIndicatorChannel();
         final controller = IndicatorController(channel: channel);
 
-        await controller.sync(
-          const AppSettings(highContrastIndicator: false),
-        );
+        await controller.sync(const AppSettings(highContrastIndicator: false));
 
         expect(channel.starts.single['highContrast'], isFalse);
       },

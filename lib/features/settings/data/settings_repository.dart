@@ -5,9 +5,10 @@ import '../domain/app_settings.dart';
 
 /// Reads and writes everything that lives in the settings box.
 class SettingsRepository {
-  SettingsRepository(this._box);
+  SettingsRepository(this._box, {this.proEntitlementWriter});
 
   final Box<dynamic> _box;
+  final Future<void> Function(bool value)? proEntitlementWriter;
 
   static const String _settingsKey = 'settings';
   static const String _budgetKey = 'budget';
@@ -37,10 +38,11 @@ class SettingsRepository {
       _box.put(_budgetKey, budget.toJson());
 
   /// Cached entitlement so the app opens in the right tier before the store
-  /// connection resolves. A verified purchase or restore can set this flag;
-  /// it is not cleared merely because a launch is offline or the store is
-  /// unavailable.
+  /// connection resolves. An accepted store purchase or restore can set this
+  /// flag; it is not cryptographic receipt validation and cannot learn about
+  /// revocation without an external store/server authority.
   bool loadProUnlocked() => _box.get(_proKey) as bool? ?? false;
 
-  Future<void> saveProUnlocked(bool value) => _box.put(_proKey, value);
+  Future<void> saveProUnlocked(bool value) =>
+      proEntitlementWriter?.call(value) ?? _box.put(_proKey, value);
 }

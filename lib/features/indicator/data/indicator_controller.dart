@@ -67,12 +67,17 @@ class IndicatorController extends ChangeNotifier {
   /// Brings the service and overlay in line with [settings], requesting the
   /// notification permission if the user has asked for the indicator but not
   /// yet granted it.
-  Future<void> sync(AppSettings settings) async {
+  Future<void> sync(
+    AppSettings settings, {
+    bool requestPermission = true,
+  }) async {
     if (!_channel.isSupported) return;
 
     if (settings.notificationIndicatorEnabled) {
       var allowed = await _channel.hasNotificationPermission();
-      if (!allowed) allowed = await _channel.requestNotificationPermission();
+      if (!allowed && requestPermission) {
+        allowed = await _channel.requestNotificationPermission();
+      }
       if (allowed) {
         await _channel.start(
           theme: settings.barTheme.name,
@@ -116,6 +121,9 @@ class IndicatorController extends ChangeNotifier {
     await refresh();
     return granted;
   }
+
+  Future<void> openNotificationSettings() =>
+      _channel.openNotificationSettings();
 
   void _set(IndicatorStatus next) {
     _status = next;

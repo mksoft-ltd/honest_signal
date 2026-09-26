@@ -1,0 +1,3 @@
+More reliable measurements and a clearer history view.
+
+This update tightens data-budget limits, improves background history handoff, and clarifies purchase restore feedback and privacy wording. It also includes accessibility and stability fixes.

@@ -21,6 +21,8 @@ class SettingsScreen extends ConsumerWidget {
     final effective = ref.watch(effectiveSettingsProvider);
     final isPro = ref.watch(isProProvider);
     final controller = ref.read(settingsProvider.notifier);
+    final indicator = ref.watch(indicatorControllerProvider);
+    final purchase = ref.watch(purchaseControllerProvider).state;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -36,10 +38,35 @@ class SettingsScreen extends ConsumerWidget {
                 'icon in your status bar.',
               ),
               value: effective.notificationIndicatorEnabled,
-              onChanged: (value) => controller.update(
-                (s) => s.copyWith(notificationIndicatorEnabled: value),
-              ),
+              onChanged: (value) async {
+                await controller.update(
+                  (s) => s.copyWith(notificationIndicatorEnabled: value),
+                );
+                final indicatorController = ref.read(
+                  indicatorControllerProvider,
+                );
+                if (value) {
+                  await indicatorController.requestNotificationPermission();
+                }
+                await indicatorController.sync(
+                  ref.read(effectiveSettingsProvider),
+                  requestPermission: false,
+                );
+              },
             ),
+            if (effective.notificationIndicatorEnabled &&
+                !indicator.status.notificationsAllowed)
+              ListTile(
+                leading: const Icon(Icons.notifications_off_outlined),
+                title: const Text('Notifications are not allowed'),
+                subtitle: const Text(
+                  'The status-bar score cannot appear until notifications are enabled.',
+                ),
+                trailing: const Icon(Icons.open_in_new),
+                onTap: () => ref
+                    .read(indicatorControllerProvider)
+                    .openNotificationSettings(),
+              ),
             SwitchListTile(
               title: const Text('High-contrast icon'),
               subtitle: const Text(
@@ -135,14 +162,17 @@ class SettingsScreen extends ConsumerWidget {
                 ButtonSegment(
                   value: ThemeMode.system,
                   icon: Icon(Icons.brightness_auto),
+                  tooltip: 'Match system theme',
                 ),
                 ButtonSegment(
                   value: ThemeMode.light,
                   icon: Icon(Icons.light_mode),
+                  tooltip: 'Light theme',
                 ),
                 ButtonSegment(
                   value: ThemeMode.dark,
                   icon: Icon(Icons.dark_mode),
+                  tooltip: 'Dark theme',
                 ),
               ],
               selected: {effective.themeMode},
@@ -161,7 +191,23 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.restore),
             title: const Text('Restore purchase'),
-            onTap: () => ref.read(purchaseControllerProvider).restore(),
+            subtitle: purchase.message == null
+                ? null
+                : Text(
+                    purchase.message!,
+                    style: purchase.isError
+                        ? TextStyle(color: Theme.of(context).colorScheme.error)
+                        : null,
+                  ),
+            trailing: purchase.restoring
+                ? const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : null,
+            onTap: purchase.restoring
+                ? null
+                : () => ref.read(purchaseControllerProvider).restore(),
           ),
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
@@ -288,41 +334,45 @@ class _ThemeSwatch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: '${theme.label} indicator style${locked ? ', Pro only' : ''}',
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.control),
-        child: Container(
-          width: 64,
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.control),
-            border: Border.all(
-              color: selected ? scheme.primary : scheme.outlineVariant,
-              width: selected ? 2 : 1,
+    return Tooltip(
+      message: '${theme.label} indicator style${locked ? ' — Pro only' : ''}',
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: '${theme.label} indicator style${locked ? ', Pro only' : ''}',
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadius.control),
+          child: Container(
+            width: 64,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadius.control),
+              border: Border.all(
+                color: selected ? scheme.primary : scheme.outlineVariant,
+                width: selected ? 2 : 1,
+              ),
             ),
-          ),
-          child: Column(
-            children: [
-              Opacity(
-                opacity: locked ? 0.4 : 1,
-                child: SignalBars(
-                  bars: 4,
-                  theme: theme,
-                  size: 34,
-                  animate: false,
-                  color: scheme.primary,
+            child: Column(
+              children: [
+                Opacity(
+                  opacity: locked ? 0.4 : 1,
+                  child: SignalBars(
+                    bars: 4,
+                    theme: theme,
+                    size: 34,
+                    animate: false,
+                    color: scheme.primary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                locked ? 'Pro' : theme.label,
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-            ],
+                const SizedBox(height: 6),
+                Text(
+                  theme.label,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+                if (locked) const Icon(Icons.lock_outline, size: 12),
+              ],
+            ),
           ),
         ),
       ),
@@ -330,7 +380,7 @@ class _ThemeSwatch extends StatelessWidget {
   }
 }
 
-class _IntervalTile extends StatelessWidget {
+class _IntervalTile extends StatefulWidget {
   const _IntervalTile({
     required this.title,
     required this.seconds,
@@ -350,28 +400,46 @@ class _IntervalTile extends StatelessWidget {
   final VoidCallback onLocked;
 
   @override
+  State<_IntervalTile> createState() => _IntervalTileState();
+}
+
+class _IntervalTileState extends State<_IntervalTile> {
+  late double _preview = widget.seconds.toDouble();
+
+  @override
+  void didUpdateWidget(covariant _IntervalTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.seconds != widget.seconds) {
+      _preview = widget.seconds.toDouble();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (!isPro) {
+    if (!widget.isPro) {
       return ListTile(
-        title: Text(title),
-        subtitle: Text('Every ${Format.interval(seconds)} · Pro to change'),
+        title: Text(widget.title),
+        subtitle: Text(
+          'Every ${Format.interval(widget.seconds)} · Pro to change',
+        ),
         trailing: const Icon(Icons.lock_outline, size: 18),
-        onTap: onLocked,
+        onTap: widget.onLocked,
       );
     }
 
     return ListTile(
-      title: Text(title),
+      title: Text(widget.title),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Every ${Format.interval(seconds)}'),
+          Text('Every ${Format.interval(_preview.round())}'),
           Slider(
-            value: seconds.toDouble().clamp(min.toDouble(), max.toDouble()),
-            min: min.toDouble(),
-            max: max.toDouble(),
-            label: Format.interval(seconds),
-            onChanged: (value) => onChanged(value.round()),
+            value: _preview.clamp(widget.min.toDouble(), widget.max.toDouble()),
+            min: widget.min.toDouble(),
+            max: widget.max.toDouble(),
+            label: Format.interval(_preview.round()),
+            onChanged: (value) => setState(() => _preview = value),
+            onChangeEnd: (value) => widget.onChanged(value.round()),
           ),
         ],
       ),
@@ -379,11 +447,26 @@ class _IntervalTile extends StatelessWidget {
   }
 }
 
-class _BudgetTile extends StatelessWidget {
+class _BudgetTile extends StatefulWidget {
   const _BudgetTile({required this.megabytes, required this.onChanged});
 
   final int megabytes;
   final ValueChanged<int> onChanged;
+
+  @override
+  State<_BudgetTile> createState() => _BudgetTileState();
+}
+
+class _BudgetTileState extends State<_BudgetTile> {
+  late double _preview = widget.megabytes.toDouble();
+
+  @override
+  void didUpdateWidget(covariant _BudgetTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.megabytes != widget.megabytes) {
+      _preview = widget.megabytes.toDouble();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -392,9 +475,9 @@ class _BudgetTile extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$megabytes MB of probe traffic per day'),
+          Text('${_preview.round()} MB of probe traffic per day'),
           Slider(
-            value: megabytes.toDouble().clamp(
+            value: _preview.clamp(
               AppSettings.minDailyBudgetMb.toDouble(),
               AppSettings.maxDailyBudgetMb.toDouble(),
             ),
@@ -403,8 +486,9 @@ class _BudgetTile extends StatelessWidget {
             divisions:
                 (AppSettings.maxDailyBudgetMb - AppSettings.minDailyBudgetMb) ~/
                 5,
-            label: '$megabytes MB',
-            onChanged: (value) => onChanged(value.round()),
+            label: '${_preview.round()} MB',
+            onChanged: (value) => setState(() => _preview = value),
+            onChangeEnd: (value) => widget.onChanged(value.round()),
           ),
         ],
       ),

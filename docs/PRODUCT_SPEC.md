@@ -48,7 +48,7 @@ day, for almost no data".
 | Live true-signal meter: 0–5 bars, verdict, and what it means in practice | Free |
 | Latency (median), jitter, packet-loss proxy, throughput estimate, network type | Free |
 | Adaptive sampling — faster in the foreground, sparse in the background, immediate on network change | Free |
-| Hard daily data budget with an always-visible counter | Free |
+| Daily transfer cutoff with an always-visible traffic counter | Free |
 | Android status-bar indicator: foreground service whose small icon is the live score | Free |
 | High-contrast status-bar icon (plate behind the mark), on by default, switchable | Free |
 | Android 16: promoted ongoing chip labelled "HS" in the status bar | Free |
@@ -211,14 +211,26 @@ A transfer sample costs ~120 KB. The default 25 MB/day budget (adjustable
 5–250 MB on every tier) comfortably covers all-day background monitoring plus
 normal foreground use.
 
-The budget is a hard stop, not a guideline, and the counter is on the home
+The budget stops transfer samples once spent, and the counter is on the home
 screen rather than buried in settings. Each transfer has both an 8-second
 wall-clock deadline and a response-byte cap equal to its requested size, so a
-misbehaving endpoint cannot stream indefinitely. When it is spent, **latency
+misbehaving endpoint cannot stream indefinitely. Each latency probe also has
+an 8 KiB response cap. When the budget is spent, **latency
 probes keep running** — the user still gets a reading — and only the 120 KB
 transfer sample pauses until local midnight. A failed budget read fails
 *closed* (reports the budget as spent) so a broken platform channel can never
 spend unlimited data.
+
+History percentages are duration-weighted: a stored score holds until the next
+stored reading, rather than every stored row receiving equal weight. A reading
+is held for at most two expected cycles (never less than 60 seconds because
+unchanged rows are coalesced every 30 seconds, and never more than 10 minutes).
+iOS and Android without the persistent notification use the foreground cadence;
+Android with that indicator active uses its background cadence. After the hold,
+the chart and percentages both leave the stale interval unmeasured. A measured
+zero-bar period is drawn as a visible red baseline; unmeasured time is blank.
+Carried throughput values retain and display the timestamp of the transfer
+sample that produced them.
 
 ## 7. Data model
 
@@ -241,6 +253,8 @@ onboarding seen.
 | Hive box `settings` | settings JSON, budget mirror, Pro flag | House pattern: one JSON map per key, no adapters, no codegen, no migrations |
 | Hive box `history` | samples, auto-increment keys, values carry their own timestamp | Keying by `millisecondsSinceEpoch` is impossible — **Hive rejects integer keys above 0xFFFFFFFF**, which an epoch in milliseconds passed in 1970. Auto keys are monotonic, so insertion order is chronological order. |
 | Android SharedPreferences (`BudgetStore.kt`) | the day's probe-byte counter | Two Dart isolates need it — the UI engine and the background engine — and **Hive is not isolate-safe**. Both reach it through one platform channel. |
+| iOS Application Support file | the day's probe-byte counter | Atomically replaced and explicitly excluded from backup; exposed through the native channel so transfer sampling remains available on iOS. |
+| Android SharedPreferences (`honest_signal_background_history`) | pending background samples | A bounded, synchronised, 25-hour hand-off queue. The background engine appends here; the UI imports into Hive as one deduplicated batch on start/resume, so two isolates never open one Hive box. |
 | Android SharedPreferences (service/overlay) | which indicators the user enabled, bubble position, service config | Must survive the app process dying and be readable by the boot receiver |
 
 History is pruned to 25 hours (one hour of slack so a "last 24 h" view is never
@@ -407,8 +421,8 @@ The declared subtype string in the manifest is:
 This needs a matching declaration in Play Console. The supporting argument: the
 service's only output is the notification the user explicitly turned on; it does
 no work when the app is in the foreground; its interval is user-controlled and
-clamped to a 30 s floor; and its data cost is hard-capped by a user-visible
-daily budget.
+clamped to a 30 s floor. Transfer samples stop at the user-visible daily limit;
+small latency probes continue.
 
 #### Why `SYSTEM_ALERT_WINDOW`, and how it is constrained
 
@@ -485,7 +499,13 @@ RevenueCat or any other wrapper.
   outcome — bought, cancelled, declined — arrives on the purchase stream, and
   the busy flag is cleared there. A cancelled purchase leaves no spinner.
 - Purchases pending completion are acknowledged, or Android auto-refunds them
-  after three days.
+  after three days. Completion must succeed before the cached entitlement is
+  granted; wrong-product, failed, or empty-verification transactions are never
+  completed or unlocked.
+- This local-first client checks the expected product and store-supplied
+  verification data, but does **not** claim cryptographic receipt validation or
+  revocation awareness. Those require an external store/server authority, which
+  this app deliberately does not operate.
 - The paywall names each Pro feature and what it does before asking for money.
 
 ## 12. Gate results (stage 1 exit)

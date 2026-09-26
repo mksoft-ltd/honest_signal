@@ -18,6 +18,7 @@ class SignalSample {
     this.latencyMs,
     this.jitterMs,
     this.throughputKbps,
+    this.throughputMeasuredAt,
     this.throughputIsStale = false,
     this.networkDetail,
   });
@@ -41,6 +42,7 @@ class SignalSample {
   /// sample; non-null but [throughputIsStale] when carried over from an earlier
   /// cycle within the freshness window.
   final double? throughputKbps;
+  final DateTime? throughputMeasuredAt;
   final bool throughputIsStale;
 
   /// Timed-out or failed probes as a fraction of probes sent.
@@ -60,62 +62,69 @@ class SignalSample {
   String get verdictDetail => SignalScoring.verdictDetail(bars);
 
   SignalSample copyWith({int? bars, double? composite}) => SignalSample(
-        timestamp: timestamp,
-        kind: kind,
-        bars: bars ?? this.bars,
-        composite: composite ?? this.composite,
-        latencyMs: latencyMs,
-        jitterMs: jitterMs,
-        throughputKbps: throughputKbps,
-        throughputIsStale: throughputIsStale,
-        lossRatio: lossRatio,
-        probesSent: probesSent,
-        bytesUsed: bytesUsed,
-        networkDetail: networkDetail,
-      );
+    timestamp: timestamp,
+    kind: kind,
+    bars: bars ?? this.bars,
+    composite: composite ?? this.composite,
+    latencyMs: latencyMs,
+    jitterMs: jitterMs,
+    throughputKbps: throughputKbps,
+    throughputMeasuredAt: throughputMeasuredAt,
+    throughputIsStale: throughputIsStale,
+    lossRatio: lossRatio,
+    probesSent: probesSent,
+    bytesUsed: bytesUsed,
+    networkDetail: networkDetail,
+  );
 
   Map<String, dynamic> toJson() => {
-        'ts': timestamp.millisecondsSinceEpoch,
-        'kind': kind.name,
-        'bars': bars,
-        'composite': composite,
-        'latency': latencyMs,
-        'jitter': jitterMs,
-        'throughput': throughputKbps,
-        'stale': throughputIsStale,
-        'loss': lossRatio,
-        'probes': probesSent,
-        'bytes': bytesUsed,
-        'detail': networkDetail,
-      };
+    'ts': timestamp.millisecondsSinceEpoch,
+    'kind': kind.name,
+    'bars': bars,
+    'composite': composite,
+    'latency': latencyMs,
+    'jitter': jitterMs,
+    'throughput': throughputKbps,
+    'throughputAt': throughputMeasuredAt?.millisecondsSinceEpoch,
+    'stale': throughputIsStale,
+    'loss': lossRatio,
+    'probes': probesSent,
+    'bytes': bytesUsed,
+    'detail': networkDetail,
+  };
 
   static SignalSample fromJson(Map<dynamic, dynamic> json) => SignalSample(
-        timestamp: DateTime.fromMillisecondsSinceEpoch(
-          (json['ts'] as num?)?.toInt() ?? 0,
-        ),
-        kind: NetworkKind.fromStorage(json['kind'] as String?),
-        bars: (json['bars'] as num?)?.toInt() ?? 0,
-        composite: (json['composite'] as num?)?.toDouble() ?? 0,
-        latencyMs: (json['latency'] as num?)?.toDouble(),
-        jitterMs: (json['jitter'] as num?)?.toDouble(),
-        throughputKbps: (json['throughput'] as num?)?.toDouble(),
-        throughputIsStale: json['stale'] as bool? ?? false,
-        lossRatio: (json['loss'] as num?)?.toDouble() ?? 0,
-        probesSent: (json['probes'] as num?)?.toInt() ?? 0,
-        bytesUsed: (json['bytes'] as num?)?.toInt() ?? 0,
-        networkDetail: json['detail'] as String?,
-      );
+    timestamp: DateTime.fromMillisecondsSinceEpoch(
+      (json['ts'] as num?)?.toInt() ?? 0,
+    ),
+    kind: NetworkKind.fromStorage(json['kind'] as String?),
+    bars: (json['bars'] as num?)?.toInt() ?? 0,
+    composite: (json['composite'] as num?)?.toDouble() ?? 0,
+    latencyMs: (json['latency'] as num?)?.toDouble(),
+    jitterMs: (json['jitter'] as num?)?.toDouble(),
+    throughputKbps: (json['throughput'] as num?)?.toDouble(),
+    throughputMeasuredAt: (json['throughputAt'] as num?) == null
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(
+            (json['throughputAt'] as num).toInt(),
+          ),
+    throughputIsStale: json['stale'] as bool? ?? false,
+    lossRatio: (json['loss'] as num?)?.toDouble() ?? 0,
+    probesSent: (json['probes'] as num?)?.toInt() ?? 0,
+    bytesUsed: (json['bytes'] as num?)?.toInt() ?? 0,
+    networkDetail: json['detail'] as String?,
+  );
 
   /// The sample shown before the first cycle completes.
   static SignalSample unknown() => SignalSample(
-        timestamp: DateTime.fromMillisecondsSinceEpoch(0),
-        kind: NetworkKind.other,
-        bars: 0,
-        composite: 0,
-        lossRatio: 0,
-        probesSent: 0,
-        bytesUsed: 0,
-      );
+    timestamp: DateTime.fromMillisecondsSinceEpoch(0),
+    kind: NetworkKind.other,
+    bars: 0,
+    composite: 0,
+    lossRatio: 0,
+    probesSent: 0,
+    bytesUsed: 0,
+  );
 
   bool get isPlaceholder => timestamp.millisecondsSinceEpoch == 0;
 }

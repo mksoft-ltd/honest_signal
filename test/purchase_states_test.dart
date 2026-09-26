@@ -115,8 +115,7 @@ void main() {
       expect(settings.loadProUnlocked(), isFalse);
     });
 
-    test('a foreign purchase is still completed, so the store stops '
-        're-delivering it', () async {
+    test('a foreign purchase is not completed by this entitlement', () async {
       await controller.init();
 
       await gateway.emit(
@@ -125,17 +124,15 @@ void main() {
         needsCompletion: true,
       );
 
-      expect(gateway.completeCalls, 1);
+      expect(gateway.completeCalls, 0);
     });
 
-    test('a failed purchase awaiting completion is completed too', () async {
-      // An unacknowledged Android purchase is auto-refunded after three days,
-      // whatever its status.
+    test('a failed purchase is never completed as if it were owned', () async {
       await controller.init();
 
       await gateway.emit(PurchaseStatus.error, needsCompletion: true);
 
-      expect(gateway.completeCalls, 1);
+      expect(gateway.completeCalls, 0);
     });
 
     test('two initialisations do not subscribe twice', () async {
@@ -218,15 +215,17 @@ void main() {
   });
 
   group('screenshot harness', () {
-    test('forcing Pro shows the Pro screens without writing an entitlement',
-        () async {
-      // The harness must never leave a real unlock behind in the settings box.
-      controller.debugForcePro();
+    test(
+      'forcing Pro shows the Pro screens without writing an entitlement',
+      () async {
+        // The harness must never leave a real unlock behind in the settings box.
+        controller.debugForcePro();
 
-      expect(controller.state.isPro, isTrue);
-      expect(controller.state.priceLabel, isNotNull);
-      expect(settings.loadProUnlocked(), isFalse);
-    });
+        expect(controller.state.isPro, isTrue);
+        expect(controller.state.priceLabel, isNotNull);
+        expect(settings.loadProUnlocked(), isFalse);
+      },
+    );
   });
 
   group('monetisation invariants', () {

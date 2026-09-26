@@ -1224,4 +1224,90 @@ Gates on the fixed tree: `flutter analyze` clean · `flutter test` 281/281 ·
 `./gradlew :app:testDebugUnitTest` 4/4 · `flutter build appbundle --release`
 exit 0. No tracked store asset was modified.
 
+### Comprehensive improvement resolution — 2026-09-25
+
+The follow-up implementation closes the remaining user-visible and performance
+risks identified in the review: iOS now has durable native budget persistence;
+Android background samples use a bounded native hand-off queue and appear in
+Pro history after start/resume; history is cached and percentages are weighted
+by elapsed duration; zero-bar outages render distinctly from missing data;
+notification permission is first requested from the onboarding CTA and denial
+has an Android Settings recovery route; purchase init/query/buy/restore and
+completion failures are surfaced without stranded busy states, with entitlement
+limited to the expected product and non-empty store verification data;
+connectivity changes during an active cycle queue one forced follow-up; probe
+and transfer deadlines cover headers plus body; sliders preview locally and
+persist on drag end; charts and signal marks expose accessibility semantics;
+onboarding and Pro locks scroll safely; carried speeds show sample age; and
+theme controls have labels/tooltips. README and pipeline artifacts were updated
+with the implementation.
+
+The requested Gradle built-in-Kotlin migration was also exercised, but cannot
+be retained on this repository's Flutter 3.44.4 toolchain: Flutter's migration
+guide requires Flutter 3.47 or later for AGP 9 built-in Kotlin, and removing the
+two compatibility flags on 3.44.4 makes the Flutter Gradle plugin fail during
+configuration. The working flags/plugin are therefore deliberately preserved;
+the migration is deferred until that Flutter upgrade rather than committing a
+non-building configuration.
+
+Final gates on the fixed tree: `flutter analyze` **No issues found** · `flutter
+test` **309/309 passing** · `./gradlew :app:testDebugUnitTest` **9/9 passing** ·
+`flutter build appbundle --release` exit 0 (52.1 MB). The iOS app code and new
+AppDelegate channel compile through Swift; a complete simulator build could not
+be produced on this host because Xcode 27's dependency-graph/CocoaPods step
+exits before plugin linking. No Podfile or generated xcconfig/project/workspace
+change is included.
+
+### Re-review fix resolution — 2026-09-25
+
+The re-review gaps are closed in code and regression coverage. Chart and stats
+now consume one freshness-bounded interval model: a row is held for at most two
+expected cycles, with a 60-second minimum derived from the 30-second storage
+cadence, and stale gaps are blank rather than scored. HTTP requests use
+`AbortableRequest`; the one wall-clock timeout triggers socket/subscription
+abort before returning, including stalls before headers and during the body.
+
+Purchase handling now completes only successful expected-product transactions
+with non-empty store verification data, completes before locally unlocking,
+surfaces completion/persistence failures without granting Pro, and allows a
+failed initialisation to retry. This is deliberately **not described as receipt
+validation**: the client has no external authority for cryptographic validation
+or revocation reconciliation, and adding a backend would contradict the
+local-first product decision.
+
+The Android hand-off queue now prunes corrupt and >25-hour rows on append and
+peek, caps FIFO data at 3,000 rows, and has pure JVM coverage for FIFO/drop,
+corruption, expiry boundaries, capacity and JSON round trips. UI import is one
+deduplicated Hive batch with one prune/cache rebuild; write/prune failures leave
+the native queue unacknowledged for a safe retry. On iOS, Hive's Documents
+directory is explicitly excluded from backup and the budget moved from
+`UserDefaults` to an atomic, backup-excluded Application Support file.
+
+Additional regressions cover passive/deferred notification permission and
+Settings recovery routing, exactly one queued connectivity cycle across normal
+and error paths plus disposal, duration edge cases, chart/SignalBars semantics,
+and slider preview with exactly one persistent commit.
+
+### Final cleanup resolution — 2026-09-25
+
+History freshness now follows the cadence that can actually produce samples:
+foreground on iOS and on Android without the persistent notification, background
+only while that Android indicator is enabled. The shared chart/stat hold remains
+two cycles with the 30-second storage floor, but is capped at 10 minutes so a
+one-hour sampling choice cannot portray a two-hour-old state as measured.
+
+An unavailable paywall now exposes **Retry store**; successful retry clears the
+previous init error. Android queue writes check the synchronous `commit()`
+result and return `history_write_failed` rather than acknowledging data that was
+not made durable. JVM tests pin both failed-commit observability and the default
+3,000-row append cap.
+
+`BudgetFileStore` now has executable RunnerTests using isolated directories.
+They cover same-day accumulation, day rollover, negative-byte clamping, and
+backup exclusion on both the directory and atomic budget file. Final gates:
+`flutter analyze` clean; `flutter test` **310/310**; Kotlin **11/11**; Swift
+RunnerTests **4/4**; release AAB built successfully at 52.1 MB. Xcode 27 required
+an explicit iOS 15 deployment-floor override for its simulator dependency graph;
+that validation-only override is not a project change.
+
 Verdict: PASS

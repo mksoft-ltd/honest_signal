@@ -39,12 +39,14 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     if (message == null || !mounted) return;
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(SnackBar(
-        content: Text(message),
-        backgroundColor: controller.state.isError
-            ? Theme.of(context).colorScheme.errorContainer
-            : null,
-      ));
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: controller.state.isError
+              ? Theme.of(context).colorScheme.errorContainer
+              : null,
+        ),
+      );
     controller.clearMessage();
   }
 
@@ -61,28 +63,32 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
         children: [
           Text(
             state.isPro ? 'You have Pro' : 'One payment. Yours for good.',
-            style: theme.textTheme.headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w700),
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             'Honest Signal is useful for free and always will be. Pro adds the '
             'parts power users ask for.',
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 28),
           const _Feature(
             icon: Icons.show_chart,
             title: 'History and graphs',
-            body: 'See the last hour and the last 24 hours, so a connection '
+            body:
+                'See the last hour and the last 24 hours, so a connection '
                 'that drops out only when you are not looking still gets caught.',
           ),
           if (Platform.isAndroid)
             const _Feature(
               icon: Icons.bubble_chart_outlined,
               title: 'Floating indicator',
-              body: 'A tiny draggable bubble over other apps. Off by default; '
+              body:
+                  'A tiny draggable bubble over other apps. Off by default; '
                   'you grant the permission yourself and can revoke it any time.',
             ),
           // Both bodies are platform-specific on purpose. The background
@@ -116,7 +122,9 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                   children: [
                     Icon(Icons.check_circle, color: theme.colorScheme.primary),
                     const SizedBox(width: 12),
-                    const Expanded(child: Text('Pro is unlocked on this device.')),
+                    const Expanded(
+                      child: Text('Pro is unlocked on this device.'),
+                    ),
                   ],
                 ),
               ),
@@ -144,26 +152,31 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                 'The store is unreachable right now. Check your connection and '
                 'try again — which, admittedly, is the whole point of this app.',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              TextButton.icon(
+                onPressed: controller.init,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry store'),
               ),
             ],
             const SizedBox(height: 8),
             TextButton(
               onPressed: state.restoring ? null : () => controller.restore(),
-              child: Text(
-                state.restoring ? 'Restoring…' : 'Restore purchase',
-              ),
+              child: Text(state.restoring ? 'Restoring…' : 'Restore purchase'),
             ),
           ],
           const SizedBox(height: 16),
           Text(
             'A single non-consumable purchase, billed by '
             '${Platform.isIOS ? 'Apple' : 'Google Play'}. No subscription, no '
-            'account, no ads, and no data leaves your phone.',
+            'account or ads. Measurements and settings stay on this device.',
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -194,14 +207,16 @@ class _Feature extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: theme.textTheme.titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   body,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),

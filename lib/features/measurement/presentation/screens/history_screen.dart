@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +10,7 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/pro_lock.dart';
 import '../../data/history_repository.dart';
 import '../../domain/signal_sample.dart';
+import '../../domain/history_stats.dart';
 import '../widgets/history_chart.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
@@ -24,6 +27,18 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   Widget build(BuildContext context) {
     final isPro = ref.watch(isProProvider);
     final controller = ref.watch(measurementControllerProvider);
+    final settings = ref.watch(effectiveSettingsProvider);
+    final indicator = ref.watch(indicatorControllerProvider);
+    final expectedInterval = HistoryInterval.expectedInterval(
+      foreground: settings.foregroundInterval,
+      background: settings.backgroundInterval,
+      persistentIndicatorActive:
+          Platform.isAndroid &&
+          settings.notificationIndicatorEnabled &&
+          indicator.status.notificationsAllowed &&
+          indicator.status.serviceRunning,
+    );
+    final maxHold = HistoryInterval.maximumHold(expectedInterval);
     final now = DateTime.now();
     final samples = controller.historySince(_window);
 
@@ -44,11 +59,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               window: _window,
               samples: samples,
               now: now,
+              maxHold: maxHold,
               onWindowChanged: (value) => setState(() => _window = value),
             )
           : ProLock(
               title: 'History is a Pro feature',
-              body: 'See how your connection held up over the last hour or day, '
+              body:
+                  'See how your connection held up over the last hour or day, '
                   'so you can prove the drop-outs you keep noticing are real.',
               onUnlock: () => context.push('/pro'),
             ),
@@ -60,7 +77,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear history?'),
-        content: const Text('All stored samples on this device will be deleted.'),
+        content: const Text(
+          'All stored samples on this device will be deleted.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -85,17 +104,19 @@ class _HistoryBody extends StatelessWidget {
     required this.window,
     required this.samples,
     required this.now,
+    required this.maxHold,
     required this.onWindowChanged,
   });
 
   final Duration window;
   final List<SignalSample> samples;
   final DateTime now;
+  final Duration maxHold;
   final ValueChanged<Duration> onWindowChanged;
 
   @override
   Widget build(BuildContext context) {
-    final stats = _Stats.from(samples);
+    final stats = HistoryStats.from(samples, end: now, maxHold: maxHold);
     final scores = AppColors.of(context);
 
     return ListView(
@@ -110,7 +131,12 @@ class _HistoryBody extends StatelessWidget {
           onSelectionChanged: (values) => onWindowChanged(values.first),
         ),
         const SizedBox(height: 24),
-        HistoryChart(samples: samples, window: window, now: now),
+        HistoryChart(
+          samples: samples,
+          window: window,
+          now: now,
+          maxHold: maxHold,
+        ),
         const SizedBox(height: 28),
         if (samples.isNotEmpty) ...[
           _StatRow(
@@ -138,8 +164,8 @@ class _HistoryBody extends StatelessWidget {
             'or every 30 seconds — and kept on this device for '
             '${HistoryRepository.defaultRetention.inHours} hours only.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ],
@@ -179,52 +205,6 @@ class _StatRow extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _Stats {
-  const _Stats({
-    required this.goodFraction,
-    required this.badFraction,
-    required this.medianLatency,
-    required this.bestThroughput,
-  });
-
-  final double goodFraction;
-  final double badFraction;
-  final double? medianLatency;
-  final double? bestThroughput;
-
-  factory _Stats.from(List<SignalSample> samples) {
-    if (samples.isEmpty) {
-      return const _Stats(
-        goodFraction: 0,
-        badFraction: 0,
-        medianLatency: null,
-        bestThroughput: null,
-      );
-    }
-
-    final good = samples.where((s) => s.bars >= 4).length;
-    final bad = samples.where((s) => s.bars <= 1).length;
-
-    final latencies = samples
-        .map((s) => s.latencyMs)
-        .whereType<double>()
-        .toList()
-      ..sort();
-    final throughputs =
-        samples.map((s) => s.throughputKbps).whereType<double>().toList();
-
-    return _Stats(
-      goodFraction: good / samples.length,
-      badFraction: bad / samples.length,
-      medianLatency:
-          latencies.isEmpty ? null : latencies[latencies.length ~/ 2],
-      bestThroughput: throughputs.isEmpty
-          ? null
-          : throughputs.reduce((a, b) => a > b ? a : b),
     );
   }
 }

@@ -96,6 +96,7 @@ class MeasurementEngine {
     final jitter = _meanAbsoluteDeviation(rtts, median);
 
     double? throughput;
+    DateTime? throughputMeasuredAt;
     var throughputStale = false;
     int? barCap;
 
@@ -106,6 +107,7 @@ class MeasurementEngine {
         throughput = outcome.kbps;
         _lastThroughputKbps = outcome.kbps;
         _lastThroughputAt = _now();
+        throughputMeasuredAt = _lastThroughputAt;
       } else {
         // Probes answered but bulk data would not move. This is the failure the
         // OS signal icon hides, so it is scored explicitly rather than left
@@ -120,6 +122,7 @@ class MeasurementEngine {
       if (carried != null) {
         throughput = carried;
         throughputStale = true;
+        throughputMeasuredAt = _lastThroughputAt;
       }
     }
 
@@ -146,6 +149,7 @@ class MeasurementEngine {
       latencyMs: median,
       jitterMs: jitter,
       throughputKbps: throughput,
+      throughputMeasuredAt: throughputMeasuredAt,
       throughputIsStale: throughputStale,
       lossRatio: lossRatio,
       probesSent: probesSent,

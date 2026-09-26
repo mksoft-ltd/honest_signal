@@ -7,6 +7,7 @@ import '../domain/network_kind.dart';
 import '../domain/signal_sample.dart';
 import 'budget_store.dart';
 import 'connectivity_source.dart';
+import 'history_repository.dart';
 import 'measurement_engine.dart';
 import 'probe_client.dart';
 
@@ -26,10 +27,12 @@ class BackgroundMeasurementHost {
     MeasurementEngine? engine,
     ConnectivitySource? connectivity,
     BudgetStore? budgetStore,
-  })  : _channel = channel ?? const MethodChannel(channelName),
-        _engine = engine ?? MeasurementEngine(client: HttpProbeClient()),
-        _connectivity = connectivity ?? PluginConnectivitySource(),
-        _budgetStore = budgetStore ?? PlatformBudgetStore();
+    BackgroundHistoryBridge? historyBridge,
+  }) : _channel = channel ?? const MethodChannel(channelName),
+       _engine = engine ?? MeasurementEngine(client: HttpProbeClient()),
+       _connectivity = connectivity ?? PluginConnectivitySource(),
+       _budgetStore = budgetStore ?? PlatformBudgetStore(),
+       _historyBridge = historyBridge ?? PlatformBackgroundHistoryBridge();
 
   static const String channelName = 'com.froggyeye.honestsignal/background';
 
@@ -37,6 +40,7 @@ class BackgroundMeasurementHost {
   final MeasurementEngine _engine;
   final ConnectivitySource _connectivity;
   final BudgetStore _budgetStore;
+  final BackgroundHistoryBridge _historyBridge;
 
   int _cycle = 0;
   int? _previousBars;
@@ -82,9 +86,13 @@ class BackgroundMeasurementHost {
     if (kind == NetworkKind.cellular && !measureOnCellular) return null;
 
     final now = DateTime.now();
-    final budget = await _budgetStore.read(now: now, limitBytes: budgetLimitBytes);
+    final budget = await _budgetStore.read(
+      now: now,
+      limitBytes: budgetLimitBytes,
+    );
 
-    final transferDue = _lastTransferAt == null ||
+    final transferDue =
+        _lastTransferAt == null ||
         now.difference(_lastTransferAt!) >= transferInterval;
     final includeTransfer =
         !budget.isExhausted && transferDue && kind != NetworkKind.none;
@@ -106,6 +114,8 @@ class BackgroundMeasurementHost {
         limitBytes: budgetLimitBytes,
       );
     }
+
+    await _historyBridge.append(sample);
 
     return sample;
   }

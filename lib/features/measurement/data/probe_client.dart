@@ -27,7 +27,7 @@ class TransferResult {
     required this.elapsedMs,
   });
 
-  const TransferResult.failed() : ok = false, bytes = 0, elapsedMs = 0;
+  const TransferResult.failed({this.bytes = 0}) : ok = false, elapsedMs = 0;
 
   final bool ok;
   final int bytes;
@@ -70,34 +70,62 @@ class HttpProbeClient implements ProbeClient {
   /// has already reached the device and must never disappear from the budget.
   static const int defaultMaxTransferResponseBytes = 120000;
 
+  /// A latency endpoint should return an empty body. Cap unexpected responses
+  /// so a captive portal cannot spend the user's data budget on a probe.
+  static const int maxProbeResponseBytes = 8192;
+
   @override
   Future<ProbeResult> probe(Uri url, {required Duration timeout}) async {
     final stopwatch = Stopwatch()..start();
+    final abort = Completer<void>();
+    var received = 0;
     try {
-      final request = http.Request('GET', _cacheBust(url))
-        ..headers['cache-control'] = 'no-cache, no-store'
-        ..headers['pragma'] = 'no-cache';
-      final streamed = await _client.send(request).timeout(timeout);
-      final body = await streamed.stream
-          .fold<int>(0, (sum, chunk) => sum + chunk.length)
-          .timeout(timeout);
+      final bodyAndStatus =
+          await (() async {
+            final request =
+                http.AbortableRequest(
+                    'GET',
+                    _cacheBust(url),
+                    abortTrigger: abort.future,
+                  )
+                  ..headers['cache-control'] = 'no-cache, no-store'
+                  ..headers['pragma'] = 'no-cache';
+            final streamed = await _client.send(request);
+            await for (final chunk in streamed.stream) {
+              received += chunk.length;
+              if (received > maxProbeResponseBytes) {
+                abort.complete();
+                throw StateError('Probe response exceeded byte cap');
+              }
+            }
+            return streamed.statusCode;
+          })().timeout(
+            timeout,
+            onTimeout: () async {
+              abort.complete();
+              await Future<void>.delayed(Duration.zero);
+              throw TimeoutException('Probe exceeded its wall-clock deadline');
+            },
+          );
       stopwatch.stop();
 
       // Any HTTP response at all proves the path works end to end. A captive
       // portal's 302 to a login page is still a reachable network — the
       // throughput and latency numbers stay meaningful.
-      if (streamed.statusCode >= 500) {
-        return ProbeResult.failed(bytes: probeOverheadBytes + body);
+      if (bodyAndStatus >= 500) {
+        return ProbeResult.failed(
+          bytes: probeOverheadBytes + received,
+        );
       }
       return ProbeResult(
         ok: true,
         rttMs: stopwatch.elapsedMicroseconds / 1000.0,
-        bytes: probeOverheadBytes + body,
+        bytes: probeOverheadBytes + received,
       );
     } on Object {
       // Timeouts, DNS failures, TLS failures and socket errors are all "the
       // connection did not deliver", which is exactly what we want to count.
-      return const ProbeResult.failed(bytes: probeOverheadBytes);
+      return ProbeResult.failed(bytes: probeOverheadBytes + received);
     }
   }
 
@@ -109,24 +137,38 @@ class HttpProbeClient implements ProbeClient {
     final maxBytes = (requestedBytes != null && requestedBytes > 0)
         ? requestedBytes
         : defaultMaxTransferResponseBytes;
+    final abort = Completer<void>();
     try {
-      final request = http.Request('GET', _cacheBust(url))
-        ..headers['cache-control'] = 'no-cache, no-store';
-      final streamed = await _client.send(request).timeout(timeout);
-      // Apply one deadline to the complete body, rather than a per-chunk
-      // timeout. A peer sending a byte just before every inter-chunk timeout
-      // must not be able to hold this request open indefinitely.
-      await (() async {
-        await for (final chunk in streamed.stream) {
-          received += chunk.length;
-          if (received > maxBytes) {
-            throw StateError('Transfer response exceeded requested byte cap');
-          }
-        }
-      })().timeout(timeout);
+      final statusCode =
+          await (() async {
+            final request = http.AbortableRequest(
+              'GET',
+              _cacheBust(url),
+              abortTrigger: abort.future,
+            )..headers['cache-control'] = 'no-cache, no-store';
+            final streamed = await _client.send(request);
+            await for (final chunk in streamed.stream) {
+              received += chunk.length;
+              if (received > maxBytes) {
+                throw StateError(
+                  'Transfer response exceeded requested byte cap',
+                );
+              }
+            }
+            return streamed.statusCode;
+          })().timeout(
+            timeout,
+            onTimeout: () async {
+              abort.complete();
+              await Future<void>.delayed(Duration.zero);
+              throw TimeoutException(
+                'Transfer exceeded its wall-clock deadline',
+              );
+            },
+          );
       stopwatch.stop();
-      if (streamed.statusCode >= 400 || received == 0) {
-        return const TransferResult.failed();
+      if (statusCode >= 400 || received == 0) {
+        return TransferResult.failed(bytes: received);
       }
       return TransferResult(
         ok: true,

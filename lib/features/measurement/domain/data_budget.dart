@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 
 /// How much probe traffic today has cost so far.
 ///
-/// The app spends the user's data without them watching, so the budget is a
-/// hard stop rather than a guideline, and the counter is shown in the UI.
+/// The counter includes probes and transfers. Reaching the limit stops transfer
+/// samples; small latency probes continue so the app still gives a reading.
 @immutable
 class DataBudget {
   const DataBudget({

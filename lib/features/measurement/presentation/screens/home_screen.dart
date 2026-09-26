@@ -24,7 +24,8 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObserver {
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -144,7 +145,11 @@ class _Verdict extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: 12),
-        SignalBars(bars: showReading ? sample.bars : 0, theme: theme, size: 132),
+        SignalBars(
+          bars: showReading ? sample.bars : 0,
+          theme: theme,
+          size: 132,
+        ),
         const SizedBox(height: 20),
         Text(
           showReading ? sample.verdict : 'Measuring…',
@@ -195,10 +200,11 @@ class _MetricGrid extends StatelessWidget {
         label: 'Speed',
         value: hasReading ? Format.throughput(sample.throughputKbps) : '—',
         caption: sample.throughputIsStale
-            ? 'From the last transfer sample'
+            ? 'Transfer sample ${sample.throughputMeasuredAt == null ? 'from earlier' : Format.age(sample.throughputMeasuredAt!)}'
             : 'Measured download sample',
         icon: Icons.download_outlined,
-        emphasis: hasReading &&
+        emphasis:
+            hasReading &&
                 sample.throughputKbps != null &&
                 sample.throughputKbps! <= 0
             ? scores.dead
@@ -215,7 +221,8 @@ class _MetricGrid extends StatelessWidget {
         value: hasReading ? Format.lossPercent(sample.lossRatio) : '—',
         caption: '${sample.probesSent} sent this cycle',
         icon: Icons.link_off,
-        emphasis: hasReading && sample.lossRatio >= SignalScoring.severeLossRatio
+        emphasis:
+            hasReading && sample.lossRatio >= SignalScoring.severeLossRatio
             ? scores.dead
             : null,
       ),

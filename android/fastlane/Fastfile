@@ -39,10 +39,7 @@ platform :android do
     supply(
       aab: "../build/app/outputs/bundle/release/app-release.aab",
       track: "production",
-      # A brand-new app is itself a draft: the API rejects "completed" until the
-      # first rollout has happened in the console. Flip to "completed" for the
-      # second release onwards.
-      release_status: "draft",
+      release_status: "completed",
       skip_upload_apk: true
     )
   end

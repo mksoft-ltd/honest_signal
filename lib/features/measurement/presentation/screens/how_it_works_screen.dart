@@ -181,9 +181,9 @@ class HowItWorksScreen extends StatelessWidget {
           ],
           const SizedBox(height: 24),
           Text(
-            'The probes carry no identifiers and nothing about you or your '
-            'network ever leaves your phone. Every reading is stored on this '
-            'device and deleted within '
+            'Probes contact public HTTPS endpoints, which can see your IP '
+            'address. They carry no account or app identifier. Readings stay '
+            'on this device and are deleted within '
             '${HistoryRepository.defaultRetention.inHours} hours.',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,

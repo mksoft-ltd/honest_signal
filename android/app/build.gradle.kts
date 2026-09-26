@@ -79,6 +79,7 @@ dependencies {
     // the mapping could be severed with the whole Dart suite green.
     //   cd android && ./gradlew :app:testDebugUnitTest
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 }
 
 kotlin {

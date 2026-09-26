@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:honestsignal/core/storage/local_store.dart';
@@ -93,81 +95,89 @@ void main() {
       );
     });
 
-    test('a spent budget stops the transfer sample but not the reading',
-        () async {
-      const limit = AppSettings.minDailyBudgetMb;
-      final budgetStore = InMemoryBudgetStore();
-      await build(
-        settings: const AppSettings(dailyBudgetMb: limit),
-        budgetStore: budgetStore,
-      );
-      await budgetStore.spend(
-        now: now,
-        bytes: limit * 1024 * 1024,
-        limitBytes: limit * 1024 * 1024,
-      );
+    test(
+      'a spent budget stops the transfer sample but not the reading',
+      () async {
+        const limit = AppSettings.minDailyBudgetMb;
+        final budgetStore = InMemoryBudgetStore();
+        await build(
+          settings: const AppSettings(dailyBudgetMb: limit),
+          budgetStore: budgetStore,
+        );
+        await budgetStore.spend(
+          now: now,
+          bytes: limit * 1024 * 1024,
+          limitBytes: limit * 1024 * 1024,
+        );
 
-      await controller.measureNow(forceTransfer: true);
+        await controller.measureNow(forceTransfer: true);
 
-      expect(controller.state.pause, MeasurementPause.budgetExhausted);
-      expect(client.probeCalls, 4);
-      expect(client.transferCalls, 0);
-      expect(controller.state.hasReading, isTrue);
-    });
+        expect(controller.state.pause, MeasurementPause.budgetExhausted);
+        expect(client.probeCalls, 4);
+        expect(client.transferCalls, 0);
+        expect(controller.state.hasReading, isTrue);
+      },
+    );
 
-    test('the transfer sample resumes when the calendar day rolls over',
-        () async {
-      const limit = AppSettings.minDailyBudgetMb;
-      final budgetStore = InMemoryBudgetStore();
-      await build(
-        settings: const AppSettings(dailyBudgetMb: limit),
-        budgetStore: budgetStore,
-      );
-      await budgetStore.spend(
-        now: now,
-        bytes: limit * 1024 * 1024,
-        limitBytes: limit * 1024 * 1024,
-      );
-      await controller.measureNow(forceTransfer: true);
-      expect(client.transferCalls, 0);
+    test(
+      'the transfer sample resumes when the calendar day rolls over',
+      () async {
+        const limit = AppSettings.minDailyBudgetMb;
+        final budgetStore = InMemoryBudgetStore();
+        await build(
+          settings: const AppSettings(dailyBudgetMb: limit),
+          budgetStore: budgetStore,
+        );
+        await budgetStore.spend(
+          now: now,
+          bytes: limit * 1024 * 1024,
+          limitBytes: limit * 1024 * 1024,
+        );
+        await controller.measureNow(forceTransfer: true);
+        expect(client.transferCalls, 0);
 
-      now = DateTime(2026, 8, 9, 0, 1);
-      await controller.measureNow(forceTransfer: true);
+        now = DateTime(2026, 8, 9, 0, 1);
+        await controller.measureNow(forceTransfer: true);
 
-      expect(controller.state.pause, MeasurementPause.none);
-      expect(client.transferCalls, 1);
-    });
+        expect(controller.state.pause, MeasurementPause.none);
+        expect(client.transferCalls, 1);
+      },
+    );
 
-    test('raising the limit lifts the pause without waiting for tomorrow',
-        () async {
-      const limit = AppSettings.minDailyBudgetMb;
-      final budgetStore = InMemoryBudgetStore();
-      await build(
-        settings: const AppSettings(dailyBudgetMb: limit),
-        budgetStore: budgetStore,
-      );
-      await budgetStore.spend(
-        now: now,
-        bytes: limit * 1024 * 1024,
-        limitBytes: limit * 1024 * 1024,
-      );
-      await controller.measureNow(forceTransfer: true);
-      expect(controller.state.pause, MeasurementPause.budgetExhausted);
+    test(
+      'raising the limit lifts the pause without waiting for tomorrow',
+      () async {
+        const limit = AppSettings.minDailyBudgetMb;
+        final budgetStore = InMemoryBudgetStore();
+        await build(
+          settings: const AppSettings(dailyBudgetMb: limit),
+          budgetStore: budgetStore,
+        );
+        await budgetStore.spend(
+          now: now,
+          bytes: limit * 1024 * 1024,
+          limitBytes: limit * 1024 * 1024,
+        );
+        await controller.measureNow(forceTransfer: true);
+        expect(controller.state.pause, MeasurementPause.budgetExhausted);
 
-      await controller.applySettings(
-        const AppSettings(dailyBudgetMb: AppSettings.maxDailyBudgetMb),
-      );
-      await controller.measureNow(forceTransfer: true);
+        await controller.applySettings(
+          const AppSettings(dailyBudgetMb: AppSettings.maxDailyBudgetMb),
+        );
+        await controller.measureNow(forceTransfer: true);
 
-      expect(controller.state.pause, MeasurementPause.none);
-      expect(client.transferCalls, 1);
-    });
+        expect(controller.state.pause, MeasurementPause.none);
+        expect(client.transferCalls, 1);
+      },
+    );
 
     test('a broken budget channel fails closed: probes continue, the 120 KB '
         'sample does not', () async {
       // Failing open would let a channel error spend unlimited mobile data in
       // the background, which is the one bug this app must never ship.
-      await build(budgetStore: PlatformBudgetStore(channel: const _DeadChannel()));
+      await build(
+        budgetStore: PlatformBudgetStore(channel: const _DeadChannel()),
+      );
 
       await controller.measureNow(forceTransfer: true);
 
@@ -193,20 +203,22 @@ void main() {
   });
 
   group('lifecycle', () {
-    test('opening the app measures immediately, including a transfer sample',
-        () async {
-      // The user opened the app to find out whether the connection works, and
-      // latency alone cannot answer that.
-      await build();
+    test(
+      'opening the app measures immediately, including a transfer sample',
+      () async {
+        // The user opened the app to find out whether the connection works, and
+        // latency alone cannot answer that.
+        await build();
 
-      await controller.start();
-      await drain();
+        await controller.start();
+        await drain();
 
-      expect(client.probeCalls, 4);
-      expect(client.transferCalls, 1);
-      expect(controller.state.hasReading, isTrue);
-      expect(indicator.uiActive, contains(true));
-    });
+        expect(client.probeCalls, 4);
+        expect(client.transferCalls, 1);
+        expect(controller.state.hasReading, isTrue);
+        expect(indicator.uiActive, contains(true));
+      },
+    );
 
     test('starting twice does not double up the probing', () async {
       await build();
@@ -268,6 +280,21 @@ void main() {
   });
 
   group('connectivity', () {
+    test('background handoff drops a queued foreground cycle', () async {
+      await build();
+      client.firstProbeGate = Completer<void>();
+
+      await controller.start();
+      await drain(2);
+      connectivity.emit(NetworkKind.cellular);
+      await controller.setForeground(false);
+      client.firstProbeGate!.complete();
+      await drain(80);
+
+      expect(client.probeCalls, 4);
+      expect(controller.state.pause, MeasurementPause.appBackgrounded);
+    });
+
     test('a transport change forces a full re-measure at once', () async {
       // The moment the network changes is exactly when the old reading became
       // meaningless.
@@ -282,6 +309,73 @@ void main() {
 
       expect(controller.state.sample.kind, NetworkKind.cellular);
       expect(client.transferCalls, greaterThan(before));
+    });
+
+    test(
+      'a transport change during a cycle queues one fresh reading',
+      () async {
+        await build();
+        client.firstProbeGate = Completer<void>();
+
+        await controller.start();
+        await drain(2);
+        expect(client.probeCalls, 1);
+
+        connectivity.emit(NetworkKind.none);
+        connectivity.emit(NetworkKind.wifi);
+        connectivity.emit(NetworkKind.cellular);
+        client.firstProbeGate!.complete();
+        await drain(80);
+
+        expect(controller.state.sample.kind, NetworkKind.cellular);
+        expect(client.probeCalls, 8);
+        expect(client.transferCalls, 2);
+      },
+    );
+
+    test(
+      'an errored cycle still runs exactly one queued fresh cycle',
+      () async {
+        await build();
+        await controller.start();
+        await drain();
+        expect(client.probeCalls, 4);
+
+        client.gatedProbeCall = 4;
+        client.probeGate = Completer<void>();
+        client.probeErrorsRemaining = 1;
+        final failed = controller.measureNow(forceTransfer: true);
+        await drain(2);
+        connectivity.emit(NetworkKind.cellular);
+        client.probeGate!.complete();
+
+        await expectLater(failed, throwsStateError);
+        await drain(80);
+        expect(
+          client.probeCalls,
+          9,
+        ); // one failed probe, then one four-probe cycle
+        expect(controller.state.sample.kind, NetworkKind.cellular);
+      },
+    );
+
+    test('disposing drops a queued connectivity cycle', () async {
+      await build();
+      await controller.start();
+      await drain();
+
+      client.gatedProbeCall = 4;
+      client.probeGate = Completer<void>();
+      final active = controller.measureNow(forceTransfer: true);
+      await drain(2);
+      connectivity.emit(NetworkKind.cellular);
+      controller.dispose();
+      disposedInTest = true;
+      client.probeGate!.complete();
+      await active;
+      await drain(20);
+
+      expect(client.probeCalls, 8);
     });
 
     test('losing the network reports zero bars without probing', () async {
@@ -313,20 +407,22 @@ void main() {
   });
 
   group('status-bar indicator', () {
-    test('receives every reading with the wording the notification shows',
-        () async {
-      await build();
+    test(
+      'receives every reading with the wording the notification shows',
+      () async {
+        await build();
 
-      await controller.start();
-      await drain();
+        await controller.start();
+        await drain();
 
-      expect(indicator.published, hasLength(1));
-      final published = indicator.published.single;
-      expect(published['bars'], controller.state.sample.bars);
-      expect(published['verdict'], controller.state.sample.verdict);
-      expect(published['theme'], BarTheme.bars.name);
-      expect(published['detail'], contains('Wi-Fi'));
-    });
+        expect(indicator.published, hasLength(1));
+        final published = indicator.published.single;
+        expect(published['bars'], controller.state.sample.bars);
+        expect(published['verdict'], controller.state.sample.verdict);
+        expect(published['theme'], BarTheme.bars.name);
+        expect(published['detail'], contains('Wi-Fi'));
+      },
+    );
 
     test('is not fed when the user has turned it off', () async {
       await build(
@@ -351,9 +447,7 @@ void main() {
       // hardcoding `highContrast: true` at the publish site left the whole
       // suite green, because every fixture used the default. The value asserted
       // here is deliberately the non-default one.
-      await build(
-        settings: const AppSettings(highContrastIndicator: false),
-      );
+      await build(settings: const AppSettings(highContrastIndicator: false));
 
       await controller.measureNow(forceTransfer: true);
 
@@ -406,30 +500,32 @@ void main() {
       expect(controller.historySince(const Duration(hours: 1)), isEmpty);
     });
 
-    test('the app reopens on the last stored reading rather than a blank meter',
-        () async {
-      await build();
-      await controller.measureNow(forceTransfer: true);
-      final stored = controller.state.sample.bars;
+    test(
+      'the app reopens on the last stored reading rather than a blank meter',
+      () async {
+        await build();
+        await controller.measureNow(forceTransfer: true);
+        final stored = controller.state.sample.bars;
 
-      final reopened = MeasurementController(
-        engine: MeasurementEngine(
-          client: FakeProbeClient(),
-          config: const MeasurementConfig(interProbeGap: Duration.zero),
+        final reopened = MeasurementController(
+          engine: MeasurementEngine(
+            client: FakeProbeClient(),
+            config: const MeasurementConfig(interProbeGap: Duration.zero),
+            clock: () => now,
+          ),
+          connectivity: FakeConnectivitySource(),
+          history: HistoryRepository(store.history),
+          budgetStore: InMemoryBudgetStore(),
+          indicator: FakeIndicatorChannel(),
+          settings: const AppSettings(),
           clock: () => now,
-        ),
-        connectivity: FakeConnectivitySource(),
-        history: HistoryRepository(store.history),
-        budgetStore: InMemoryBudgetStore(),
-        indicator: FakeIndicatorChannel(),
-        settings: const AppSettings(),
-        clock: () => now,
-      );
+        );
 
-      expect(reopened.state.hasReading, isTrue);
-      expect(reopened.state.sample.bars, stored);
-      reopened.dispose();
-    });
+        expect(reopened.state.hasReading, isTrue);
+        expect(reopened.state.sample.bars, stored);
+        reopened.dispose();
+      },
+    );
   });
 }
 
@@ -439,7 +535,10 @@ class _DeadChannel extends MethodChannel {
   const _DeadChannel() : super('test/dead');
 
   @override
-  Future<Map<K, V>?> invokeMapMethod<K, V>(String method, [dynamic arguments]) async {
+  Future<Map<K, V>?> invokeMapMethod<K, V>(
+    String method, [
+    dynamic arguments,
+  ]) async {
     throw MissingPluginException('no handler');
   }
 }

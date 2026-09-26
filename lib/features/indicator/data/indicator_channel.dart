@@ -88,6 +88,9 @@ class IndicatorChannel {
   Future<bool> requestNotificationPermission() async =>
       await _invoke<bool>('requestNotificationPermission') ?? false;
 
+  Future<void> openNotificationSettings() =>
+      _invoke<void>('openNotificationSettings');
+
   Future<bool> canDrawOverlays() async =>
       await _invoke<bool>('canDrawOverlays') ?? false;
 

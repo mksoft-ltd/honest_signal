@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 
 import '../domain/signal_sample.dart';
@@ -9,10 +13,73 @@ import '../domain/signal_sample.dart';
 /// obvious choice but Hive rejects integer keys above 0xFFFFFFFF, and an epoch
 /// in milliseconds passed that in 1970 — every write would throw. Auto keys are
 /// also monotonic, so insertion order is chronological order.
+abstract class BackgroundHistoryBridge {
+  Future<void> append(SignalSample sample);
+  Future<List<SignalSample>> drain();
+  Future<void> acknowledge(List<SignalSample> samples);
+}
+
+class PlatformBackgroundHistoryBridge implements BackgroundHistoryBridge {
+  PlatformBackgroundHistoryBridge({MethodChannel? channel})
+    : _channel = channel ?? const MethodChannel(channelName);
+
+  static const channelName = 'com.froggyeye.honestsignal/budget';
+  final MethodChannel _channel;
+
+  @override
+  Future<void> append(SignalSample sample) async {
+    if (!Platform.isAndroid) return;
+    try {
+      await _channel.invokeMethod<void>('historyAppend', sample.toJson());
+    } on Object {
+      // History must never take down background measurement.
+    }
+  }
+
+  @override
+  Future<List<SignalSample>> drain() async {
+    if (!Platform.isAndroid) return const [];
+    try {
+      final rows = await _channel.invokeListMethod<dynamic>('historyPeek');
+      return [
+        for (final row in rows ?? const [])
+          if (row is Map) SignalSample.fromJson(row),
+      ];
+    } on Object {
+      return const [];
+    }
+  }
+
+  @override
+  Future<void> acknowledge(List<SignalSample> samples) async {
+    if (!Platform.isAndroid || samples.isEmpty) return;
+    try {
+      await _channel.invokeMethod<void>('historyDrop', {
+        'timestamps': [
+          for (final sample in samples) sample.timestamp.millisecondsSinceEpoch,
+        ],
+      });
+    } on Object {
+      // Leaving rows queued is safe: the next import retries them.
+    }
+  }
+}
+
 class HistoryRepository {
-  HistoryRepository(this._box, {this.retention = defaultRetention});
+  HistoryRepository(
+    this._box, {
+    this.retention = defaultRetention,
+    BackgroundHistoryBridge? backgroundBridge,
+  }) : _backgroundBridge =
+           backgroundBridge ?? PlatformBackgroundHistoryBridge() {
+    _rebuildCache();
+  }
 
   final Box<dynamic> _box;
+  final BackgroundHistoryBridge _backgroundBridge;
+  final List<SignalSample> _samples = [];
+  SignalSample? _latest;
+  int _knownBoxLength = 0;
 
   /// 25 hours rather than 24 so a "last 24 hours" view always has a full window
   /// even mid-write.
@@ -32,14 +99,40 @@ class HistoryRepository {
 
   Future<void> record(SignalSample sample) async {
     final previous = latest();
-    if (previous != null &&
-        previous.bars == sample.bars &&
-        previous.kind == sample.kind &&
-        sample.timestamp.difference(previous.timestamp) < minimumSpacing) {
-      return;
-    }
+    if (!_shouldRecord(sample, previous)) return;
     await _box.add(sample.toJson());
+    _samples.add(sample);
+    _samples.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    _latest = sample;
+    _knownBoxLength = _box.length;
     await prune(sample.timestamp);
+  }
+
+  /// Moves samples written by the Android background isolate into Hive.
+  /// Native storage is the hand-off queue because Hive boxes cannot safely be
+  /// opened by both Flutter engines at once.
+  Future<int> importBackgroundSamples() async {
+    final pending = await _backgroundBridge.drain();
+    if (pending.isEmpty) return 0;
+    _refreshCacheIfChanged();
+
+    // A failed batch is left unacknowledged and may already have been partly
+    // written by the storage engine. Exact identities make that retry safe.
+    final known = _samples.map(_identity).toSet();
+    final accepted = <SignalSample>[];
+    SignalSample? previous = _latest;
+    for (final sample in pending) {
+      if (!known.add(_identity(sample))) continue;
+      if (!_shouldRecord(sample, previous)) continue;
+      accepted.add(sample);
+      previous = sample;
+    }
+    if (accepted.isNotEmpty) {
+      await _box.addAll(accepted.map((sample) => sample.toJson()));
+      await prune(accepted.last.timestamp);
+    }
+    await _backgroundBridge.acknowledge(pending);
+    return pending.length;
   }
 
   Future<void> prune(DateTime now) async {
@@ -50,14 +143,12 @@ class HistoryRepository {
       if (timestamp == null || timestamp < cutoff) stale.add(key);
     }
     if (stale.isNotEmpty) await _box.deleteAll(stale);
+    _rebuildCache();
   }
 
   SignalSample? latest() {
-    for (var i = _box.length - 1; i >= 0; i--) {
-      final raw = _box.getAt(i);
-      if (raw is Map) return SignalSample.fromJson(raw);
-    }
-    return null;
+    _refreshCacheIfChanged();
+    return _latest;
   }
 
   /// Samples inside [window], oldest first.
@@ -66,20 +157,50 @@ class HistoryRepository {
   /// that jumps — a timezone change, or an NTP correction — would otherwise
   /// draw the chart backwards.
   List<SignalSample> since(DateTime now, Duration window) {
+    _refreshCacheIfChanged();
     final cutoff = now.subtract(window).millisecondsSinceEpoch;
-    final samples = <SignalSample>[];
-    for (final raw in _box.values) {
-      final timestamp = _timestampOf(raw);
-      if (timestamp != null && timestamp >= cutoff) {
-        samples.add(SignalSample.fromJson(raw as Map<dynamic, dynamic>));
-      }
-    }
-    samples.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-    return List.unmodifiable(samples);
+    return List.unmodifiable(
+      _samples.where(
+        (sample) => sample.timestamp.millisecondsSinceEpoch >= cutoff,
+      ),
+    );
   }
 
-  Future<void> clear() => _box.clear();
+  Future<void> clear() async {
+    _samples.clear();
+    _latest = null;
+    await _box.clear();
+    _knownBoxLength = 0;
+    final pending = await _backgroundBridge.drain();
+    await _backgroundBridge.acknowledge(pending);
+  }
+
+  void _refreshCacheIfChanged() {
+    if (_box.length != _knownBoxLength) _rebuildCache();
+  }
+
+  void _rebuildCache() {
+    _samples.clear();
+    _latest = null;
+    for (final raw in _box.values) {
+      if (raw is Map && _timestampOf(raw) != null) {
+        final sample = SignalSample.fromJson(raw);
+        _samples.add(sample);
+        _latest = sample;
+      }
+    }
+    _samples.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    _knownBoxLength = _box.length;
+  }
 
   static int? _timestampOf(Object? raw) =>
       raw is Map ? (raw['ts'] as num?)?.toInt() : null;
+
+  static bool _shouldRecord(SignalSample sample, SignalSample? previous) =>
+      previous == null ||
+      previous.bars != sample.bars ||
+      previous.kind != sample.kind ||
+      sample.timestamp.difference(previous.timestamp) >= minimumSpacing;
+
+  static String _identity(SignalSample sample) => jsonEncode(sample.toJson());
 }

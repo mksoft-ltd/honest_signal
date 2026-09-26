@@ -87,7 +87,7 @@ final indicatorControllerProvider = ChangeNotifierProvider<IndicatorController>(
 
     ref.listen<AppSettings>(
       effectiveSettingsProvider,
-      (_, next) => controller.sync(next),
+      (_, next) => controller.sync(next, requestPermission: false),
     );
 
     return controller;

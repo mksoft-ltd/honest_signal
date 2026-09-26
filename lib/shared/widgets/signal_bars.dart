@@ -27,7 +27,9 @@ class SignalBars extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = color ?? AppColors.of(context).forBars(bars);
-    final inactive = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.14);
+    final inactive = Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: 0.14);
 
     final painter = CustomPaint(
       size: Size(size, size * 0.82),
@@ -39,21 +41,34 @@ class SignalBars extends StatelessWidget {
       ),
     );
 
-    if (!animate) return painter;
+    final semanticsLabel = '${bars.clamp(0, 5)} out of 5 signal bars';
+    if (!animate) {
+      return Semantics(
+        label: semanticsLabel,
+        image: true,
+        child: ExcludeSemantics(child: painter),
+      );
+    }
 
     // Animating the fill rather than snapping keeps a one-bar drop from reading
     // as a glitch, and matches the hysteresis in the scoring model.
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: bars.clamp(0, 5).toDouble()),
-      duration: const Duration(milliseconds: 420),
-      curve: Curves.easeOutCubic,
-      builder: (context, value, _) => CustomPaint(
-        size: Size(size, size * 0.82),
-        painter: _SignalBarsPainter(
-          bars: value,
-          theme: theme,
-          active: active,
-          inactive: inactive,
+    return Semantics(
+      label: semanticsLabel,
+      image: true,
+      child: ExcludeSemantics(
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: bars.clamp(0, 5).toDouble()),
+          duration: const Duration(milliseconds: 420),
+          curve: Curves.easeOutCubic,
+          builder: (context, value, _) => CustomPaint(
+            size: Size(size, size * 0.82),
+            painter: _SignalBarsPainter(
+              bars: value,
+              theme: theme,
+              active: active,
+              inactive: inactive,
+            ),
+          ),
         ),
       ),
     );

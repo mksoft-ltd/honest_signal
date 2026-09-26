@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:honestsignal/core/utils/formatters.dart';
 import 'package:honestsignal/features/measurement/data/background_host.dart';
 import 'package:honestsignal/features/measurement/data/budget_store.dart';
+import 'package:honestsignal/features/measurement/data/history_repository.dart';
 import 'package:honestsignal/features/measurement/data/measurement_engine.dart';
 import 'package:honestsignal/features/measurement/domain/indicator_text.dart';
 import 'package:honestsignal/features/measurement/domain/measurement_config.dart';
@@ -28,6 +29,7 @@ void main() {
   late FakeConnectivitySource connectivity;
   late InMemoryBudgetStore budget;
   late BackgroundMeasurementHost host;
+  late _HistoryBridge history;
   late List<MethodCall> outgoing;
 
   const defaultBudget = 25 * 1024 * 1024;
@@ -37,17 +39,19 @@ void main() {
     connectivity = FakeConnectivitySource(kind);
     budget = InMemoryBudgetStore();
     outgoing = [];
+    history = _HistoryBridge();
     host = BackgroundMeasurementHost(
       channel: channel,
       engine: engine,
       connectivity: connectivity,
       budgetStore: budget,
+      historyBridge: history,
     );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async {
-      outgoing.add(call);
-      return null;
-    });
+          outgoing.add(call);
+          return null;
+        });
   }
 
   tearDown(() {
@@ -61,25 +65,34 @@ void main() {
     ByteData? reply;
     await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .handlePlatformMessage(
-      channelName,
-      codec.encodeMethodCall(MethodCall(method, arguments)),
-      (response) => reply = response,
-    );
+          channelName,
+          codec.encodeMethodCall(MethodCall(method, arguments)),
+          (response) => reply = response,
+        );
     return reply == null ? null : codec.decodeEnvelope(reply!);
   }
 
   group('cycle decisions', () {
-    test('the first cycle spends a transfer sample; the next one does not',
-        () async {
-      // The 120 KB sample is the expensive part, so in the background it runs
-      // on a ten-minute clock of its own while probes keep the icon live.
-      build();
+    test(
+      'the first cycle spends a transfer sample; the next one does not',
+      () async {
+        // The 120 KB sample is the expensive part, so in the background it runs
+        // on a ten-minute clock of its own while probes keep the icon live.
+        build();
 
-      await host.runCycle(measureOnCellular: true, budgetLimitBytes: defaultBudget);
-      await host.runCycle(measureOnCellular: true, budgetLimitBytes: defaultBudget);
+        await host.runCycle(
+          measureOnCellular: true,
+          budgetLimitBytes: defaultBudget,
+        );
+        await host.runCycle(
+          measureOnCellular: true,
+          budgetLimitBytes: defaultBudget,
+        );
 
-      expect(engine.calls.map((c) => c.includeTransfer), [true, false]);
-    });
+        expect(engine.calls.map((c) => c.includeTransfer), [true, false]);
+        expect(history.samples, hasLength(2));
+      },
+    );
 
     test('a spent budget stops the transfer but not the reading', () async {
       build();
@@ -121,7 +134,10 @@ void main() {
     test('an offline cycle never pays for a transfer', () async {
       build(kind: NetworkKind.none);
 
-      await host.runCycle(measureOnCellular: true, budgetLimitBytes: defaultBudget);
+      await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
 
       expect(engine.calls.single.kind, NetworkKind.none);
       expect(engine.calls.single.includeTransfer, isFalse);
@@ -132,9 +148,18 @@ void main() {
       build();
       engine.barsFor = (index) => index == 0 ? 4 : 3;
 
-      await host.runCycle(measureOnCellular: true, budgetLimitBytes: defaultBudget);
-      await host.runCycle(measureOnCellular: true, budgetLimitBytes: defaultBudget);
-      await host.runCycle(measureOnCellular: true, budgetLimitBytes: defaultBudget);
+      await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
+      await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
+      await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
 
       expect(engine.calls.map((c) => c.previousBars), [null, 4, 3]);
     });
@@ -142,9 +167,18 @@ void main() {
     test('the cycle counter advances so probe targets rotate', () async {
       build();
 
-      await host.runCycle(measureOnCellular: true, budgetLimitBytes: defaultBudget);
-      await host.runCycle(measureOnCellular: true, budgetLimitBytes: defaultBudget);
-      await host.runCycle(measureOnCellular: true, budgetLimitBytes: defaultBudget);
+      await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
+      await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
+      await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
 
       expect(engine.calls.map((c) => c.cycle), [0, 1, 2]);
     });
@@ -155,7 +189,10 @@ void main() {
       build();
       engine.bytesUsed = 4200;
 
-      await host.runCycle(measureOnCellular: true, budgetLimitBytes: defaultBudget);
+      await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
 
       final after = await budget.read(
         now: DateTime.now(),
@@ -168,7 +205,10 @@ void main() {
       build();
       engine.bytesUsed = 0;
 
-      await host.runCycle(measureOnCellular: true, budgetLimitBytes: defaultBudget);
+      await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
 
       final after = await budget.read(
         now: DateTime.now(),
@@ -190,52 +230,60 @@ void main() {
       expect(outgoing.single.method, 'backgroundReady');
     });
 
-    test('runCycle answers with the sample plus the notification wording',
-        () async {
-      build();
-      host.attach();
-      engine.barsFor = (_) => 4;
+    test(
+      'runCycle answers with the sample plus the notification wording',
+      () async {
+        build();
+        host.attach();
+        engine.barsFor = (_) => 4;
 
-      final result = await callIn('runCycle', {
-        'measureOnCellular': true,
-        'budgetLimitBytes': defaultBudget,
-      }) as Map<Object?, Object?>?;
+        final result =
+            await callIn('runCycle', {
+                  'measureOnCellular': true,
+                  'budgetLimitBytes': defaultBudget,
+                })
+                as Map<Object?, Object?>?;
 
-      expect(result, isNotNull);
-      expect(result!['bars'], 4);
-      expect(result['verdict'], 'Good');
-      expect(result['detail'], isA<String>());
-      // The icon needs the level and the notification needs the words; both
-      // come from Dart so the wording exists in one language only.
-      expect(result['ts'], isA<int>());
-      expect(result['kind'], NetworkKind.wifi.name);
-    });
+        expect(result, isNotNull);
+        expect(result!['bars'], 4);
+        expect(result['verdict'], 'Good');
+        expect(result['detail'], isA<String>());
+        // The icon needs the level and the notification needs the words; both
+        // come from Dart so the wording exists in one language only.
+        expect(result['ts'], isA<int>());
+        expect(result['kind'], NetworkKind.wifi.name);
+      },
+    );
 
-    test('a cycle that deliberately did nothing answers with nothing',
-        () async {
-      build(kind: NetworkKind.cellular);
-      host.attach();
+    test(
+      'a cycle that deliberately did nothing answers with nothing',
+      () async {
+        build(kind: NetworkKind.cellular);
+        host.attach();
 
-      final result = await callIn('runCycle', {
-        'measureOnCellular': false,
-        'budgetLimitBytes': defaultBudget,
-      });
+        final result = await callIn('runCycle', {
+          'measureOnCellular': false,
+          'budgetLimitBytes': defaultBudget,
+        });
 
-      expect(result, isNull);
-    });
+        expect(result, isNull);
+      },
+    );
 
-    test('missing arguments fall back to measuring on the default budget',
-        () async {
-      // The service is the only caller, but a partial argument map must not
-      // crash the isolate that keeps the indicator alive.
-      build();
-      host.attach();
+    test(
+      'missing arguments fall back to measuring on the default budget',
+      () async {
+        // The service is the only caller, but a partial argument map must not
+        // crash the isolate that keeps the indicator alive.
+        build();
+        host.attach();
 
-      final result = await callIn('runCycle');
+        final result = await callIn('runCycle');
 
-      expect(result, isNotNull);
-      expect(engine.calls, hasLength(1));
-    });
+        expect(result, isNotNull);
+        expect(engine.calls, hasLength(1));
+      },
+    );
 
     test('an unknown method is ignored rather than throwing', () async {
       build();
@@ -251,18 +299,17 @@ void main() {
       double? latency = 42,
       double? throughput = 12000,
       double loss = 0,
-    }) =>
-        SignalSample(
-          timestamp: DateTime(2026, 8, 8, 12),
-          kind: kind,
-          bars: 4,
-          composite: 0.8,
-          latencyMs: latency,
-          throughputKbps: throughput,
-          lossRatio: loss,
-          probesSent: 4,
-          bytesUsed: 2800,
-        );
+    }) => SignalSample(
+      timestamp: DateTime(2026, 8, 8, 12),
+      kind: kind,
+      bars: 4,
+      composite: 0.8,
+      latencyMs: latency,
+      throughputKbps: throughput,
+      lossRatio: loss,
+      probesSent: 4,
+      bytesUsed: 2800,
+    );
 
     test('names the transport, the round trip and the speed', () {
       // Worded by Format.throughput, the single source PRODUCT_SPEC names, so
@@ -289,14 +336,8 @@ void main() {
     });
 
     test('omits a speed that was never measured, and one that stalled', () {
-      expect(
-        IndicatorText.detail(sample(throughput: null)),
-        'Wi-Fi · 42 ms',
-      );
-      expect(
-        IndicatorText.detail(sample(throughput: 0)),
-        'Wi-Fi · 42 ms',
-      );
+      expect(IndicatorText.detail(sample(throughput: null)), 'Wi-Fi · 42 ms');
+      expect(IndicatorText.detail(sample(throughput: 0)), 'Wi-Fi · 42 ms');
     });
 
     test('drops to kbps below a megabit', () {
@@ -306,6 +347,19 @@ void main() {
   });
 }
 
+class _HistoryBridge implements BackgroundHistoryBridge {
+  final List<SignalSample> samples = [];
+
+  @override
+  Future<void> append(SignalSample sample) async => samples.add(sample);
+
+  @override
+  Future<List<SignalSample>> drain() async => const [];
+
+  @override
+  Future<void> acknowledge(List<SignalSample> samples) async {}
+}
+
 /// A stand-in engine that records how each cycle was asked for.
 ///
 /// Subclassing the real engine keeps the host's call signature honest: a
@@ -313,13 +367,15 @@ void main() {
 /// unmeasured in the background.
 class _SpyEngine extends MeasurementEngine {
   _SpyEngine()
-      : super(
-          client: FakeProbeClient(),
-          config: const MeasurementConfig(interProbeGap: Duration.zero),
-        );
+    : super(
+        client: FakeProbeClient(),
+        config: const MeasurementConfig(interProbeGap: Duration.zero),
+      );
 
-  final List<({NetworkKind kind, bool includeTransfer, int? previousBars, int cycle})>
-      calls = [];
+  final List<
+    ({NetworkKind kind, bool includeTransfer, int? previousBars, int cycle})
+  >
+  calls = [];
 
   int bytesUsed = 2800;
   int Function(int callIndex) barsFor = (_) => 4;

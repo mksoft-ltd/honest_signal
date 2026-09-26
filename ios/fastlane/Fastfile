@@ -50,7 +50,10 @@ platform :ios do
 
   desc "Build and submit to the App Store"
   lane :release do
-    Dir.chdir("../..") { sh("flutter", "build", "ipa", "--release") }
+    Dir.chdir("../..") do
+      sh("flutter", "build", "ipa", "--release",
+         "--export-options-plist=ios/ExportOptions.plist")
+    end
     deliver(
       api_key: asc_key,
       ipa: "../build/ios/ipa/Honest Signal.ipa",

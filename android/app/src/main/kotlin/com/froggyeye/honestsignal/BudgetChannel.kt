@@ -40,9 +40,94 @@ object BudgetStore {
 /** Wires [BudgetStore] onto a Flutter engine's binary messenger. */
 object BudgetChannel {
     const val NAME = "com.froggyeye.honestsignal/budget"
+    private const val HISTORY_PREFS = "honest_signal_background_history"
+    private const val HISTORY_ROWS = "rows"
+
+    private fun readStoredRows(context: Context): List<Map<String, Any?>> {
+        val prefs = context.getSharedPreferences(HISTORY_PREFS, Context.MODE_PRIVATE)
+        return BackgroundHistoryQueue.decode(prefs.getString(HISTORY_ROWS, "[]"))
+    }
+
+    private fun writeStoredRows(context: Context, rows: List<Map<String, Any?>>) {
+        val preferences = context.getSharedPreferences(HISTORY_PREFS, Context.MODE_PRIVATE)
+        val committed = BackgroundHistoryQueue.persist(rows) { serialized ->
+            preferences.edit().putString(HISTORY_ROWS, serialized).commit()
+        }
+        check(committed) { "Could not commit background history" }
+    }
+
+    @Synchronized
+    private fun appendHistory(context: Context, row: Map<*, *>) {
+        val rows = BackgroundHistoryQueue.append(
+            readStoredRows(context),
+            row.entries.associate { it.key.toString() to it.value },
+            System.currentTimeMillis(),
+        )
+        // commit() makes the queue durable before Dart reports the cycle done.
+        writeStoredRows(context, rows)
+    }
+
+    @Synchronized
+    private fun readHistory(context: Context): List<Map<String, Any?>> {
+        val rows = BackgroundHistoryQueue.retained(
+            readStoredRows(context),
+            System.currentTimeMillis(),
+        )
+        // Peek also persists pruning so corrupt/expired rows do not reappear.
+        writeStoredRows(context, rows)
+        return rows
+    }
+
+    @Synchronized
+    private fun dropHistory(context: Context, timestamps: List<Long>) {
+        writeStoredRows(
+            context,
+            BackgroundHistoryQueue.drop(
+                readStoredRows(context),
+                timestamps,
+                System.currentTimeMillis(),
+            ),
+        )
+    }
 
     fun handler(context: Context): MethodChannel.MethodCallHandler =
         MethodChannel.MethodCallHandler { call, result ->
+            if (call.method == "historyAppend") {
+                @Suppress("UNCHECKED_CAST")
+                val row = call.arguments as? Map<String, Any?>
+                if (row == null) result.error("bad_args", "sample is required", null)
+                else {
+                    runCatching { appendHistory(context, row) }.fold(
+                        onSuccess = { result.success(null) },
+                        onFailure = {
+                            result.error("history_write_failed", it.localizedMessage, null)
+                        },
+                    )
+                }
+                return@MethodCallHandler
+            }
+            if (call.method == "historyPeek") {
+                runCatching { readHistory(context) }.fold(
+                    onSuccess = { result.success(it) },
+                    onFailure = {
+                        result.error("history_write_failed", it.localizedMessage, null)
+                    },
+                )
+                return@MethodCallHandler
+            }
+            if (call.method == "historyDrop") {
+                runCatching {
+                    val timestamps = (call.argument<List<Number>>("timestamps") ?: emptyList())
+                        .map { it.toLong() }
+                    dropHistory(context, timestamps)
+                }.fold(
+                    onSuccess = { result.success(null) },
+                    onFailure = {
+                        result.error("history_write_failed", it.localizedMessage, null)
+                    },
+                )
+                return@MethodCallHandler
+            }
             val day = call.argument<String>("day")
             if (day == null) {
                 result.error("bad_args", "day is required", null)

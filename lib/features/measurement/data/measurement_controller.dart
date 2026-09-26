@@ -65,19 +65,26 @@ class MeasurementController extends ChangeNotifier {
   DateTime? _lastTransferAt;
   int _cycle = 0;
   bool _inFlight = false;
+  bool _forcedCycleQueued = false;
   bool _started = false;
   bool _disposed = false;
+  bool _foreground = true;
+  int _lifecycleEpoch = 0;
 
   Future<void> start() async {
     if (_started) return;
     _started = true;
+    final epoch = _lifecycleEpoch;
 
     _kind = await _connectivity.current();
     _connectivitySubscription = _connectivity.changes.listen(
       _onConnectivityChanged,
     );
+    await _history.importBackgroundSamples();
     await _refreshBudget();
+    if (!_foreground || epoch != _lifecycleEpoch) return;
     await _indicator.setUiActive(active: true);
+    if (!_foreground || epoch != _lifecycleEpoch) return;
 
     // The first reading after opening the app always includes a transfer
     // sample: the user came here to find out whether the connection works, and
@@ -90,6 +97,8 @@ class MeasurementController extends ChangeNotifier {
   /// takes over when the UI goes away; on iOS measurement genuinely stops, and
   /// the home screen says so.
   Future<void> setForeground(bool foreground) async {
+    _foreground = foreground;
+    final epoch = ++_lifecycleEpoch;
     if (!_started) {
       // A resumed lifecycle callback can beat HomeScreen's post-frame start.
       // Starting here is safe and idempotent; a background callback before
@@ -97,17 +106,23 @@ class MeasurementController extends ChangeNotifier {
       if (foreground) await start();
       return;
     }
-    await _indicator.setUiActive(active: foreground);
-    if (foreground) {
-      _setState(_state.copyWith(pause: MeasurementPause.none));
-      await _refreshBudget();
-      unawaited(measureNow(forceTransfer: true));
-      _scheduleTimer();
-    } else {
+    if (!foreground) {
       _timer?.cancel();
       _timer = null;
+      _forcedCycleQueued = false;
       _setState(_state.copyWith(pause: MeasurementPause.appBackgrounded));
+      await _indicator.setUiActive(active: false);
+      return;
     }
+    await _indicator.setUiActive(active: true);
+    if (!_foreground || epoch != _lifecycleEpoch) return;
+    _setState(_state.copyWith(pause: MeasurementPause.none));
+    await _history.importBackgroundSamples();
+    if (!_foreground || epoch != _lifecycleEpoch) return;
+    await _refreshBudget();
+    if (!_foreground || epoch != _lifecycleEpoch) return;
+    unawaited(measureNow(forceTransfer: true));
+    _scheduleTimer();
   }
 
   Future<void> applySettings(AppSettings settings) async {
@@ -129,7 +144,8 @@ class MeasurementController extends ChangeNotifier {
     // Claimed synchronously, before the first await: the periodic timer fires
     // on its own schedule, and a tick landing mid-cycle would otherwise start a
     // second set of probes that double the data cost for the same answer.
-    if (_inFlight || _disposed) return;
+    if (_disposed || !_foreground) return;
+    if (_inFlight) return;
     _inFlight = true;
 
     try {
@@ -139,6 +155,7 @@ class MeasurementController extends ChangeNotifier {
       }
 
       final budget = await _refreshBudget();
+      if (!_foreground) return;
 
       // A spent budget does not blank the screen. Latency probes cost ~3 KB, so
       // they keep running and the user still gets a reading; only the 120 KB
@@ -179,10 +196,14 @@ class MeasurementController extends ChangeNotifier {
       _setState(
         _state.copyWith(sample: sample, budget: spent, measuring: false),
       );
-      await _publishToIndicator(sample);
+      if (_foreground) await _publishToIndicator(sample);
     } finally {
       _inFlight = false;
       if (!_disposed) _setState(_state.copyWith(measuring: false));
+      if (_forcedCycleQueued && !_disposed && _foreground) {
+        _forcedCycleQueued = false;
+        unawaited(measureNow(forceTransfer: true));
+      }
     }
   }
 
@@ -218,9 +239,14 @@ class MeasurementController extends ChangeNotifier {
 
   void _onConnectivityChanged(NetworkKind kind) {
     _kind = kind;
+    if (!_foreground) return;
     // The moment the network changes is exactly when the old reading became
     // meaningless, so re-measure in full rather than waiting for the timer.
-    unawaited(measureNow(forceTransfer: true));
+    if (_inFlight) {
+      _forcedCycleQueued = true;
+    } else {
+      unawaited(measureNow(forceTransfer: true));
+    }
   }
 
   Future<void> _publishToIndicator(SignalSample sample) async {
@@ -236,6 +262,7 @@ class MeasurementController extends ChangeNotifier {
   }
 
   void _scheduleTimer() {
+    if (!_foreground) return;
     _timer?.cancel();
     _timer = Timer.periodic(
       _settings.foregroundInterval,

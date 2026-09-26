@@ -14,11 +14,11 @@ Decisions (founder, 2026-08-07): **free + £2.99 Pro IAP** (native `in_app_purch
 ## Stages
 | # | Stage | Agent | Status | Date |
 |---|-------|-------|--------|------|
-| 1 | build | flutter-architect | done — stage-4 fix round applied 2026-08-09 | 2026-08-07 |
+| 1 | build | flutter-architect | done — review + re-review fixes implemented; 310 Flutter, 11 Kotlin and 4 Swift tests pass; built-in-Kotlin migration deferred until required Flutter 3.47+ | 2026-09-25 |
 | 2 | design | ui-designer | done | 2026-08-08 |
-| 3 | test | mobile-qa-architect | done | 2026-08-08 |
-| 4a | code-review | mobile-code-reviewer | done — **PASS**. 1.0.0: 2 Critical + 3 Major + N1/N2 fixed and re-verified; 13 Minor open. **1.0.1 (vc3) round re-reviewed 2026-08-14: PASS** — 0 Critical, 0 Major, 7 Minor (N4–N10), gates re-run and all 5 new regression tests confirmed to bite | 2026-08-14 |
-| 4b | security | mobile-security-auditor | done — **PASS** (0 Critical, 0 High, 3 Medium, 3 Low); SEC-1/2/3/4 fixed and re-verified 2026-08-09 | 2026-08-09 |
+| 3 | test | mobile-qa-architect | done — 310 Flutter + 11 Kotlin + 4 Swift tests passing | 2026-09-25 |
+| 4a | code-review | mobile-code-reviewer | done — **PASS**; comprehensive improvement and re-review fixes verified, 0 Critical/Major remaining | 2026-09-25 |
+| 4b | security | mobile-security-auditor | done — **PASS**; retention, backup exclusion, abortable requests and IAP failure ordering re-verified | 2026-09-25 |
 | 5 | metadata | growth-monetization → release-manager | done — ASO (`docs/ASO.md`) + fastlane metadata written both stores | 2026-08-09 |
 | 6 | compliance | app-store-review-auditor | done — **PASS** re-verified (C-1/C-2/H-1/H-4 closed; H-2/H-3/M-1/M-2/M-3 carried as stage-7 gate conditions) | 2026-08-09 |
 | 7 | publish | store-publisher | uploaded both stores; **awaiting console-only steps before submit** (Apple: privacy label + IAP "Add for Review"; Play: declarations + first rollout). Play listing screenshot `03_statusbar` recaptured from vc3 and re-uploaded 2026-08-15 (images-only edit; no track touched) | 2026-08-15 |

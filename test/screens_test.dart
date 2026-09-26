@@ -48,18 +48,21 @@ void main() {
     await store.close();
   });
 
-  List<Override> overrides() => [
-        localStoreProvider.overrideWithValue(store),
-        probeClientProvider.overrideWithValue(probes),
-        connectivitySourceProvider.overrideWithValue(connectivity),
-        budgetStoreProvider.overrideWithValue(InMemoryBudgetStore()),
-        iapGatewayProvider.overrideWithValue(gateway),
-        indicatorChannelProvider
-            .overrideWithValue(FakeIndicatorChannel(supported: false)),
-      ];
+  List<Override> overrides({FakeIndicatorChannel? indicator}) => [
+    localStoreProvider.overrideWithValue(store),
+    probeClientProvider.overrideWithValue(probes),
+    connectivitySourceProvider.overrideWithValue(connectivity),
+    budgetStoreProvider.overrideWithValue(InMemoryBudgetStore()),
+    iapGatewayProvider.overrideWithValue(gateway),
+    indicatorChannelProvider.overrideWithValue(
+      indicator ?? FakeIndicatorChannel(supported: false),
+    ),
+  ];
 
-  Widget host(Widget child) =>
-      ProviderScope(overrides: overrides(), child: MaterialApp(home: child));
+  Widget host(Widget child) => ProviderScope(
+    overrides: overrides(),
+    child: MaterialApp(home: child),
+  );
 
   /// Advances a fixed span of time in small steps. Twelve frames covers a full
   /// measurement cycle without reaching the five-second periodic timers.
@@ -77,12 +80,14 @@ void main() {
   }
 
   PurchaseController purchasesOf(WidgetTester tester, Type screen) =>
-      ProviderScope.containerOf(tester.element(find.byType(screen)))
-          .read(purchaseControllerProvider);
+      ProviderScope.containerOf(
+        tester.element(find.byType(screen)),
+      ).read(purchaseControllerProvider);
 
   group('paywall', () {
-    testWidgets('shows the price the store quoted, never a hardcoded one',
-        (tester) async {
+    testWidgets('shows the price the store quoted, never a hardcoded one', (
+      tester,
+    ) async {
       // Both stores reject a price that disagrees with the user's storefront.
       await tester.pumpWidget(host(const PaywallScreen()));
       expect(find.text('Unlock Pro'), findsOneWidget);
@@ -94,8 +99,9 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('names each Pro feature before asking for money',
-        (tester) async {
+    testWidgets('names each Pro feature before asking for money', (
+      tester,
+    ) async {
       await tester.pumpWidget(host(const PaywallScreen()));
 
       expect(find.text('History and graphs'), findsOneWidget);
@@ -104,8 +110,9 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('sells nothing the buyer already has, or cannot get here',
-        (tester) async {
+    testWidgets('sells nothing the buyer already has, or cannot get here', (
+      tester,
+    ) async {
       // H-1. These tests run with `Platform.isAndroid == false`, which is the
       // iPhone path — the one the compliance audit failed on.
       await tester.pumpWidget(host(const PaywallScreen()));
@@ -132,8 +139,15 @@ void main() {
       await tester.pump();
 
       expect(find.textContaining('store is unreachable'), findsOneWidget);
+      expect(find.text('Retry store'), findsOneWidget);
       final button = tester.widget<FilledButton>(find.byType(FilledButton));
       expect(button.onPressed, isNull);
+
+      gateway.available = true;
+      await tester.tap(find.text('Retry store'));
+      await tester.pump();
+      expect(find.text('Unlock Pro — £2.99'), findsOneWidget);
+      expect(find.textContaining('store is unreachable'), findsNothing);
       await unmount(tester);
     });
 
@@ -169,8 +183,9 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('an owned unlock replaces the button with a receipt',
-        (tester) async {
+    testWidgets('an owned unlock replaces the button with a receipt', (
+      tester,
+    ) async {
       await SettingsRepository(store.settings).saveProUnlocked(true);
       await tester.pumpWidget(host(const PaywallScreen()));
       await tester.pump();
@@ -181,11 +196,14 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('restore is always reachable, even before the store answers',
-        (tester) async {
+    testWidgets('restore is always reachable, even before the store answers', (
+      tester,
+    ) async {
       // Apple requires a restore path that does not depend on a live purchase.
       await tester.pumpWidget(host(const PaywallScreen()));
 
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Restore purchase'));
       await tester.pump();
 
@@ -199,18 +217,20 @@ void main() {
       final history = HistoryRepository(store.history);
       final now = DateTime.now();
       for (var i = count; i > 0; i--) {
-        await history.record(SignalSample(
-          timestamp: now.subtract(Duration(minutes: i)),
-          kind: NetworkKind.wifi,
-          bars: i % 6,
-          composite: (i % 6) / 5,
-          latencyMs: 40,
-          jitterMs: 5,
-          throughputKbps: 20000,
-          lossRatio: 0,
-          probesSent: 4,
-          bytesUsed: 2800,
-        ));
+        await history.record(
+          SignalSample(
+            timestamp: now.subtract(Duration(minutes: i)),
+            kind: NetworkKind.wifi,
+            bars: i % 6,
+            composite: (i % 6) / 5,
+            latencyMs: 40,
+            jitterMs: 5,
+            throughputKbps: 20000,
+            lossRatio: 0,
+            probesSent: 4,
+            bytesUsed: 2800,
+          ),
+        );
       }
     }
 
@@ -240,8 +260,9 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('switching to the 24-hour window keeps the chart alive',
-        (tester) async {
+    testWidgets('switching to the 24-hour window keeps the chart alive', (
+      tester,
+    ) async {
       await SettingsRepository(store.settings).saveProUnlocked(true);
       await seed(20);
       await tester.pumpWidget(host(const HistoryScreen()));
@@ -255,8 +276,9 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('an empty window says so rather than drawing a blank box',
-        (tester) async {
+    testWidgets('an empty window says so rather than drawing a blank box', (
+      tester,
+    ) async {
       await SettingsRepository(store.settings).saveProUnlocked(true);
 
       await tester.pumpWidget(host(const HistoryScreen()));
@@ -290,8 +312,9 @@ void main() {
       addTearDown(tester.view.reset);
     }
 
-    testWidgets('a fresh install opens on the explanation, not the meter',
-        (tester) async {
+    testWidgets('a fresh install opens on the explanation, not the meter', (
+      tester,
+    ) async {
       await tester.pumpWidget(app());
       await settle(tester, 4);
 
@@ -300,8 +323,9 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('finishing onboarding remembers it and starts measuring',
-        (tester) async {
+    testWidgets('finishing onboarding remembers it and starts measuring', (
+      tester,
+    ) async {
       await tester.pumpWidget(app());
       await settle(tester, 4);
 
@@ -316,10 +340,44 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('an onboarded install opens straight onto a real reading',
-        (tester) async {
-      await SettingsRepository(store.settings)
-          .save(const AppSettings(hasSeenOnboarding: true));
+    testWidgets('notification permission waits for the onboarding CTA', (
+      tester,
+    ) async {
+      final indicator = FakeIndicatorChannel(
+        notificationsGranted: false,
+        notificationRequestGranted: false,
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: overrides(indicator: indicator),
+          child: const HonestSignalApp(),
+        ),
+      );
+      await settle(tester, 4);
+
+      expect(
+        indicator.calls.where(
+          (call) => call == 'requestNotificationPermission',
+        ),
+        isEmpty,
+      );
+      await tester.tap(find.text('Measure my connection'));
+      await settle(tester);
+      expect(
+        indicator.calls.where(
+          (call) => call == 'requestNotificationPermission',
+        ),
+        hasLength(1),
+      );
+      await unmount(tester);
+    });
+
+    testWidgets('an onboarded install opens straight onto a real reading', (
+      tester,
+    ) async {
+      await SettingsRepository(
+        store.settings,
+      ).save(const AppSettings(hasSeenOnboarding: true));
 
       await tester.pumpWidget(app());
       await settle(tester, 20);
@@ -337,8 +395,9 @@ void main() {
 
     testWidgets('the free tier is offered Pro from the meter', (tester) async {
       tallSurface(tester);
-      await SettingsRepository(store.settings)
-          .save(const AppSettings(hasSeenOnboarding: true));
+      await SettingsRepository(
+        store.settings,
+      ).save(const AppSettings(hasSeenOnboarding: true));
 
       await tester.pumpWidget(app());
       await settle(tester, 20);
@@ -349,8 +408,9 @@ void main() {
 
     testWidgets('a Pro install is not nagged on the meter', (tester) async {
       tallSurface(tester);
-      await SettingsRepository(store.settings)
-          .save(const AppSettings(hasSeenOnboarding: true));
+      await SettingsRepository(
+        store.settings,
+      ).save(const AppSettings(hasSeenOnboarding: true));
       await SettingsRepository(store.settings).saveProUnlocked(true);
 
       await tester.pumpWidget(app());
@@ -360,12 +420,14 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('the reading is dated, so a stale number can never look live',
-        (tester) async {
+    testWidgets('the reading is dated, so a stale number can never look live', (
+      tester,
+    ) async {
       // iOS cannot measure while the app is closed, so the age of the reading
       // is a product requirement rather than decoration.
-      await SettingsRepository(store.settings)
-          .save(const AppSettings(hasSeenOnboarding: true));
+      await SettingsRepository(
+        store.settings,
+      ).save(const AppSettings(hasSeenOnboarding: true));
 
       await tester.pumpWidget(app());
       await settle(tester, 20);
@@ -380,11 +442,13 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('the data budget is on the meter, not buried in settings',
-        (tester) async {
+    testWidgets('the data budget is on the meter, not buried in settings', (
+      tester,
+    ) async {
       tallSurface(tester);
-      await SettingsRepository(store.settings)
-          .save(const AppSettings(hasSeenOnboarding: true));
+      await SettingsRepository(
+        store.settings,
+      ).save(const AppSettings(hasSeenOnboarding: true));
 
       await tester.pumpWidget(app());
       await settle(tester, 20);
@@ -419,35 +483,34 @@ void main() {
 
     for (final entry in geometries.entries) {
       for (final textScale in [1.0, 1.3]) {
-        testWidgets(
-          'lays out on a ${entry.key} at ${textScale}x text without '
-          'overflowing',
-          (tester) async {
-            tester.view.physicalSize = entry.value.size;
-            tester.view.devicePixelRatio = entry.value.dpr;
-            tester.platformDispatcher.textScaleFactorTestValue = textScale;
-            addTearDown(tester.view.reset);
-            addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        testWidgets('lays out on a ${entry.key} at ${textScale}x text without '
+            'overflowing', (tester) async {
+          tester.view.physicalSize = entry.value.size;
+          tester.view.devicePixelRatio = entry.value.dpr;
+          tester.platformDispatcher.textScaleFactorTestValue = textScale;
+          addTearDown(tester.view.reset);
+          addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
-            await SettingsRepository(store.settings)
-                .save(const AppSettings(hasSeenOnboarding: true));
+          await SettingsRepository(
+            store.settings,
+          ).save(const AppSettings(hasSeenOnboarding: true));
 
-            await tester.pumpWidget(app());
-            await settle(tester, 20);
+          await tester.pumpWidget(app());
+          await settle(tester, 20);
 
-            // An overflow is thrown during layout, not asserted, so this is
-            // the whole check.
-            expect(tester.takeException(), isNull);
-            await unmount(tester);
-          },
-        );
+          // An overflow is thrown during layout, not asserted, so this is
+          // the whole check.
+          expect(tester.takeException(), isNull);
+          await unmount(tester);
+        });
       }
     }
 
     testWidgets('a dead connection is reported as dead', (tester) async {
       probes.rtts = const [null, null, null, null];
-      await SettingsRepository(store.settings)
-          .save(const AppSettings(hasSeenOnboarding: true));
+      await SettingsRepository(
+        store.settings,
+      ).save(const AppSettings(hasSeenOnboarding: true));
 
       await tester.pumpWidget(app());
       await settle(tester, 20);
@@ -460,8 +523,9 @@ void main() {
     testWidgets('probes answering while the download dies is shown as the '
         'two-bar case the app exists to catch', (tester) async {
       probes.transferSucceeds = false;
-      await SettingsRepository(store.settings)
-          .save(const AppSettings(hasSeenOnboarding: true));
+      await SettingsRepository(
+        store.settings,
+      ).save(const AppSettings(hasSeenOnboarding: true));
 
       await tester.pumpWidget(app());
       await settle(tester, 20);
@@ -496,5 +560,36 @@ void main() {
       expect(tester.takeException(), isNull);
       await unmount(tester);
     });
+
+    testWidgets(
+      'slider previews locally and persists exactly once on release',
+      (tester) async {
+        final repository = SettingsRepository(store.settings);
+        await repository.save(const AppSettings(foregroundIntervalSeconds: 5));
+        await repository.saveProUnlocked(true);
+        var settingsWrites = 0;
+        final subscription = store.settings
+            .watch(key: 'settings')
+            .listen((_) => settingsWrites++);
+        addTearDown(subscription.cancel);
+
+        await tester.pumpWidget(host(const SettingsScreen()));
+        await tester.pump();
+        final slider = find.byType(Slider).first;
+        final rect = tester.getRect(slider);
+        final gesture = await tester.startGesture(rect.centerLeft);
+        await gesture.moveTo(Offset(rect.right - 8, rect.center.dy));
+        await tester.pump();
+
+        expect(repository.load().foregroundIntervalSeconds, 5);
+        expect(settingsWrites, 0);
+
+        await gesture.up();
+        await tester.pump();
+        expect(repository.load().foregroundIntervalSeconds, greaterThan(5));
+        expect(settingsWrites, 1);
+        await unmount(tester);
+      },
+    );
   });
 }

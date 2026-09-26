@@ -118,6 +118,10 @@ class FakeIndicatorChannel extends IndicatorChannel {
   Future<void> openOverlaySettings() async => calls.add('openOverlaySettings');
 
   @override
+  Future<void> openNotificationSettings() async =>
+      calls.add('openNotificationSettings');
+
+  @override
   Future<void> startOverlay() async {
     calls.add('startOverlay');
     overlayRunning = true;

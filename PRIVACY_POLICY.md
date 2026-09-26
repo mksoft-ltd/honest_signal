@@ -39,12 +39,11 @@ pages:
 - `www.gstatic.com`, `connectivitycheck.gstatic.com` (Google)
 - `cp.cloudflare.com`, `speed.cloudflare.com` (Cloudflare)
 
-These requests carry no identifier, no account, no cookie and nothing about
-you. They are ordinary anonymous web requests. As with any web request, the
-operator of the endpoint necessarily sees the IP address it came from and
+These requests carry no account or app identifier and no cookie. As with any
+web request, the operator of the endpoint sees the IP address it came from and
 handles it under their own privacy policy. Honest Signal does not send those
-operators anything else, and receives nothing back except the timing
-information it measures.
+operators anything else. It uses response timing and transfer bytes only to
+measure connection performance.
 
 You can limit this traffic in Settings: cap the daily data budget, lengthen the
 sampling interval, or switch off measuring on mobile data entirely.

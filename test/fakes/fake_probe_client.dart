@@ -23,6 +23,10 @@ class FakeProbeClient implements ProbeClient {
   int transferBytes;
   double transferMs;
   bool transferSucceeds;
+  Completer<void>? firstProbeGate;
+  Completer<void>? probeGate;
+  int? gatedProbeCall;
+  int probeErrorsRemaining = 0;
 
   /// One entry per transfer attempt, consumed in order, for the cases where the
   /// two attempts of a cycle have to differ — a failed 120 KB sample followed by
@@ -40,6 +44,12 @@ class FakeProbeClient implements ProbeClient {
   Future<ProbeResult> probe(Uri url, {required Duration timeout}) async {
     probedUrls.add(url);
     final index = probeCalls++;
+    if (index == 0 && firstProbeGate != null) await firstProbeGate!.future;
+    if (index == gatedProbeCall && probeGate != null) await probeGate!.future;
+    if (probeErrorsRemaining > 0) {
+      probeErrorsRemaining--;
+      throw StateError('scripted probe failure');
+    }
     final rtt = index < rtts.length ? rtts[index] : rtts.last;
     if (rtt == null) return const ProbeResult.failed(bytes: 700);
     return ProbeResult(ok: true, rttMs: rtt, bytes: 700);

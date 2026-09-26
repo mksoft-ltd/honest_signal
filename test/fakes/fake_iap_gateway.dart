@@ -15,6 +15,11 @@ class FakeIapGateway implements IapGateway {
   bool available;
   bool productExists;
   bool buyReturnsTrue = true;
+  Object? availabilityError;
+  Object? queryError;
+  Object? buyError;
+  Object? restoreError;
+  Object? completionError;
 
   final controller = StreamController<List<PurchaseDetails>>.broadcast();
   int restoreCalls = 0;
@@ -33,13 +38,17 @@ class FakeIapGateway implements IapGateway {
   );
 
   @override
-  Future<bool> isAvailable() async => available;
+  Future<bool> isAvailable() async {
+    if (availabilityError != null) throw availabilityError!;
+    return available;
+  }
 
   @override
   Stream<List<PurchaseDetails>> get purchaseStream => controller.stream;
 
   @override
   Future<ProductDetailsResponse> queryProductDetails(Set<String> ids) async {
+    if (queryError != null) throw queryError!;
     queryCalls++;
     return ProductDetailsResponse(
       productDetails: productExists ? [product] : const [],
@@ -49,15 +58,20 @@ class FakeIapGateway implements IapGateway {
 
   @override
   Future<bool> buyNonConsumable(PurchaseParam param) async {
+    if (buyError != null) throw buyError!;
     bought.add(param.productDetails.id);
     return buyReturnsTrue;
   }
 
   @override
-  Future<void> restorePurchases() async => restoreCalls++;
+  Future<void> restorePurchases() async {
+    restoreCalls++;
+    if (restoreError != null) throw restoreError!;
+  }
 
   @override
   Future<void> completePurchase(PurchaseDetails purchase) async {
+    if (completionError != null) throw completionError!;
     completeCalls++;
     completed.add(purchase.productID);
   }
@@ -72,12 +86,14 @@ class FakeIapGateway implements IapGateway {
     PurchaseStatus status, {
     bool needsCompletion = false,
     String? productId,
+    bool hasVerificationData = true,
   }) {
     controller.add([
       FakePurchase(
         status: status,
         needsCompletion: needsCompletion,
         productId: productId ?? PurchaseController.proProductId,
+        hasVerificationData: hasVerificationData,
       ),
     ]);
   }
@@ -90,12 +106,14 @@ class FakeIapGateway implements IapGateway {
     bool needsCompletion = false,
     String? productId,
     String? errorMessage,
+    bool hasVerificationData = true,
   }) async {
     controller.add([
       FakePurchase(
         status: status,
         needsCompletion: needsCompletion,
         productId: productId ?? PurchaseController.proProductId,
+        hasVerificationData: hasVerificationData,
         failure: errorMessage == null
             ? null
             : IAPError(
@@ -123,16 +141,17 @@ class FakePurchase extends PurchaseDetails {
     required super.status,
     required bool needsCompletion,
     String productId = PurchaseController.proProductId,
+    bool hasVerificationData = true,
     IAPError? failure,
   }) : super(
-          productID: productId,
-          verificationData: PurchaseVerificationData(
-            localVerificationData: 'local',
-            serverVerificationData: 'server',
-            source: 'test',
-          ),
-          transactionDate: null,
-        ) {
+         productID: productId,
+         verificationData: PurchaseVerificationData(
+           localVerificationData: hasVerificationData ? 'local' : '',
+           serverVerificationData: hasVerificationData ? 'server' : '',
+           source: 'test',
+         ),
+         transactionDate: null,
+       ) {
     pendingCompletePurchase = needsCompletion;
     error = failure;
   }

@@ -73,7 +73,9 @@ uses them.
 
 ## 2. Coverage map
 
-255 tests across 15 files. Everything that touches the outside world is behind
+The original 255-test, 15-file map is retained below as the baseline; the
+current suite is **310 tests across 19 files**, with the additional fix-round
+coverage recorded in §6. Everything that touches the outside world is behind
 an injectable seam — `ProbeClient`, `ConnectivitySource`, `BudgetStore`,
 `IapGateway`, `IndicatorChannel` — and every one of them is faked, so no test
 opens a socket, contacts a store, or writes to real storage.
@@ -271,6 +273,38 @@ is today, so a change fails loudly. None of them block the gate.
 ---
 
 ## 6. Latest run
+
+### 2026-09-25 implementation-fix run
+
+Coverage added or strengthened for native budget persistence, Android's
+cross-isolate history hand-off, duration-weighted history, queued connectivity
+remeasurement, whole-request deadlines, purchase exceptions, deferred
+notification permission, slider commit behaviour, semantics and small-screen
+scroll safety. Required manual checks M1–M8 remain applicable.
+
+The re-review and final cleanup add stale-gap boundaries shared by chart and stats,
+header/body abort observation, invalid-IAP non-completion and persistence
+failure, init retry, Android queue FIFO/corruption/expiry/cap, batch-import
+retry/deduplication, iOS backup source invariants, exactly-one connectivity
+follow-up through error/dispose, deferred permission/recovery routing, and
+single-commit slider/semantics widget coverage, platform-aware/capped history
+freshness, reachable store-init retry, failed Android queue commits, the pinned
+3,000-row default cap, and executable iOS budget rollover/backup tests.
+
+Commands: `flutter analyze`, `flutter test`,
+`cd android && ./gradlew :app:testDebugUnitTest`, Android release build and iOS
+simulator build.
+
+| Gate | Result |
+|---|---|
+| `flutter analyze` | **No issues found** (exit 0) |
+| `flutter test` | **310/310 passing** (exit 0) |
+| `./gradlew :app:testDebugUnitTest` | **11/11 passing** (exit 0) |
+| `flutter build appbundle --release` | exit 0, 52.1 MB |
+| iOS RunnerTests | **4/4 passing** with Xcode 27's required `IPHONEOS_DEPLOYMENT_TARGET=15.0` override |
+
+The Gradle built-in-Kotlin migration remains an explicit toolchain follow-up:
+Flutter 3.44.4 needs the compatibility flags; migrate after Flutter 3.47+.
 
 **2026-08-15**, Flutter 3.44.4 stable, Dart 3.12.2, on macOS 26.6.1 (arm64) —
 the N4–N10 review-fix round.

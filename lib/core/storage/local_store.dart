@@ -1,6 +1,7 @@
-import 'dart:typed_data';
-
+import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Opens and holds the app's Hive boxes.
 ///
@@ -17,6 +18,14 @@ class LocalStore {
   final Box<dynamic> history;
 
   static Future<LocalStore> open() async {
+    if (Platform.isIOS) {
+      // Hive defaults to Documents on iOS. It contains only reproducible app
+      // state, so explicitly keep the directory out of iCloud/device backup.
+      final documents = await getApplicationDocumentsDirectory();
+      await const MethodChannel(
+        'com.froggyeye.honestsignal/budget',
+      ).invokeMethod<void>('excludeFromBackup', {'path': documents.path});
+    }
     await Hive.initFlutter();
     final settings = await Hive.openBox<dynamic>(settingsBoxName);
     final history = await Hive.openBox<dynamic>(historyBoxName);

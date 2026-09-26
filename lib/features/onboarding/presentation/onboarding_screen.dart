@@ -21,54 +21,72 @@ class OnboardingScreen extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(28, 20, 28, 28),
-          child: Column(
-            children: [
-              const Spacer(),
-              const _Comparison(),
-              const SizedBox(height: 36),
-              Text(
-                'Your signal icon is lying to you',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Full bars means the mast is loud, not that data is moving. '
-                'Honest Signal actually uses the connection — timing real '
-                'requests and real transfers — and scores what it can do.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              ),
-              const Spacer(),
-              if (Platform.isAndroid)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: Text(
-                    'Next, Android will ask whether Honest Signal may show '
-                    'notifications. That is how the live score appears in your '
-                    'status bar. You can say no and still use the app.',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                  ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight:
+                  MediaQuery.sizeOf(context).height -
+                  MediaQuery.paddingOf(context).vertical -
+                  48,
+            ),
+            child: IntrinsicHeight(
+              child: Padding(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    const Spacer(),
+                    const _Comparison(),
+                    const SizedBox(height: 36),
+                    Text(
+                      'Your signal icon is lying to you',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Full bars means the mast is loud, not that data is moving. '
+                      'Honest Signal actually uses the connection — timing real '
+                      'requests and real transfers — and scores what it can do.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (Platform.isAndroid)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: Text(
+                          'Next, Android will ask whether Honest Signal may show '
+                          'notifications. That is how the live score appears in your '
+                          'status bar. You can say no and still use the app.',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    FilledButton(
+                      onPressed: () async {
+                        await ref
+                            .read(settingsProvider.notifier)
+                            .update((s) => s.copyWith(hasSeenOnboarding: true));
+                        final indicator = ref.read(indicatorControllerProvider);
+                        await indicator.sync(
+                          ref.read(effectiveSettingsProvider),
+                          requestPermission: true,
+                        );
+                        if (context.mounted) context.go('/');
+                      },
+                      child: const Text('Measure my connection'),
+                    ),
+                  ],
                 ),
-              FilledButton(
-                onPressed: () async {
-                  await ref
-                      .read(settingsProvider.notifier)
-                      .update((s) => s.copyWith(hasSeenOnboarding: true));
-                  await ref
-                      .read(indicatorControllerProvider)
-                      .sync(ref.read(effectiveSettingsProvider));
-                  if (context.mounted) context.go('/');
-                },
-                child: const Text('Measure my connection'),
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -106,11 +124,10 @@ class _Comparison extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               'What it can do',
-              style: theme.textTheme.labelSmall
-                  ?.copyWith(
-                    color: AppColors.of(context).poor,
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: AppColors.of(context).poor,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ],
         ),

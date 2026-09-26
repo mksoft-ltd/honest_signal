@@ -108,35 +108,38 @@ void main() {
         );
       }
 
-      test('a responder that keeps sending is cut off near the budgeted size',
-          () async {
-        // 4096 x 16 KB = 64 MB on offer against a 120 KB request.
-        final url = await serve(
-          chunkBytes: 16 * 1024,
-          gap: Duration.zero,
-        );
-        final client = HttpProbeClient();
-        addTearDown(client.close);
+      test(
+        'a responder that keeps sending is cut off near the budgeted size',
+        () async {
+          // 4096 x 16 KB = 64 MB on offer against a 120 KB request.
+          final url = await serve(chunkBytes: 16 * 1024, gap: Duration.zero);
+          final client = HttpProbeClient();
+          addTearDown(client.close);
 
-        final result = await client.transfer(
-          url,
-          timeout: const Duration(seconds: 8),
-        );
+          final result = await client.transfer(
+            url,
+            timeout: const Duration(seconds: 8),
+          );
 
-        // Reading stops at the first chunk that crosses the cap — but a chunk
-        // is one socket read, not one server write, and the client coalesces.
-        // The overshoot is therefore set by the peer's write size and receive
-        // buffer autotuning, not by anything this code guarantees: measured
-        // against the current client, 16 KB writes overshoot ~11 KB while 1 MB
-        // writes overshoot ~907 KB. A tight margin would both flake on a
-        // differently tuned machine and mask a regression that widened the
-        // overshoot. 64 MB was on offer, so anything in this range proves the
-        // read was cut off rather than run to completion.
-        expect(result.bytes, lessThan(2 * 1024 * 1024));
-        expect(result.ok, isFalse, reason: 'an oversized body is not a sample');
-        // Whatever arrived is still charged to the daily budget.
-        expect(result.bytes, greaterThan(0));
-      });
+          // Reading stops at the first chunk that crosses the cap — but a chunk
+          // is one socket read, not one server write, and the client coalesces.
+          // The overshoot is therefore set by the peer's write size and receive
+          // buffer autotuning, not by anything this code guarantees: measured
+          // against the current client, 16 KB writes overshoot ~11 KB while 1 MB
+          // writes overshoot ~907 KB. A tight margin would both flake on a
+          // differently tuned machine and mask a regression that widened the
+          // overshoot. 64 MB was on offer, so anything in this range proves the
+          // read was cut off rather than run to completion.
+          expect(result.bytes, lessThan(2 * 1024 * 1024));
+          expect(
+            result.ok,
+            isFalse,
+            reason: 'an oversized body is not a sample',
+          );
+          // Whatever arrived is still charged to the daily budget.
+          expect(result.bytes, greaterThan(0));
+        },
+      );
 
       test('a slow drip cannot hold the cycle open past its timeout', () async {
         // 8 KB every 400 ms would take over an hour to reach the cap, so only a
@@ -293,7 +296,8 @@ void main() {
             expect(
               File('$drawableDir/$name.xml').existsSync(),
               isTrue,
-              reason: '$name.xml is missing — re-run '
+              reason:
+                  '$name.xml is missing — re-run '
                   'android/tools/generate_indicator_icons.py',
             );
           }
@@ -397,6 +401,20 @@ void main() {
         expect(rules, contains('<device-transfer>'));
       },
     );
+
+    test('iOS excludes Hive and the atomic budget file from backup', () {
+      final store = File(
+        'lib/core/storage/local_store.dart',
+      ).readAsStringSync();
+      final delegate = File('ios/Runner/AppDelegate.swift').readAsStringSync();
+
+      expect(store, contains('getApplicationDocumentsDirectory'));
+      expect(store, contains("invokeMethod<void>('excludeFromBackup'"));
+      expect(delegate, contains('applicationSupportDirectory'));
+      expect(delegate, contains('isExcludedFromBackup = true'));
+      expect(delegate, contains('options: .atomic'));
+      expect(delegate, isNot(contains('UserDefaults')));
+    });
 
     test(
       'rejects cleartext traffic and trusts only system certificate roots',

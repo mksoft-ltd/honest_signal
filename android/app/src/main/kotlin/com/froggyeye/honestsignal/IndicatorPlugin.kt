@@ -94,6 +94,15 @@ class IndicatorPlugin(private val activity: Activity) : MethodChannel.MethodCall
 
             "requestNotificationPermission" -> requestNotificationPermission(result)
 
+            "openNotificationSettings" -> {
+                activity.startActivity(
+                    Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                        putExtra(Settings.EXTRA_APP_PACKAGE, activity.packageName)
+                    }
+                )
+                result.success(null)
+            }
+
             "canDrawOverlays" -> result.success(OverlayService.canDraw(activity))
 
             "openOverlaySettings" -> {
