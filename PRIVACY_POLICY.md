@@ -1,6 +1,6 @@
 # Honest Signal — Privacy Policy
 
-**Last updated: 7 August 2026**
+**Last updated: 26 September 2026**
 
 **Publisher: Froggy Eye Ltd (United Kingdom)**
 
@@ -21,7 +21,8 @@ device:
 - **Your measurements** — the connection scores, latencies, speeds and network
   types the app measures. These are kept for up to 25 hours and then deleted
   automatically. You can delete them all at once from the History screen.
-- **Your settings** — sampling intervals, indicator style, data budget, theme.
+- **Your settings** — sampling intervals, indicator style, speed-sample cutoff,
+  theme.
 - **Your Pro purchase status** — a single flag recording that the unlock was
   bought.
 
@@ -45,8 +46,11 @@ handles it under their own privacy policy. Honest Signal does not send those
 operators anything else. It uses response timing and transfer bytes only to
 measure connection performance.
 
-You can limit this traffic in Settings: cap the daily data budget, lengthen the
-sampling interval, or switch off measuring on mobile data entirely.
+You can control this traffic in Settings. The daily cutoff pauses larger speed
+samples once the displayed amount is reached; small latency checks continue, so
+total measurement traffic can exceed the cutoff. Shorter intervals use more
+data and battery. You can lengthen the interval or switch off measuring on
+mobile data entirely.
 
 ## Purchases
 
