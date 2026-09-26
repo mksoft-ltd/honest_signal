@@ -61,21 +61,22 @@ class SignalSample {
   String get verdict => SignalScoring.verdict(bars);
   String get verdictDetail => SignalScoring.verdictDetail(bars);
 
-  SignalSample copyWith({int? bars, double? composite}) => SignalSample(
-    timestamp: timestamp,
-    kind: kind,
-    bars: bars ?? this.bars,
-    composite: composite ?? this.composite,
-    latencyMs: latencyMs,
-    jitterMs: jitterMs,
-    throughputKbps: throughputKbps,
-    throughputMeasuredAt: throughputMeasuredAt,
-    throughputIsStale: throughputIsStale,
-    lossRatio: lossRatio,
-    probesSent: probesSent,
-    bytesUsed: bytesUsed,
-    networkDetail: networkDetail,
-  );
+  SignalSample copyWith({int? bars, double? composite, int? bytesUsed}) =>
+      SignalSample(
+        timestamp: timestamp,
+        kind: kind,
+        bars: bars ?? this.bars,
+        composite: composite ?? this.composite,
+        latencyMs: latencyMs,
+        jitterMs: jitterMs,
+        throughputKbps: throughputKbps,
+        throughputMeasuredAt: throughputMeasuredAt,
+        throughputIsStale: throughputIsStale,
+        lossRatio: lossRatio,
+        probesSent: probesSent,
+        bytesUsed: bytesUsed ?? this.bytesUsed,
+        networkDetail: networkDetail,
+      );
 
   Map<String, dynamic> toJson() => {
     'ts': timestamp.millisecondsSinceEpoch,

@@ -29,6 +29,14 @@ class MeasurementEngine {
 
   double? _lastThroughputKbps;
   DateTime? _lastThroughputAt;
+  DateTime? _lastTransferFailedAt;
+
+  /// A new network must not inherit the previous network's speed or stall.
+  void resetTransfer() {
+    _lastThroughputKbps = null;
+    _lastThroughputAt = null;
+    _lastTransferFailedAt = null;
+  }
 
   /// Runs one full cycle and returns the resulting sample.
   ///
@@ -107,6 +115,7 @@ class MeasurementEngine {
         throughput = outcome.kbps;
         _lastThroughputKbps = outcome.kbps;
         _lastThroughputAt = _now();
+        _lastTransferFailedAt = null;
         throughputMeasuredAt = _lastThroughputAt;
       } else {
         // Probes answered but bulk data would not move. This is the failure the
@@ -116,13 +125,27 @@ class MeasurementEngine {
         barCap = SignalScoring.transferFailureBarCap;
         _lastThroughputKbps = null;
         _lastThroughputAt = null;
+        _lastTransferFailedAt = _now();
+        throughputMeasuredAt = _lastTransferFailedAt;
       }
     } else if (rtts.isNotEmpty) {
-      final carried = _freshThroughput();
-      if (carried != null) {
-        throughput = carried;
+      final failedAt = _lastTransferFailedAt;
+      if (failedAt != null) {
+        // A healthy ping does not prove bulk data works again. Keep the failed
+        // transfer visible until a real retry succeeds or the network changes.
+        // The daily transfer cutoff can block retries for hours, so expiring
+        // this evidence would falsely paint full bars on a stalled link.
+        throughput = 0;
         throughputStale = true;
-        throughputMeasuredAt = _lastThroughputAt;
+        throughputMeasuredAt = failedAt;
+        barCap = SignalScoring.transferFailureBarCap;
+      } else {
+        final carried = _freshThroughput();
+        if (carried != null) {
+          throughput = carried;
+          throughputStale = true;
+          throughputMeasuredAt = _lastThroughputAt;
+        }
       }
     }
 

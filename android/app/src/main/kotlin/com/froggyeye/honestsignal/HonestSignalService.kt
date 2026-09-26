@@ -51,6 +51,7 @@ class HonestSignalService : Service() {
         private const val KEY_THEME = "theme"
         private const val KEY_HIGH_CONTRAST = "highContrast"
         private const val KEY_INTERVAL = "interval"
+        private const val KEY_CADENCE_V2 = "cadenceV2"
         private const val KEY_BUDGET = "budget"
         private const val KEY_CELLULAR = "cellular"
 
@@ -96,7 +97,8 @@ class HonestSignalService : Service() {
                 action = ACTION_START
                 putExtra(EXTRA_THEME, prefs.getString(KEY_THEME, "bars"))
                 putExtra(EXTRA_HIGH_CONTRAST, prefs.getBoolean(KEY_HIGH_CONTRAST, true))
-                putExtra(EXTRA_INTERVAL, prefs.getInt(KEY_INTERVAL, 300))
+                val storedInterval = prefs.getInt(KEY_INTERVAL, 2)
+                putExtra(EXTRA_INTERVAL, if (!prefs.getBoolean(KEY_CADENCE_V2, false) && storedInterval == 300) 2 else storedInterval)
                 putExtra(EXTRA_BUDGET, prefs.getLong(KEY_BUDGET, 25L * 1024 * 1024))
                 putExtra(EXTRA_CELLULAR, prefs.getBoolean(KEY_CELLULAR, true))
             }
@@ -109,7 +111,7 @@ class HonestSignalService : Service() {
 
     private var theme: String = "bars"
     private var highContrast: Boolean = true
-    private var intervalSeconds: Int = 300
+    private var intervalSeconds: Int = 2
     private var budgetLimitBytes: Long = 25L * 1024 * 1024
     private var measureOnCellular: Boolean = true
 
@@ -197,6 +199,10 @@ class HonestSignalService : Service() {
             ?: prefs.getBoolean(KEY_HIGH_CONTRAST, highContrast)
         intervalSeconds = intent?.getIntExtra(EXTRA_INTERVAL, 0)
             ?.takeIf { it > 0 } ?: prefs.getInt(KEY_INTERVAL, intervalSeconds)
+        if (!prefs.getBoolean(KEY_CADENCE_V2, false) && intervalSeconds == 300 &&
+            intent?.hasExtra(EXTRA_INTERVAL) != true) {
+            intervalSeconds = 2
+        }
         budgetLimitBytes = intent?.getLongExtra(EXTRA_BUDGET, 0L)
             ?.takeIf { it > 0 } ?: prefs.getLong(KEY_BUDGET, budgetLimitBytes)
         measureOnCellular = intent?.takeIf { it.hasExtra(EXTRA_CELLULAR) }
@@ -204,12 +210,13 @@ class HonestSignalService : Service() {
             ?: prefs.getBoolean(KEY_CELLULAR, measureOnCellular)
 
         // Never let a bad value turn the indicator into a battery drain.
-        intervalSeconds = intervalSeconds.coerceIn(30, 3600)
+        intervalSeconds = intervalSeconds.coerceIn(2, 3600)
 
         prefs.edit()
             .putString(KEY_THEME, theme)
             .putBoolean(KEY_HIGH_CONTRAST, highContrast)
             .putInt(KEY_INTERVAL, intervalSeconds)
+            .putBoolean(KEY_CADENCE_V2, true)
             .putLong(KEY_BUDGET, budgetLimitBytes)
             .putBoolean(KEY_CELLULAR, measureOnCellular)
             .apply()
@@ -274,17 +281,25 @@ class HonestSignalService : Service() {
         val generation = ++cycleGeneration
         cycleWatchdog?.let(handler::removeCallbacks)
         cycleWatchdog = Runnable {
-            if (generation == cycleGeneration) cycleInFlight = false
+            if (generation == cycleGeneration) {
+                cycleInFlight = false
+                // Invalidate a callback that arrives after this release but
+                // before the next two-second tick starts another cycle.
+                cycleGeneration++
+                cycleWatchdog = null
+            }
         }.also { handler.postDelayed(it, CYCLE_WATCHDOG_MS) }
         channel.invokeMethod(
             "runCycle",
             mapOf(
                 "measureOnCellular" to measureOnCellular,
                 "budgetLimitBytes" to budgetLimitBytes,
+                "intervalSeconds" to intervalSeconds,
             ),
             object : MethodChannel.Result {
                 override fun success(result: Any?) {
                     if (!finishCycle(generation)) return
+                    if (isUiActive()) return
                     val map = result as? Map<*, *> ?: return
                     bars = (map["bars"] as? Number)?.toInt() ?: bars
                     verdict = map["verdict"] as? String ?: verdict

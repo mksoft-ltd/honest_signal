@@ -30,22 +30,28 @@ class HowItWorksScreen extends StatelessWidget {
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 28),
-          const _Step(
+          _Step(
             number: '1',
             title: 'Round-trip probes',
             body:
-                'Four small HTTPS requests go to well-known connectivity-check '
+                'While the app is open, four small HTTPS requests go to '
+                'well-known connectivity-check '
                 'endpoints run by Google and Cloudflare — the same ones your '
                 'phone already uses to detect captive portals. The median '
-                'round-trip time becomes the latency score.',
+                'round-trip time becomes the latency score.'
+                '${Platform.isAndroid ? ' In the Android background, each '
+                          'update uses one short request and rotates endpoints.' : ''}',
           ),
-          const _Step(
+          _Step(
             number: '2',
             title: 'Jitter',
             body:
-                'How much those four round trips disagree with each other. '
+                'How much the four foreground round trips disagree with '
+                'each other. '
                 'Steady 90 ms is far better for calls than a connection that '
-                'swings between 30 ms and 400 ms.',
+                'swings between 30 ms and 400 ms.'
+                '${Platform.isAndroid ? ' One background request cannot '
+                          'measure jitter, so that part of the score is omitted.' : ''}',
           ),
           // Not const: the release figures are interpolated from the model so
           // the screen cannot quote a threshold the code no longer uses. Every
@@ -58,6 +64,9 @@ class HowItWorksScreen extends StatelessWidget {
             body:
                 'Any probe that times out counts as loss. Losing a third or '
                 'more caps the score at one bar however fast the rest were. '
+                '${Platform.isAndroid ? ' In the Android background, one '
+                          'failed endpoint is checked against another before '
+                          'showing zero bars. ' : ''}'
                 'Slow round trips are capped too, even between download '
                 'samples: 600 ms or more can never show above two bars, and '
                 'one second or more never above one. Once one of those caps '

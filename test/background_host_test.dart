@@ -34,7 +34,10 @@ void main() {
 
   const defaultBudget = 25 * 1024 * 1024;
 
-  void build({NetworkKind kind = NetworkKind.wifi}) {
+  void build({
+    NetworkKind kind = NetworkKind.wifi,
+    DateTime Function()? clock,
+  }) {
     engine = _SpyEngine();
     connectivity = FakeConnectivitySource(kind);
     budget = InMemoryBudgetStore();
@@ -46,6 +49,7 @@ void main() {
       connectivity: connectivity,
       budgetStore: budget,
       historyBridge: history,
+      clock: clock,
     );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async {
@@ -90,7 +94,7 @@ void main() {
         );
 
         expect(engine.calls.map((c) => c.includeTransfer), [true, false]);
-        expect(history.samples, hasLength(2));
+        expect(history.samples, hasLength(1));
       },
     );
 
@@ -181,6 +185,207 @@ void main() {
       );
 
       expect(engine.calls.map((c) => c.cycle), [0, 1, 2]);
+    });
+
+    test(
+      'rapid unchanged readings update the icon without flooding history',
+      () async {
+        build();
+
+        for (var index = 0; index < 5; index++) {
+          expect(
+            await host.runCycle(
+              measureOnCellular: true,
+              budgetLimitBytes: defaultBudget,
+            ),
+            isNotNull,
+          );
+        }
+
+        expect(engine.calls, hasLength(5));
+        expect(history.samples, hasLength(1));
+      },
+    );
+
+    test(
+      'a changed bar level reaches the icon and history immediately',
+      () async {
+        build();
+        engine.barsFor = (index) => index == 0 ? 4 : 2;
+
+        final first = await host.runCycle(
+          measureOnCellular: true,
+          budgetLimitBytes: defaultBudget,
+        );
+        final second = await host.runCycle(
+          measureOnCellular: true,
+          budgetLimitBytes: defaultBudget,
+        );
+
+        expect([first?.bars, second?.bars], [4, 2]);
+        expect(history.samples.map((sample) => sample.bars), [4, 2]);
+      },
+    );
+
+    test(
+      'background history stores a steady heartbeat after one minute',
+      () async {
+        build();
+        final base = DateTime(2026, 9, 26, 12);
+        engine.timestampFor = (index) =>
+            base.add(Duration(seconds: index == 2 ? 60 : index));
+
+        for (var index = 0; index < 3; index++) {
+          await host.runCycle(
+            measureOnCellular: true,
+            budgetLimitBytes: defaultBudget,
+          );
+        }
+
+        expect(history.samples.map((sample) => sample.timestamp), [
+          base,
+          base.add(const Duration(seconds: 60)),
+        ]);
+      },
+    );
+
+    test('one failed provider does not falsely publish zero bars', () async {
+      build();
+      engine.barsFor = (index) => index == 1 ? 0 : 4;
+      engine.lossFor = (index) => index == 1 ? 1 : 0;
+
+      final healthy = await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
+      final isolatedFailure = await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
+      final nextProvider = await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
+
+      expect(healthy?.bars, 4);
+      expect(isolatedFailure, isNull);
+      expect(nextProvider?.bars, 4);
+      expect(engine.calls.map((call) => call.cycle), [0, 1, 2]);
+      expect(history.samples.map((sample) => sample.bars), [4]);
+    });
+
+    test('two failed providers confirm a dead background link', () async {
+      build();
+      engine.barsFor = (_) => 0;
+      engine.lossFor = (_) => 1;
+
+      final first = await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
+      final second = await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+      );
+
+      expect(first, isNull);
+      expect(second?.bars, 0);
+      expect(history.samples.map((sample) => sample.bars), [0]);
+    });
+
+    test(
+      'a failed transfer is retried after thirty seconds, not ten minutes',
+      () async {
+        var now = DateTime(2026, 9, 26, 12);
+        build(clock: () => now);
+        engine.throughputFor = (index, includeTransfer) =>
+            includeTransfer ? (index == 0 ? 0 : 20000) : null;
+
+        await host.runCycle(
+          measureOnCellular: true,
+          budgetLimitBytes: defaultBudget,
+        );
+        now = now.add(const Duration(seconds: 29));
+        await host.runCycle(
+          measureOnCellular: true,
+          budgetLimitBytes: defaultBudget,
+        );
+        now = now.add(const Duration(seconds: 1));
+        await host.runCycle(
+          measureOnCellular: true,
+          budgetLimitBytes: defaultBudget,
+        );
+
+        expect(engine.calls.map((call) => call.includeTransfer), [
+          true,
+          false,
+          true,
+        ]);
+      },
+    );
+
+    test(
+      'a long interval confirms a failure against another target now',
+      () async {
+        build();
+        engine.barsFor = (index) => index == 0 ? 0 : 4;
+        engine.lossFor = (index) => index == 0 ? 1 : 0;
+
+        final sample = await host.runCycle(
+          measureOnCellular: true,
+          budgetLimitBytes: defaultBudget,
+          intervalSeconds: 3600,
+        );
+
+        expect(sample?.bars, 4);
+        expect(sample?.bytesUsed, 5600);
+        expect(engine.calls.map((call) => call.cycle), [0, 1]);
+        expect(history.samples.map((sample) => sample.bars), [4]);
+      },
+    );
+
+    test('a long interval publishes zero after two failed targets', () async {
+      build();
+      engine.barsFor = (_) => 0;
+      engine.lossFor = (_) => 1;
+
+      final sample = await host.runCycle(
+        measureOnCellular: true,
+        budgetLimitBytes: defaultBudget,
+        intervalSeconds: 3600,
+      );
+
+      expect(sample?.bars, 0);
+      expect(engine.calls.map((call) => call.cycle), [0, 1]);
+    });
+
+    test('a transport switch restarts outage confirmation', () async {
+      build();
+      engine.barsFor = (_) => 0;
+      engine.lossFor = (_) => 1;
+
+      expect(
+        await host.runCycle(
+          measureOnCellular: true,
+          budgetLimitBytes: defaultBudget,
+        ),
+        isNull,
+      );
+      connectivity.emit(NetworkKind.cellular);
+      expect(
+        await host.runCycle(
+          measureOnCellular: true,
+          budgetLimitBytes: defaultBudget,
+        ),
+        isNull,
+      );
+      expect(
+        (await host.runCycle(
+          measureOnCellular: true,
+          budgetLimitBytes: defaultBudget,
+        ))?.bars,
+        0,
+      );
     });
 
     test('bytes are charged to the counter both isolates share', () async {
@@ -379,6 +584,9 @@ class _SpyEngine extends MeasurementEngine {
 
   int bytesUsed = 2800;
   int Function(int callIndex) barsFor = (_) => 4;
+  double Function(int callIndex) lossFor = (_) => 0;
+  double? Function(int callIndex, bool includeTransfer)? throughputFor;
+  DateTime Function(int callIndex)? timestampFor;
 
   @override
   Future<SignalSample> measure({
@@ -397,15 +605,17 @@ class _SpyEngine extends MeasurementEngine {
     ));
     final bars = barsFor(index);
     return SignalSample(
-      timestamp: DateTime.now(),
+      timestamp: timestampFor?.call(index) ?? DateTime.now(),
       kind: kind,
       bars: bars,
       composite: bars / 5,
       latencyMs: 30,
       jitterMs: 4,
-      throughputKbps: includeTransfer ? 20000 : null,
-      lossRatio: 0,
-      probesSent: 4,
+      throughputKbps:
+          throughputFor?.call(index, includeTransfer) ??
+          (includeTransfer && lossFor(index) < 1 ? 20000 : null),
+      lossRatio: lossFor(index),
+      probesSent: 1,
       bytesUsed: bytesUsed,
     );
   }

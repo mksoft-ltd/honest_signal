@@ -160,9 +160,12 @@ class _HistoryBody extends StatelessWidget {
           _StatRow(label: 'Samples stored', value: '${samples.length}'),
           const SizedBox(height: 20),
           Text(
-            'Samples are recorded when the score changes, the network changes, '
-            'or every 30 seconds — and kept on this device for '
-            '${HistoryRepository.defaultRetention.inHours} hours only.',
+            'While open, samples are recorded on score or network changes and '
+            'at least every 30 seconds. '
+            '${Platform.isAndroid ? 'Android background history keeps bar and network changes plus a one-minute steady reading. ' : ''}'
+            'Samples '
+            'stay here for up to '
+            '${HistoryRepository.defaultRetention.inHours} hours.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),

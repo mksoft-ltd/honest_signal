@@ -1,0 +1,1 @@
+Faster background signal updates: with the Android indicator enabled, Honest Signal now attempts a lightweight measurement every 2 seconds. Full transfer checks remain less frequent. Slow networks or system power management may delay updates, and faster checks use more data and battery.

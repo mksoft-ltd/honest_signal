@@ -65,7 +65,7 @@ class BackgroundHistoryQueueTest {
 
     @Test
     fun `append uses the pinned default capacity`() {
-        assertEquals(3_000, BackgroundHistoryQueue.MAX_PENDING_ROWS)
+        assertEquals(6_000, BackgroundHistoryQueue.MAX_PENDING_ROWS)
         val rows = (0 until BackgroundHistoryQueue.MAX_PENDING_ROWS).map { row(it) }
         val appended = BackgroundHistoryQueue.append(
             rows,

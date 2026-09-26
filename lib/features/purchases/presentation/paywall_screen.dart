@@ -101,8 +101,8 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             title: 'Your own sampling rate',
             body: Platform.isAndroid
                 ? 'Measure as often as every 2 seconds while the app is open, '
-                      'and choose a background rate from once a minute to once '
-                      'an hour.'
+                      'and choose a slower background rate when you want to '
+                      'save battery or data.'
                 : 'Measure as often as every 2 seconds while the app is open, '
                       'instead of the standard 5.',
           ),

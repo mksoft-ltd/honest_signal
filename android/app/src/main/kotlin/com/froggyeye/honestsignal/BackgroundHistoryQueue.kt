@@ -5,7 +5,9 @@ import org.json.JSONObject
 
 /** Pure transformations for the native cross-engine history hand-off queue. */
 object BackgroundHistoryQueue {
-    const val MAX_PENDING_ROWS = 3_000
+    // 1,500 steady-state minute heartbeats cover 25 hours, leaving room for
+    // 4,500 score/network transitions before the oldest rows are evicted.
+    const val MAX_PENDING_ROWS = 6_000
     const val RETENTION_MS = 25L * 60L * 60L * 1_000L
 
     fun decode(serialized: String?): List<Map<String, Any?>> = runCatching {

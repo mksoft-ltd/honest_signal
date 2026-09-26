@@ -93,8 +93,11 @@ void main() {
         ),
       );
 
-      expect(find.text('5.0 MB / 25 MB'), findsOneWidget);
-      expect(find.textContaining('estimate'), findsOneWidget);
+      expect(find.text('5.0 MB used'), findsOneWidget);
+      expect(
+        find.textContaining('Speed samples pause at 25 MB'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('says what actually stops when the budget is spent', (
@@ -113,7 +116,7 @@ void main() {
       );
 
       // Not just "budget reached" — the user needs to know latency keeps going.
-      expect(find.textContaining('Latency probes continue'), findsOneWidget);
+      expect(find.textContaining('Latency checks continue'), findsOneWidget);
     });
   });
 

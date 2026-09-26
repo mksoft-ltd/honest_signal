@@ -12,8 +12,10 @@ enum BarTheme {
 
   bool get isFree => this == BarTheme.bars;
 
-  static BarTheme fromStorage(String? value) =>
-      BarTheme.values.firstWhere((t) => t.name == value, orElse: () => BarTheme.bars);
+  static BarTheme fromStorage(String? value) => BarTheme.values.firstWhere(
+    (t) => t.name == value,
+    orElse: () => BarTheme.bars,
+  );
 }
 
 /// User-controlled behaviour. Persisted as a single JSON map in the Hive
@@ -35,13 +37,13 @@ class AppSettings {
 
   // Free-tier defaults, and the values a non-Pro install is pinned to.
   static const int defaultForegroundInterval = 5;
-  static const int defaultBackgroundInterval = 300;
+  static const int defaultBackgroundInterval = 2;
   static const int defaultDailyBudgetMb = 25;
 
   // Pro-adjustable ranges.
   static const int minForegroundInterval = 2;
   static const int maxForegroundInterval = 60;
-  static const int minBackgroundInterval = 60;
+  static const int minBackgroundInterval = 2;
   static const int maxBackgroundInterval = 3600;
   static const int minDailyBudgetMb = 5;
   static const int maxDailyBudgetMb = 250;
@@ -76,8 +78,10 @@ class AppSettings {
 
   int get dailyBudgetBytes => dailyBudgetMb * 1024 * 1024;
 
-  Duration get foregroundInterval => Duration(seconds: foregroundIntervalSeconds);
-  Duration get backgroundInterval => Duration(seconds: backgroundIntervalSeconds);
+  Duration get foregroundInterval =>
+      Duration(seconds: foregroundIntervalSeconds);
+  Duration get backgroundInterval =>
+      Duration(seconds: backgroundIntervalSeconds);
 
   /// Settings a free install cannot change are clamped on read rather than
   /// blocked on write, so a lapsed or refunded purchase degrades cleanly
@@ -103,55 +107,61 @@ class AppSettings {
     bool? measureOnCellular,
     ThemeMode? themeMode,
     bool? hasSeenOnboarding,
-  }) =>
-      AppSettings(
-        notificationIndicatorEnabled:
-            notificationIndicatorEnabled ?? this.notificationIndicatorEnabled,
-        overlayEnabled: overlayEnabled ?? this.overlayEnabled,
-        foregroundIntervalSeconds:
-            foregroundIntervalSeconds ?? this.foregroundIntervalSeconds,
-        backgroundIntervalSeconds:
-            backgroundIntervalSeconds ?? this.backgroundIntervalSeconds,
-        dailyBudgetMb: dailyBudgetMb ?? this.dailyBudgetMb,
-        barTheme: barTheme ?? this.barTheme,
-        highContrastIndicator:
-            highContrastIndicator ?? this.highContrastIndicator,
-        measureOnCellular: measureOnCellular ?? this.measureOnCellular,
-        themeMode: themeMode ?? this.themeMode,
-        hasSeenOnboarding: hasSeenOnboarding ?? this.hasSeenOnboarding,
-      );
+  }) => AppSettings(
+    notificationIndicatorEnabled:
+        notificationIndicatorEnabled ?? this.notificationIndicatorEnabled,
+    overlayEnabled: overlayEnabled ?? this.overlayEnabled,
+    foregroundIntervalSeconds:
+        foregroundIntervalSeconds ?? this.foregroundIntervalSeconds,
+    backgroundIntervalSeconds:
+        backgroundIntervalSeconds ?? this.backgroundIntervalSeconds,
+    dailyBudgetMb: dailyBudgetMb ?? this.dailyBudgetMb,
+    barTheme: barTheme ?? this.barTheme,
+    highContrastIndicator: highContrastIndicator ?? this.highContrastIndicator,
+    measureOnCellular: measureOnCellular ?? this.measureOnCellular,
+    themeMode: themeMode ?? this.themeMode,
+    hasSeenOnboarding: hasSeenOnboarding ?? this.hasSeenOnboarding,
+  );
 
   Map<String, dynamic> toJson() => {
-        'notification': notificationIndicatorEnabled,
-        'overlay': overlayEnabled,
-        'fgInterval': foregroundIntervalSeconds,
-        'bgInterval': backgroundIntervalSeconds,
-        'budgetMb': dailyBudgetMb,
-        'barTheme': barTheme.name,
-        'highContrast': highContrastIndicator,
-        'cellular': measureOnCellular,
-        'themeMode': themeMode.name,
-        'onboarded': hasSeenOnboarding,
-      };
+    'notification': notificationIndicatorEnabled,
+    'overlay': overlayEnabled,
+    'fgInterval': foregroundIntervalSeconds,
+    'bgInterval': backgroundIntervalSeconds,
+    'bgCadenceV2': true,
+    'budgetMb': dailyBudgetMb,
+    'barTheme': barTheme.name,
+    'highContrast': highContrastIndicator,
+    'cellular': measureOnCellular,
+    'themeMode': themeMode.name,
+    'onboarded': hasSeenOnboarding,
+  };
 
   static AppSettings fromJson(Map<dynamic, dynamic> json) => AppSettings(
-        notificationIndicatorEnabled: json['notification'] as bool? ?? true,
-        overlayEnabled: json['overlay'] as bool? ?? false,
-        foregroundIntervalSeconds:
-            (json['fgInterval'] as num?)?.toInt() ?? defaultForegroundInterval,
-        backgroundIntervalSeconds:
-            (json['bgInterval'] as num?)?.toInt() ?? defaultBackgroundInterval,
-        dailyBudgetMb: (json['budgetMb'] as num?)?.toInt() ?? defaultDailyBudgetMb,
-        barTheme: BarTheme.fromStorage(json['barTheme'] as String?),
-        // Absent for every install that predates 1.0.1, which is the whole
-        // live population — they get the high-contrast icon on upgrade, which
-        // is the point of the release.
-        highContrastIndicator: json['highContrast'] as bool? ?? true,
-        measureOnCellular: json['cellular'] as bool? ?? true,
-        themeMode: ThemeMode.values.firstWhere(
-          (m) => m.name == json['themeMode'],
-          orElse: () => ThemeMode.system,
-        ),
-        hasSeenOnboarding: json['onboarded'] as bool? ?? false,
-      );
+    notificationIndicatorEnabled: json['notification'] as bool? ?? true,
+    overlayEnabled: json['overlay'] as bool? ?? false,
+    foregroundIntervalSeconds:
+        (json['fgInterval'] as num?)?.toInt() ?? defaultForegroundInterval,
+    backgroundIntervalSeconds:
+        // 300 seconds was the old free default. Settings written by this
+        // version carry a marker so a deliberate new 300-second choice
+        // survives reloads. Older custom 300-second choices cannot be
+        // distinguished from the old default.
+        (json['bgCadenceV2'] != true &&
+            (json['bgInterval'] as num?)?.toInt() == 300
+        ? defaultBackgroundInterval
+        : (json['bgInterval'] as num?)?.toInt() ?? defaultBackgroundInterval),
+    dailyBudgetMb: (json['budgetMb'] as num?)?.toInt() ?? defaultDailyBudgetMb,
+    barTheme: BarTheme.fromStorage(json['barTheme'] as String?),
+    // Absent for every install that predates 1.0.1, which is the whole
+    // live population — they get the high-contrast icon on upgrade, which
+    // is the point of the release.
+    highContrastIndicator: json['highContrast'] as bool? ?? true,
+    measureOnCellular: json['cellular'] as bool? ?? true,
+    themeMode: ThemeMode.values.firstWhere(
+      (m) => m.name == json['themeMode'],
+      orElse: () => ThemeMode.system,
+    ),
+    hasSeenOnboarding: json['onboarded'] as bool? ?? false,
+  );
 }

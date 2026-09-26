@@ -236,10 +236,11 @@ the angles and the density guidance:
 3. **The honest-method angle.** "Every weight and threshold is written down, in
    the app" — links to the "How the score works" screen. Also picks up
    "how it works", "score", "method".
-4. **The data-cost angle.** "A latency probe costs about 2.8 KB" / "hard daily
-   data budget you can see". This is a real differentiator against speed-test
-   apps that burn 200 MB, and it picks up "data usage", "data budget", "mobile
-   data".
+4. **The data-cost angle.** State the measured probe cost and the user-visible
+   cutoff accurately. The cutoff pauses larger speed samples; small latency
+   probes continue, so total usage can exceed it. Fast background checks use
+   more data and battery. This picks up "data usage" and "mobile data" without
+   promising a hard cap.
 5. **The what-it-is-not paragraph.** "This is not a speed test." Names the
    category honestly, sets expectation, and reduces the refund/one-star risk from
    users arriving on speed-test-adjacent queries.
@@ -393,8 +394,8 @@ anything on the 15% figure.
 
 Nothing, at launch — there is no marginal cost per user. The app has **no
 backend, no accounts, no AI inference and no per-measurement cost to us**; the
-probes are paid for by the user's own data allowance and hard-capped by the
-in-app budget. That is unusual for this portfolio and it means the only real
+probes are paid for by the user's own data allowance; the in-app cutoff pauses
+larger speed samples, while small latency checks continue. That means the only real
 constraint on pricing is perceived value, not margin. £2.99 against a £3.99
 category comparable (Network Analyzer Pro) is well judged.
 

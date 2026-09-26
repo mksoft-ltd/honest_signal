@@ -133,6 +133,28 @@ class SettingsScreen extends ConsumerWidget {
               ),
               onLocked: () => context.push('/pro'),
             ),
+          if (Platform.isAndroid)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Text(
+                'Background updates target every '
+                '${Format.interval(effective.backgroundIntervalSeconds)} when '
+                'the status-bar indicator is on. Android or a slow network may '
+                'delay them. '
+                'At the 2-second rate, latency checks alone can use about '
+                '30 MB in a full day. Frequent checks also use more battery. '
+                'The transfer cutoff pauses speed samples, while latency '
+                'checks continue.',
+              ),
+            ),
+          if (Platform.isIOS)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Text(
+                'iOS pauses measurements when the app goes into the background. '
+                'The reading refreshes when you return.',
+              ),
+            ),
           _BudgetTile(
             megabytes: settings.dailyBudgetMb,
             onChanged: (value) =>
@@ -471,11 +493,14 @@ class _BudgetTileState extends State<_BudgetTile> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: const Text('Daily data budget'),
+      title: const Text('Daily speed-sample cutoff'),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('${_preview.round()} MB of probe traffic per day'),
+          Text(
+            'Pause speed samples after ${_preview.round()} MB of estimated '
+            'measurement traffic. Small latency checks continue.',
+          ),
           Slider(
             value: _preview.clamp(
               AppSettings.minDailyBudgetMb.toDouble(),

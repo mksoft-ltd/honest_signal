@@ -2,8 +2,10 @@
 
 Console-only forms; `supply` cannot upload any of them. Answer exactly as below.
 
-App: **Honest Signal** · `com.froggyeye.honestsignal` · v1.0.0 (**versionCode 1**) ·
-Play app id `4973053518256217291` · Froggy Eye Ltd · first release, nothing live.
+App: **Honest Signal** · `com.froggyeye.honestsignal` · v1.0.3 (**versionCode 5**) ·
+Play app id `4973053518256217291` · Froggy Eye Ltd. The initial-release
+instructions below are retained as history; the foreground-service declaration
+copy in §6 is current for the 1.0.3 update.
 
 Written by release-manager 2026-08-09 from `docs/PRODUCT_SPEC.md` §9/§10 and
 `docs/audits/security.md` (stage 4b, **Verdict: PASS**, re-verified after the fix
@@ -184,11 +186,9 @@ Contact email for the IARC certificate: `info@froggyeye.com`.
 
 ## 6. Foreground service permissions declaration — REQUIRED, and it needs a video
 
-`FOREGROUND_SERVICE_SPECIAL_USE` triggers Play Console's **App content →
-Foreground service permissions** declaration. This is mandatory and will surface
-as a release-preview error until it is filed. It asks for the permission's
-purpose **and a link to a video demonstrating the feature** — see the blocker in
-§9, because no such video exists yet.
+`FOREGROUND_SERVICE_SPECIAL_USE` has an existing Play Console **App content →
+Foreground service permissions** declaration and demo video. Recheck its text
+against this update and replace the video if it demonstrates the old cadence.
 
 **Manifest subtype string (already in the binary as
 `android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE`) — paste verbatim:**
@@ -198,18 +198,15 @@ purpose **and a link to a video demonstrating the feature** — see the blocker 
 > not open. The measurement must run on the user's own schedule and cannot be
 > deferred to a background job without the indicator going stale.
 
-**Supporting justification, for the declaration's description field:**
+**Play Console description field (saved 26 September 2026):**
 
-> The foreground service's only output is the status-bar notification the user
-> explicitly switched on: the notification's small icon *is* the live 0-5
-> connection score, so the service and the user-visible feature are the same
-> thing. It does no work at all while the app is in the foreground — the UI
-> isolate publishes its readings to the service under a renewable lease, so the
-> two never measure in parallel and no data is spent twice. Its interval is
-> user-controlled (5 minutes by default, 1-60 minutes on Pro) and clamped to a
-> 30-second floor, and its total data cost is hard-capped by a user-visible daily
-> budget shown on the home screen. The user can switch the indicator off at any
-> time, which stops the service.
+> Users enable a persistent status-bar indicator whose icon is the live 0-5
+> network score. The service attempts a latency check every 2 seconds by default
+> while the app is closed; power management or slow requests may delay it.
+> Pausing would make the visible score stale. Larger speed samples run at most
+> every 10 minutes and stop at the daily speed-sample cutoff. Latency checks
+> continue and can use about 30 MB/day. Users can stop the service by turning
+> the indicator off.
 
 **Why `specialUse` and not `dataSync`** (state this if Play pushes back, which is
 the most likely rejection on this app): from Android 15 a `dataSync` foreground

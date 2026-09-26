@@ -42,7 +42,7 @@ class BudgetMeter extends StatelessWidget {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  'Probe data today',
+                  'Measurement data today',
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
@@ -51,9 +51,11 @@ class BudgetMeter extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.6),
+                constraints: BoxConstraints(
+                  maxWidth: constraints.maxWidth * 0.6,
+                ),
                 child: Text(
-                  '${Format.bytes(budget.bytesUsed)} / ${Format.bytes(budget.limitBytes)}',
+                  '${Format.bytes(budget.bytesUsed)} used',
                   textAlign: TextAlign.end,
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: exhausted
@@ -82,8 +84,10 @@ class BudgetMeter extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           exhausted
-              ? 'Transfer samples paused until midnight. Latency probes continue.'
-              : 'An estimate of the bytes Honest Signal spent measuring.',
+              ? 'Speed samples paused at the ${Format.bytes(budget.limitBytes)} '
+                    'cutoff until midnight. Latency checks continue.'
+              : 'Speed samples pause at ${Format.bytes(budget.limitBytes)}; '
+                    'latency checks continue after that cutoff.',
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),

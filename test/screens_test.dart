@@ -453,7 +453,10 @@ void main() {
       await tester.pumpWidget(app());
       await settle(tester, 20);
 
-      expect(find.textContaining('/ 25 MB'), findsOneWidget);
+      expect(
+        find.textContaining('Speed samples pause at 25 MB'),
+        findsOneWidget,
+      );
       await unmount(tester);
     });
 

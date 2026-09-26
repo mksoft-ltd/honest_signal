@@ -60,9 +60,13 @@ class OnboardingScreen extends ConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: Text(
-                          'Next, Android will ask whether Honest Signal may show '
-                          'notifications. That is how the live score appears in your '
-                          'status bar. You can say no and still use the app.',
+                          'Next, Android will ask to show the status-bar score. '
+                          'When enabled, background checks target every 2 seconds '
+                          'and latency checks alone can use about 30 MB of '
+                          'mobile data per full day, plus occasional speed '
+                          'samples. Faster checks also use battery. You can '
+                          'say no, turn the indicator off '
+                          'later, or choose a slower rate with Pro.',
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,

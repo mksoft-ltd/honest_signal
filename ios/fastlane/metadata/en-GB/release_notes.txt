@@ -1,3 +1,1 @@
-More reliable measurements and a clearer history view.
-
-This update tightens data-budget accounting, improves purchase restore feedback, and clarifies privacy wording. It also includes accessibility and stability fixes.
+Clearer measurement settings and background-status guidance. Readings update while the app is open and refresh when you return to it.

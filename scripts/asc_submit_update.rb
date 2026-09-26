@@ -1,6 +1,6 @@
 # Submit the already-uploaded Honest Signal update to App Review.
 # Requires ASC_ISSUER_ID, ASC_KEY_ID, ASC_KEY_PATH and the jwt gem.
-# Usage: ruby scripts/asc_submit_update.rb 4 477cb3a8-3df8-4652-870f-85cce6abe36b
+# Usage: ruby scripts/asc_submit_update.rb 5 1.0.3 APP_STORE_VERSION_ID
 require 'jwt'
 require 'net/http'
 require 'json'
@@ -8,8 +8,8 @@ require 'openssl'
 require 'uri'
 
 APP_ID = '6799269422'
-build_number, version_id = ARGV
-abort('Usage: asc_submit_update.rb BUILD_NUMBER APP_STORE_VERSION_ID') unless build_number && version_id
+build_number, version_string, version_id = ARGV
+abort('Usage: asc_submit_update.rb BUILD_NUMBER VERSION_STRING APP_STORE_VERSION_ID') unless build_number && version_string && version_id
 
 token = JWT.encode(
   { iss: ENV.fetch('ASC_ISSUER_ID'), aud: 'appstoreconnect-v1', exp: Time.now.to_i + 1200 },
@@ -44,7 +44,7 @@ puts "Valid build: #{build['id']}"
 
 code, body = asc(:get, "/appStoreVersions/#{version_id}?fields[appStoreVersions]=versionString,appStoreState", token)
 expect(code, body, 200, 'Read version')
-abort('Unexpected version') unless body.dig('data', 'attributes', 'versionString') == '1.0.2'
+abort('Unexpected version') unless body.dig('data', 'attributes', 'versionString') == version_string
 state = body.dig('data', 'attributes', 'appStoreState')
 if state == 'WAITING_FOR_REVIEW' || state == 'IN_REVIEW'
   puts "Already submitted: #{state}"
@@ -54,7 +54,7 @@ end
 code, body = asc(:patch, "/appStoreVersions/#{version_id}/relationships/build", token,
                  data: { type: 'builds', id: build['id'] })
 expect(code, body, 204, 'Attach build')
-puts 'Build attached to 1.0.2'
+puts "Build attached to #{version_string}"
 
 code, body = asc(:get, "/apps/#{APP_ID}/reviewSubmissions?filter[state]=READY_FOR_REVIEW&limit=50", token)
 expect(code, body, 200, 'List draft submissions')

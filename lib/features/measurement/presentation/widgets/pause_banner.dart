@@ -5,29 +5,34 @@ import '../../domain/measurement_state.dart';
 
 /// Explains why measuring stopped, and offers the one action that resumes it.
 class PauseBanner extends StatelessWidget {
-  const PauseBanner({super.key, required this.pause, required this.onOpenSettings});
+  const PauseBanner({
+    super.key,
+    required this.pause,
+    required this.onOpenSettings,
+  });
 
   final MeasurementPause pause;
   final VoidCallback onOpenSettings;
 
   @override
   Widget build(BuildContext context) {
-    if (pause == MeasurementPause.none || pause == MeasurementPause.appBackgrounded) {
+    if (pause == MeasurementPause.none ||
+        pause == MeasurementPause.appBackgrounded) {
       return const SizedBox.shrink();
     }
 
     final theme = Theme.of(context);
     final (message, action) = switch (pause) {
       MeasurementPause.cellularOptOut => (
-          'Measuring on mobile data is off, so the score below is from your last '
-              'Wi-Fi reading.',
-          'Turn on',
-        ),
+        'Measuring on mobile data is off, so the score below is from your last '
+            'Wi-Fi reading.',
+        'Turn on',
+      ),
       MeasurementPause.budgetExhausted => (
-          "Today's probe data budget is spent. Latency still updates; speed "
-              'samples resume at midnight.',
-          'Raise limit',
-        ),
+        "Today's speed-sample cutoff is reached. Latency still updates; "
+            'speed samples resume at midnight.',
+        'Raise limit',
+      ),
       _ => ('', ''),
     };
 

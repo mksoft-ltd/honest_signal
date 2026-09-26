@@ -14,17 +14,49 @@ Decisions (founder, 2026-08-07): **free + £2.99 Pro IAP** (native `in_app_purch
 ## Stages
 | # | Stage | Agent | Status | Date |
 |---|-------|-------|--------|------|
-| 1 | build | flutter-architect | done — 1.0.2 fixes implemented; signed AAB and IPA built | 2026-09-26 |
+| 1 | build | flutter-architect | done — 1.0.3 background cadence implemented; signed AAB and IPA built | 2026-09-26 |
 | 2 | design | ui-designer | done | 2026-08-08 |
-| 3 | test | mobile-qa-architect | done — 313 Flutter + 12 Kotlin + 4 Swift tests passing; screenshot integration runs passed on both platforms | 2026-09-26 |
-| 4a | code-review | mobile-code-reviewer | done — **PASS**; comprehensive improvement and re-review fixes verified, 0 Critical/Major remaining | 2026-09-25 |
-| 4b | security | mobile-security-auditor | done — **PASS**; retention, backup exclusion, abortable requests and IAP failure ordering re-verified | 2026-09-25 |
+| 3 | test | mobile-qa-architect | done — 324 Flutter tests, Android JVM tests, and current screenshot integration runs passed | 2026-09-26 |
+| 4a | code-review | mobile-code-reviewer | done — **PASS**; 1.0.3 re-review found 0 Critical/Major remaining | 2026-09-26 |
+| 4b | security | mobile-security-auditor | done — **PASS**; 1.0.3 background cadence and disclosures re-verified | 2026-09-26 |
 | 5 | metadata | growth-monetization → release-manager | done — ASO (`docs/ASO.md`) + fastlane metadata written both stores | 2026-08-09 |
-| 6 | compliance | app-store-review-auditor | done — **PASS** re-verified (C-1/C-2/H-1/H-4 closed; H-2/H-3/M-1/M-2/M-3 carried as stage-7 gate conditions) | 2026-08-09 |
-| 7 | publish | store-publisher | 1.0.2 (build 4) is `IN_REVIEW` on Play production; Apple build attached and submitted, state `WAITING_FOR_REVIEW` | 2026-09-26 |
+| 6 | compliance | app-store-review-auditor | done — **PASS**; current store assets, privacy page, and FGS demo re-verified | 2026-09-26 |
+| 7 | publish | store-publisher | 1.0.3 (build 5) is `IN_REVIEW` on Play production and `WAITING_FOR_REVIEW` on Apple | 2026-09-26 |
 | 8 | website | general-purpose (froggyeye-website skill) | done — page LIVE at https://honestsignal.froggyeye.com, current store buttons and copy verified | 2026-09-26 |
 
-## Latest release — 1.0.2 (build 4), 2026-09-26
+## Latest release — 1.0.3 (build 5), 2026-09-26
+
+Android's optional persistent status-bar indicator now attempts a background
+latency reading every two seconds by default, with a configurable Pro interval
+of two seconds to 60 minutes. Android power management and slow requests can
+delay readings. Speed samples remain at most every 10 minutes and pause at the
+daily speed-sample cutoff; lightweight latency checks continue. iOS measurements
+pause when the app leaves the foreground, and the settings copy says so.
+
+The full Flutter suite passed 324/324, Android JVM tests passed, and static
+analysis was clean. Code, security, and store compliance re-audits passed. The
+signed Android AAB and iOS IPA were built as 1.0.3 (5); the AAB signer matches
+the existing Play upload certificate. Five Play and four App Store screenshots
+were recaptured from the updated app. The Play special-use foreground-service
+declaration describes the two-second cadence, and its 64-second demo at
+https://honestsignal.froggyeye.com/fgs-demo.mp4 was replaced and CDN-purged.
+
+The Play production edit was committed. Its API read-back verified versionCode
+5 and all five ordered screenshots; `applications.tracks.releases.list` shows
+1.0.3 (5) as `RELEASE_LIFECYCLE_STATE_IN_REVIEW` and 1.0.1 (3) remains
+`PUBLISHED`. Play Console Publishing overview shows the new production release,
+listing, screenshots, and FGS declaration under **Changes in review**.
+
+Apple's superseded 1.0.2 submission `14a41c91-aeba-4aaf-828f-8abb0e2feaf9`
+was canceled. The App Store version record was updated to 1.0.3, build 5
+`72d7aae7-7528-4264-b3d1-1a26a58d025d` uploaded and validated, metadata and
+four screenshots synced, and submission `a34fb275-1ed5-4f70-b487-fbf941775f8f`
+sent. API read-back confirms `WAITING_FOR_REVIEW`, build `VALID`, release after
+approval, en-GB release notes, and four completed `APP_IPHONE_67` screenshots.
+
+The prior release history below remains for reference.
+
+## Prior release — 1.0.2 (build 4), 2026-09-26
 
 The September review and three independent re-audits found no remaining release
 blockers after fixes to measurement lifecycle, bandwidth accounting, local

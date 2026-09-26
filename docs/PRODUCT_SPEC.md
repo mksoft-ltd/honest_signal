@@ -47,7 +47,7 @@ day, for almost no data".
 |---|---|
 | Live true-signal meter: 0–5 bars, verdict, and what it means in practice | Free |
 | Latency (median), jitter, packet-loss proxy, throughput estimate, network type | Free |
-| Adaptive sampling — faster in the foreground, sparse in the background, immediate on network change | Free |
+| Android background status-bar refresh targeting every 2 seconds while its indicator is on; actual timing depends on Android and the network | Free |
 | Daily transfer cutoff with an always-visible traffic counter | Free |
 | Android status-bar indicator: foreground service whose small icon is the live score | Free |
 | High-contrast status-bar icon (plate behind the mark), on by default, switchable | Free |
@@ -58,7 +58,7 @@ day, for almost no data".
 | Restore purchases, privacy policy link, light/dark/system theme | Free |
 | History: last hour / last 24 hours, step chart plus summary stats | **Pro** |
 | Floating overlay bubble over other apps (draggable, tap to open, long-press to dismiss) | **Pro** |
-| Custom sampling intervals (2 s–60 s foreground, 1 min–60 min background) | **Pro** |
+| Custom sampling intervals (2 s–60 s foreground, 2 s–60 min Android background) | **Pro** |
 | Indicator themes: bars, dots, wave — in-app and in the status bar | **Pro** |
 
 ### Later (deliberately not in the MVP)
@@ -202,24 +202,41 @@ Four rules sit on top:
 | Situation | Latency probes | Transfer sample |
 |---|---|---|
 | App on screen | every 5 s (Pro: 2–60 s) | at most every 90 s |
-| Android background (service) | every 5 min (Pro: 1–60 min) | at most every 10 min |
+| Android background (service) | target every 2 s (Pro: 2 s–60 min) | every 10 min when healthy; retry a failed transfer after at least 30 s on a later cycle |
 | App opened, manual refresh, network change | immediately | forced |
 | iOS, app closed | nothing runs | nothing runs |
 
-Cost: a latency probe is ~700 B of headers, so a cycle of four costs ~2.8 KB.
-A transfer sample costs ~120 KB. The default 25 MB/day budget (adjustable
-5–250 MB on every tier) comfortably covers all-day background monitoring plus
-normal foreground use.
+Cost: a latency probe is estimated at ~700 B of headers. Foreground cycles use
+four probes (~2.8 KB); rapid background cycles use one (~700 B). A full day of
+uninterrupted 2-second background checks can use about 30 MB just for probes,
+plus about 17 MB for ten-minute successful transfer samples. Failed transfer
+retries can add traffic until the user-selected cutoff. Slow requests,
+Android scheduling, and time spent in the foreground reduce the actual count.
+The default 25 MB/day budget (adjustable 5–250 MB on every tier) is a **transfer
+sample cutoff**, not a hard cap on all traffic; latency probes continue after
+it is reached. Faster background checks also use more battery.
 
-The budget stops transfer samples once spent, and the counter is on the home
+The cutoff stops transfer samples once reached, and the counter is on the home
 screen rather than buried in settings. Each transfer has both an 8-second
 wall-clock deadline and a response-byte cap equal to its requested size, so a
 misbehaving endpoint cannot stream indefinitely. Each latency probe also has
-an 8 KiB response cap. When the budget is spent, **latency
-probes keep running** — the user still gets a reading — and only the 120 KB
-transfer sample pauses until local midnight. A failed budget read fails
+an 8 KiB response cap (and background probes have a 1.5-second deadline). A
+single failed background endpoint is checked against the next rotating target
+before zero bars are published: at the two-second rate on the next tick, or
+within the same cycle for a slower custom rate. A stalled transfer remains
+visible as a capped score during cheap latency-only cycles until a successful
+transfer retry or a network change. When
+the cutoff is reached, **latency probes keep running** — the user still gets a
+reading — and only the 120 KB transfer sample pauses until local midnight.
+A failed budget read fails
 *closed* (reports the budget as spent) so a broken platform channel can never
 spend unlimited data.
+
+The Android indicator can show each confirmed background reading. Background
+history keeps bar and network changes at their measured timestamps, plus a
+one-minute heartbeat when steady. The native hand-off queue holds at most
+6,000 rows and prunes after 25 hours; a persistently flapping connection can
+fill the row cap sooner.
 
 History percentages are duration-weighted: a stored score holds until the next
 stored reading, rather than every stored row receiving equal weight. A reading

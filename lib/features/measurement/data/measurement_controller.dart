@@ -238,6 +238,7 @@ class MeasurementController extends ChangeNotifier {
   }
 
   void _onConnectivityChanged(NetworkKind kind) {
+    if (kind != _kind) _engine.resetTransfer();
     _kind = kind;
     if (!_foreground) return;
     // The moment the network changes is exactly when the old reading became

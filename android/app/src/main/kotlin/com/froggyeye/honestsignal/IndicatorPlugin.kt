@@ -153,7 +153,7 @@ class IndicatorPlugin(private val activity: Activity) : MethodChannel.MethodCall
             )
             putExtra(
                 HonestSignalService.EXTRA_INTERVAL,
-                call.argument<Int>("intervalSeconds") ?: 300,
+                call.argument<Int>("intervalSeconds") ?: 2,
             )
             putExtra(
                 HonestSignalService.EXTRA_BUDGET,

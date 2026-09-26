@@ -183,16 +183,16 @@ void main() {
 
   group('documented defaults', () {
     test('the free tier matches the cadence table in the spec', () {
-      // Spec §6: 5 s foreground, 5 min background, 25 MB/day.
+      // Spec §6: 5 s foreground, 2 s Android background, 25 MB/day.
       expect(AppSettings.defaultForegroundInterval, 5);
-      expect(AppSettings.defaultBackgroundInterval, 300);
+      expect(AppSettings.defaultBackgroundInterval, 2);
       expect(AppSettings.defaultDailyBudgetMb, 25);
     });
 
     test('the Pro ranges match the spec', () {
       expect(AppSettings.minForegroundInterval, 2);
       expect(AppSettings.maxForegroundInterval, 60);
-      expect(AppSettings.minBackgroundInterval, 60);
+      expect(AppSettings.minBackgroundInterval, 2);
       expect(AppSettings.maxBackgroundInterval, 3600);
       expect(AppSettings.minDailyBudgetMb, 5);
       expect(AppSettings.maxDailyBudgetMb, 250);
@@ -217,16 +217,25 @@ void main() {
       );
     });
 
-    test('a day of background monitoring fits inside the default budget', () {
-      // Spec §6 claims the default budget "comfortably covers all-day
-      // background monitoring". At a 5-minute cadence that is 288 probe cycles
-      // plus a transfer sample every 10 minutes.
-      const cyclesPerDay = 24 * 60 ~/ 5;
-      const transfersPerDay = 24 * 60 ~/ 10;
-      const cost = cyclesPerDay * 4 * 700 + transfersPerDay * 120000;
+    test(
+      'the spec states the cost of uninterrupted fast background checks',
+      () {
+        const cyclesPerDay = 24 * 60 * 60 ~/ 2;
+        const transfersPerDay = 24 * 60 ~/ 10;
+        const probeCost = cyclesPerDay * 700;
+        const transferCost = transfersPerDay * 120000;
 
-      expect(cost, lessThan(AppSettings.defaultDailyBudgetMb * 1024 * 1024));
-    });
+        expect(
+          probeCost,
+          greaterThan(AppSettings.defaultDailyBudgetMb * 1024 * 1024),
+        );
+        expect(
+          transferCost,
+          lessThan(AppSettings.defaultDailyBudgetMb * 1024 * 1024),
+        );
+        expect(probeCost + transferCost, greaterThan(45 * 1024 * 1024));
+      },
+    );
 
     test('the published retention figure is the one the code enforces', () {
       // The privacy policy is a legal document for an app whose whole pitch is

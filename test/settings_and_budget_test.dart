@@ -38,12 +38,18 @@ void main() {
       expect(budget.fraction, 1.0);
     });
 
-    test('a broken platform channel reports the budget as spent, not free', () async {
-      // Failing open would let a channel error spend unlimited mobile data.
-      final store = PlatformBudgetStore(channel: const _DeadChannel());
-      final budget = await store.read(now: DateTime(2026, 8, 7), limitBytes: 500);
-      expect(budget.isExhausted, isTrue);
-    });
+    test(
+      'a broken platform channel reports the budget as spent, not free',
+      () async {
+        // Failing open would let a channel error spend unlimited mobile data.
+        final store = PlatformBudgetStore(channel: const _DeadChannel());
+        final budget = await store.read(
+          now: DateTime(2026, 8, 7),
+          limitBytes: 500,
+        );
+        expect(budget.isExhausted, isTrue);
+      },
+    );
   });
 
   group('high-contrast indicator', () {
@@ -60,9 +66,7 @@ void main() {
     });
 
     test('a user who switched it off keeps it off across a reload', () {
-      final stored = const AppSettings(
-        highContrastIndicator: false,
-      ).toJson();
+      final stored = const AppSettings(highContrastIndicator: false).toJson();
 
       expect(AppSettings.fromJson(stored).highContrastIndicator, isFalse);
     });
@@ -92,8 +96,14 @@ void main() {
 
       final free = customised.clampedForTier(isPro: false);
 
-      expect(free.foregroundIntervalSeconds, AppSettings.defaultForegroundInterval);
-      expect(free.backgroundIntervalSeconds, AppSettings.defaultBackgroundInterval);
+      expect(
+        free.foregroundIntervalSeconds,
+        AppSettings.defaultForegroundInterval,
+      );
+      expect(
+        free.backgroundIntervalSeconds,
+        AppSettings.defaultBackgroundInterval,
+      );
       expect(free.barTheme, BarTheme.bars);
       expect(free.overlayEnabled, isFalse);
     });
@@ -157,7 +167,27 @@ void main() {
       expect(defaults.barTheme, BarTheme.bars);
       expect(defaults.overlayEnabled, isFalse);
       expect(defaults.notificationIndicatorEnabled, isTrue);
+      expect(defaults.backgroundIntervalSeconds, 2);
     });
+
+    test(
+      'migrates the old five-minute default but retains new custom choices',
+      () {
+        final legacy = AppSettings.fromJson(const {'bgInterval': 300});
+        expect(legacy.backgroundIntervalSeconds, 2);
+
+        final chosen = AppSettings.fromJson(
+          const AppSettings(backgroundIntervalSeconds: 300).toJson(),
+        );
+        expect(chosen.backgroundIntervalSeconds, 300);
+        expect(
+          AppSettings.fromJson(const {
+            'bgInterval': 900,
+          }).backgroundIntervalSeconds,
+          900,
+        );
+      },
+    );
   });
 
   group('Format', () {
@@ -179,10 +209,22 @@ void main() {
     test('age never rounds staleness away', () {
       final now = DateTime(2026, 8, 7, 12);
       expect(Format.age(now, now: now), 'just now');
-      expect(Format.age(now.subtract(const Duration(seconds: 30)), now: now), '30s ago');
-      expect(Format.age(now.subtract(const Duration(minutes: 7)), now: now), '7 min ago');
-      expect(Format.age(now.subtract(const Duration(hours: 3)), now: now), '3 h ago');
-      expect(Format.age(now.subtract(const Duration(days: 2)), now: now), '2 d ago');
+      expect(
+        Format.age(now.subtract(const Duration(seconds: 30)), now: now),
+        '30s ago',
+      );
+      expect(
+        Format.age(now.subtract(const Duration(minutes: 7)), now: now),
+        '7 min ago',
+      );
+      expect(
+        Format.age(now.subtract(const Duration(hours: 3)), now: now),
+        '3 h ago',
+      );
+      expect(
+        Format.age(now.subtract(const Duration(days: 2)), now: now),
+        '2 d ago',
+      );
     });
 
     test('intervals read naturally at every scale the sliders allow', () {
@@ -200,7 +242,10 @@ class _DeadChannel extends MethodChannel {
   const _DeadChannel() : super('test/dead');
 
   @override
-  Future<Map<K, V>?> invokeMapMethod<K, V>(String method, [dynamic arguments]) async {
+  Future<Map<K, V>?> invokeMapMethod<K, V>(
+    String method, [
+    dynamic arguments,
+  ]) async {
     throw MissingPluginException('no handler');
   }
 }

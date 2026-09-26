@@ -135,14 +135,15 @@ opens a socket, contacts a store, or writes to real storage.
 
 | # | Check | Why it cannot be automated | Pass looks like |
 |---|---|---|---|
-| M1 | The background Flutter engine boots inside `HonestSignalService` | Requires the real Android service host; no test binding can start a second engine | Turn the indicator on, swipe the app away, wait one background interval, and watch the status-bar icon change as the connection changes |
+| M1 | The background Flutter engine boots inside `HonestSignalService` | Requires the real Android service host; no test binding can start a second engine | Turn the indicator on, background the app, change connectivity, and observe the status-bar icon update on the 2-second target cadence; slow requests and Android scheduling may delay it. Return to the app and check that the UI takes over without duplicate probes |
 | M2 | The small icon renders on OEM skins | Monochrome tinting for small icons differs per vendor and Android version | The icon is legible on stock Android, Samsung One UI and a Xiaomi/Pixel skin, at all six levels, in both light and dark status bars |
 | M3 | The overlay window behaves | `SYSTEM_ALERT_WINDOW` cannot be granted or drawn in a test | Bubble appears only after the grant, drags smoothly, taps open the app, long-press dismisses, and it never steals keyboard focus from the app underneath |
 | M4 | The boot receiver restores the indicator | Needs a real reboot | Enable the indicator, reboot, and the icon returns without opening the app |
 | M5 | Real-network sanity | The suite never opens a socket | On real Wi-Fi the score is plausible; on airplane mode it drops to 0 within one cycle; on a deliberately throttled link the transfer-failure cap shows 2 bars |
-| M6 | The daily budget on a real device | The counter lives in Android SharedPreferences behind a platform channel | Leave the indicator running for a day; the counter on the home screen rises and stops at the limit, and transfers stop while probes continue |
+| M6 | The daily budget on a real device | The counter lives in Android SharedPreferences behind a platform channel | Leave the indicator running long enough to hit the limit; speed transfers stop, while latency probes and their estimated bytes continue to advance the counter |
 | M7 | iOS staleness copy | `Platform.isIOS` cannot be faked on the host, so the iOS-only line in `FreshnessLine` is unreachable in tests | On an iPhone, background the app for three minutes; on return the line reads red and states that iOS stops apps measuring in the background |
 | M8 | Purchase against the real store | Sandbox accounts only | Buy in an Apple sandbox account and a Play internal-test track; the price matches the storefront, restore works on a second device, and no spinner survives a cancel |
+| M9 | Fast background cadence on battery and mobile data | Unit tests cannot measure device power or carrier traffic | With the indicator explicitly enabled, check battery impact and data use over several hours on a physical Android device; compare the estimate with carrier-reported usage and verify the Pro slower interval saves both |
 
 M7 is worth stressing: **anything gated on `Platform.isIOS` or `Platform.isAndroid`
 is invisible to the host test runner.** That includes the whole Android section
@@ -274,7 +275,19 @@ is today, so a change fails loudly. None of them block the gate.
 
 ## 6. Latest run
 
-### 2026-09-26 release verification
+### 2026-09-26 version 1.0.3 verification
+
+The Android background-service cadence, single-probe scoring, transfer retry,
+history sampling and settings migration gained regression coverage. The full
+Flutter suite passed **324/324**; `flutter analyze` reported no issues, and
+Android `:app:testDebugUnitTest` passed. Android release APK and signed AAB
+built successfully; the AAB signer fingerprint matches the existing Play upload
+certificate. The iOS App Store IPA built as version 1.0.3 build 5. New screenshot
+capture runs passed on Android and iOS simulators, with five Play screenshots at
+1080 × 2160 and four App Store screenshots at 1320 × 2868. Code and security
+re-audits found no Critical or Major release blockers.
+
+### 2026-09-26 version 1.0.2 verification
 
 The 1.0.2 release adds regression coverage for oversized probe bodies, failed
 transfer responses consuming data, native history acknowledgement after queue
