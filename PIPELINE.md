@@ -21,7 +21,7 @@ Decisions (founder, 2026-08-07): **free + £2.99 Pro IAP** (native `in_app_purch
 | 4b | security | mobile-security-auditor | done — **PASS**; retention, backup exclusion, abortable requests and IAP failure ordering re-verified | 2026-09-25 |
 | 5 | metadata | growth-monetization → release-manager | done — ASO (`docs/ASO.md`) + fastlane metadata written both stores | 2026-08-09 |
 | 6 | compliance | app-store-review-auditor | done — **PASS** re-verified (C-1/C-2/H-1/H-4 closed; H-2/H-3/M-1/M-2/M-3 carried as stage-7 gate conditions) | 2026-08-09 |
-| 7 | publish | store-publisher | 1.0.2 (build 4) accepted into Play production; Apple build attached and submitted, state `WAITING_FOR_REVIEW` | 2026-09-26 |
+| 7 | publish | store-publisher | 1.0.2 (build 4) is `IN_REVIEW` on Play production; Apple build attached and submitted, state `WAITING_FOR_REVIEW` | 2026-09-26 |
 | 8 | website | general-purpose (froggyeye-website skill) | done — page LIVE at https://honestsignal.froggyeye.com, current store buttons and copy verified | 2026-09-26 |
 
 ## Latest release — 1.0.2 (build 4), 2026-09-26
@@ -34,9 +34,9 @@ and 4 Swift tests, plus screenshot integration on both platforms.
 
 The signed Play AAB was uploaded and committed to the production track. API
 read-back shows versionCode 4 / versionName 1.0.2 as `completed`; all five
-current screenshots were read back in order and verified by SHA-1. The API
-does not expose the Play Console review banner, so track acceptance is the
-verified state.
+current screenshots were read back in order and verified by SHA-1. A subsequent
+read of `applications.tracks.releases.list` confirms the 1.0.2 production
+release is `RELEASE_LIFECYCLE_STATE_IN_REVIEW` (while 1.0.1 is `PUBLISHED`).
 
 The 1.0.2 (build 4) iOS IPA uploaded successfully. App Store Connect read-back
 shows the new version, updated text and four complete iPhone screenshots.
