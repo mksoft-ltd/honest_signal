@@ -14,15 +14,38 @@ Decisions (founder, 2026-08-07): **free + £2.99 Pro IAP** (native `in_app_purch
 ## Stages
 | # | Stage | Agent | Status | Date |
 |---|-------|-------|--------|------|
-| 1 | build | flutter-architect | done — review + re-review fixes implemented; 310 Flutter, 11 Kotlin and 4 Swift tests pass; built-in-Kotlin migration deferred until required Flutter 3.47+ | 2026-09-25 |
+| 1 | build | flutter-architect | done — 1.0.2 fixes implemented; signed AAB and IPA built | 2026-09-26 |
 | 2 | design | ui-designer | done | 2026-08-08 |
-| 3 | test | mobile-qa-architect | done — 310 Flutter + 11 Kotlin + 4 Swift tests passing | 2026-09-25 |
+| 3 | test | mobile-qa-architect | done — 313 Flutter + 12 Kotlin + 4 Swift tests passing; screenshot integration runs passed on both platforms | 2026-09-26 |
 | 4a | code-review | mobile-code-reviewer | done — **PASS**; comprehensive improvement and re-review fixes verified, 0 Critical/Major remaining | 2026-09-25 |
 | 4b | security | mobile-security-auditor | done — **PASS**; retention, backup exclusion, abortable requests and IAP failure ordering re-verified | 2026-09-25 |
 | 5 | metadata | growth-monetization → release-manager | done — ASO (`docs/ASO.md`) + fastlane metadata written both stores | 2026-08-09 |
 | 6 | compliance | app-store-review-auditor | done — **PASS** re-verified (C-1/C-2/H-1/H-4 closed; H-2/H-3/M-1/M-2/M-3 carried as stage-7 gate conditions) | 2026-08-09 |
-| 7 | publish | store-publisher | uploaded both stores; **awaiting console-only steps before submit** (Apple: privacy label + IAP "Add for Review"; Play: declarations + first rollout). Play listing screenshot `03_statusbar` recaptured from vc3 and re-uploaded 2026-08-15 (images-only edit; no track touched) | 2026-08-15 |
-| 8 | website | general-purpose (froggyeye-website skill) | done — page LIVE at https://honestsignal.froggyeye.com (brought forward; clears compliance C-2). Post-publish follow-ups: refresh_store_urls + postprocess once listings live; drop screenshot1.png after recapture; edit hero meta 'Launching on iOS & Android' | 2026-08-09 |
+| 7 | publish | store-publisher | 1.0.2 (build 4) accepted into Play production; Apple build attached and submitted, state `WAITING_FOR_REVIEW` | 2026-09-26 |
+| 8 | website | general-purpose (froggyeye-website skill) | done — page LIVE at https://honestsignal.froggyeye.com, current store buttons and copy verified | 2026-09-26 |
+
+## Latest release — 1.0.2 (build 4), 2026-09-26
+
+The September review and three independent re-audits found no remaining release
+blockers after fixes to measurement lifecycle, bandwidth accounting, local
+history acknowledgement, purchase restoration, privacy copy and store assets.
+`flutter analyze` is clean. The release checks passed 313 Flutter, 12 Kotlin
+and 4 Swift tests, plus screenshot integration on both platforms.
+
+The signed Play AAB was uploaded and committed to the production track. API
+read-back shows versionCode 4 / versionName 1.0.2 as `completed`; all five
+current screenshots were read back in order and verified by SHA-1. The API
+does not expose the Play Console review banner, so track acceptance is the
+verified state.
+
+The 1.0.2 (build 4) iOS IPA uploaded successfully. App Store Connect read-back
+shows the new version, updated text and four complete iPhone screenshots.
+Apple marked build `562c3f0f-3dce-4a7d-b513-38031a002901` `VALID`; it was
+attached to version `477cb3a8-3df8-4652-870f-85cce6abe36b` and submitted
+via review submission `14a41c91-aeba-4aaf-828f-8abb0e2feaf9`. The version
+read-back state is `WAITING_FOR_REVIEW`. The Pro IAP was previously approved
+and remains live.
+The prior 1.0.0 / 1.0.1 release history below remains for reference.
 
 ## Stage 1 (build) — completed 2026-08-07
 

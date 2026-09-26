@@ -274,6 +274,25 @@ is today, so a change fails loudly. None of them block the gate.
 
 ## 6. Latest run
 
+### 2026-09-26 release verification
+
+The 1.0.2 release adds regression coverage for oversized probe bodies, failed
+transfer responses consuming data, native history acknowledgement after queue
+expiry and append, and a queued foreground measurement during background
+handoff. The full Flutter suite passed **313/313** and `flutter analyze` found no
+issues. Android JVM tests passed **12/12**, and iOS RunnerTests passed **4/4**
+on the iPhone 15 Pro Max simulator. The final signed Play bundle built
+successfully. The screenshot integration test passed on an iPhone 15 Pro Max
+simulator and Android API 36.1 emulator; current images were framed at 1320 ×
+2868 and 1080 × 2160 respectively. The App Store IPA built with the committed
+manual export options, version 1.0.2 build 4, and deployment target 15.0.
+
+App review, code review and security gates were independently rechecked after
+the fixes and passed. The remaining store review outcome is external to these
+tests.
+
+---
+
 ### 2026-09-25 implementation-fix run
 
 Coverage added or strengthened for native budget persistence, Android's
