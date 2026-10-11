@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark counterpart of values/widget_resources.xml: the app's dark
+     ColorScheme surface / onSurface / onSurfaceVariant. -->
+<resources>
+    <color name="widget_background">#0F1511</color>
+    <color name="widget_on_background">#DEE4DE</color>
+    <color name="widget_on_background_variant">#BFC9C1</color>
+    <!-- AppColors.dark.good -->
+    <color name="widget_preview_score">#4FA83D</color>
+</resources>

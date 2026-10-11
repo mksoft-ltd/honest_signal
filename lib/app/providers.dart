@@ -11,6 +11,8 @@ import '../features/measurement/data/measurement_engine.dart';
 import '../features/measurement/data/probe_client.dart';
 import '../features/purchases/data/iap_gateway.dart';
 import '../features/purchases/data/purchase_controller.dart';
+import '../features/purchases/domain/pro_teaser.dart';
+import '../features/review/review_prompter.dart';
 import '../features/settings/data/settings_repository.dart';
 import '../features/settings/domain/app_settings.dart';
 import '../features/settings/presentation/settings_controller.dart';
@@ -44,9 +46,19 @@ final settingsRepositoryProvider = Provider<SettingsRepository>(
   (ref) => SettingsRepository(ref.watch(localStoreProvider).settings),
 );
 
-final historyRepositoryProvider = Provider<HistoryRepository>(
-  (ref) => HistoryRepository(ref.watch(localStoreProvider).history),
-);
+final historyRepositoryProvider = Provider<HistoryRepository>((ref) {
+  final repository = HistoryRepository(ref.watch(localStoreProvider).history);
+  // Listened to rather than watched: rebuilding the repository would rebuild
+  // the measurement controller that holds it.
+  ref.listen<bool>(
+    isProProvider,
+    (_, isPro) => repository.retention = isPro
+        ? HistoryRepository.proRetention
+        : HistoryRepository.defaultRetention,
+    fireImmediately: true,
+  );
+  return repository;
+});
 
 final settingsProvider = StateNotifierProvider<SettingsController, AppSettings>(
   (ref) {
@@ -119,3 +131,22 @@ final measurementControllerProvider =
 
       return controller;
     });
+
+final reviewRequesterProvider = Provider<ReviewRequester>(
+  (ref) => PluginReviewRequester(),
+);
+
+final reviewPrompterProvider = Provider<ReviewPrompter>(
+  (ref) => ReviewPrompter(
+    ref.watch(localStoreProvider).settings,
+    ref.watch(reviewRequesterProvider),
+  ),
+);
+
+/// The free tier's own recorded history, summarised for the paywall and the
+/// Pro entry points. Null on Pro and when there is too little to quote.
+final proTeaserProvider = Provider<ProTeaser?>((ref) {
+  if (ref.watch(isProProvider)) return null;
+  final controller = ref.watch(measurementControllerProvider);
+  return ProTeaser.from(controller.historySince(ProTeaser.defaultWindow));
+});

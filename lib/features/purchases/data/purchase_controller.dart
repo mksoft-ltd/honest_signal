@@ -242,7 +242,7 @@ class PurchaseController extends ChangeNotifier {
   void debugForcePro() {
     assert(() {
       _set(
-        _state.copyWith(isPro: true, storeAvailable: true, priceLabel: '£2.99'),
+        _state.copyWith(isPro: true, storeAvailable: true, priceLabel: '£4.99'),
       );
       return true;
     }());

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strings for the Android-only surfaces outside the Flutter UI: the
+     home-screen widget and the Quick Settings tile. The wording that depends
+     on a reading lives in ReadingText.kt, where it is unit-tested. -->
+<resources>
+    <string name="app_name_widget">Honest Signal</string>
+    <string name="widget_label">Honest Signal</string>
+    <string name="widget_description">Your latest honest connection score</string>
+    <string name="widget_no_reading">Open to measure</string>
+    <string name="widget_no_reading_short">Open</string>
+    <string name="widget_preview_verdict">Good</string>
+    <string name="widget_preview_status">4/5 · measured 14:32</string>
+    <string name="tile_label">Honest Signal</string>
+</resources>

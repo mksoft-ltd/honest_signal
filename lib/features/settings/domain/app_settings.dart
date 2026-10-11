@@ -33,6 +33,9 @@ class AppSettings {
     this.measureOnCellular = true,
     this.themeMode = ThemeMode.system,
     this.hasSeenOnboarding = false,
+    this.alertsEnabled = false,
+    this.alertBars = defaultAlertBars,
+    this.alertMinutes = defaultAlertMinutes,
   });
 
   // Free-tier defaults, and the values a non-Pro install is pinned to.
@@ -47,6 +50,11 @@ class AppSettings {
   static const int maxBackgroundInterval = 3600;
   static const int minDailyBudgetMb = 5;
   static const int maxDailyBudgetMb = 250;
+
+  static const int defaultAlertBars = 1;
+  static const int defaultAlertMinutes = 2;
+  static const List<int> alertBarChoices = [0, 1, 2];
+  static const List<int> alertMinuteChoices = [1, 2, 5, 10, 30];
 
   /// Android only: run the foreground service whose status-bar icon shows the
   /// live score.
@@ -76,6 +84,13 @@ class AppSettings {
   final ThemeMode themeMode;
   final bool hasSeenOnboarding;
 
+  /// Android only, Pro: notify when the score stays at or below [alertBars]
+  /// for [alertMinutes], and again when it recovers. Runs in the same
+  /// background service as the status-bar indicator, so it needs that on.
+  final bool alertsEnabled;
+  final int alertBars;
+  final int alertMinutes;
+
   int get dailyBudgetBytes => dailyBudgetMb * 1024 * 1024;
 
   Duration get foregroundInterval =>
@@ -93,6 +108,7 @@ class AppSettings {
       backgroundIntervalSeconds: defaultBackgroundInterval,
       barTheme: BarTheme.bars,
       overlayEnabled: false,
+      alertsEnabled: false,
     );
   }
 
@@ -107,6 +123,9 @@ class AppSettings {
     bool? measureOnCellular,
     ThemeMode? themeMode,
     bool? hasSeenOnboarding,
+    bool? alertsEnabled,
+    int? alertBars,
+    int? alertMinutes,
   }) => AppSettings(
     notificationIndicatorEnabled:
         notificationIndicatorEnabled ?? this.notificationIndicatorEnabled,
@@ -121,6 +140,9 @@ class AppSettings {
     measureOnCellular: measureOnCellular ?? this.measureOnCellular,
     themeMode: themeMode ?? this.themeMode,
     hasSeenOnboarding: hasSeenOnboarding ?? this.hasSeenOnboarding,
+    alertsEnabled: alertsEnabled ?? this.alertsEnabled,
+    alertBars: alertBars ?? this.alertBars,
+    alertMinutes: alertMinutes ?? this.alertMinutes,
   );
 
   Map<String, dynamic> toJson() => {
@@ -135,6 +157,9 @@ class AppSettings {
     'cellular': measureOnCellular,
     'themeMode': themeMode.name,
     'onboarded': hasSeenOnboarding,
+    'alerts': alertsEnabled,
+    'alertBars': alertBars,
+    'alertMinutes': alertMinutes,
   };
 
   static AppSettings fromJson(Map<dynamic, dynamic> json) => AppSettings(
@@ -163,5 +188,19 @@ class AppSettings {
       orElse: () => ThemeMode.system,
     ),
     hasSeenOnboarding: json['onboarded'] as bool? ?? false,
+    alertsEnabled: json['alerts'] as bool? ?? false,
+    alertBars: _oneOf(
+      (json['alertBars'] as num?)?.toInt(),
+      alertBarChoices,
+      defaultAlertBars,
+    ),
+    alertMinutes: _oneOf(
+      (json['alertMinutes'] as num?)?.toInt(),
+      alertMinuteChoices,
+      defaultAlertMinutes,
+    ),
   );
+
+  static int _oneOf(int? value, List<int> allowed, int fallback) =>
+      value != null && allowed.contains(value) ? value : fallback;
 }

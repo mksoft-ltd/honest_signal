@@ -89,6 +89,9 @@ class IndicatorController extends ChangeNotifier {
           // in the start intent closes the race where start()'s first UI-active
           // message arrives before the service exists.
           uiActive: true,
+          alertsEnabled: settings.alertsEnabled,
+          alertBars: settings.alertBars,
+          alertMinutes: settings.alertMinutes,
         );
       }
     } else {

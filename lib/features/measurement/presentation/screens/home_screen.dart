@@ -10,6 +10,8 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/metric_tile.dart';
 import '../../../../shared/widgets/signal_bars.dart';
 import '../../../settings/domain/app_settings.dart';
+import '../../data/measurement_controller.dart';
+import '../../domain/diagnosis.dart';
 import '../../domain/measurement_state.dart';
 import '../../domain/scoring.dart';
 import '../../domain/signal_sample.dart';
@@ -33,12 +35,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(measurementControllerProvider).start();
       ref.read(indicatorControllerProvider).refresh();
+      ref.read(reviewPrompterProvider).recordUse();
+      _openLaunchRoute();
     });
+    // A fresh good reading is the moment to ask for a review; the prompter
+    // owns every other condition, including never asking twice a session.
+    _reviewSubscription = ref.listenManual(measurementControllerProvider, (
+      _,
+      controller,
+    ) {
+      final state = controller.state;
+      if (state.hasReading && !state.measuring && state.sample.bars >= 4) {
+        ref
+            .read(reviewPrompterProvider)
+            .maybePrompt(currentBars: state.sample.bars);
+      }
+    });
+  }
+
+  ProviderSubscription<MeasurementController>? _reviewSubscription;
+
+  /// Routes a notification may ask for. Anything else is ignored, so a stray
+  /// intent extra can never navigate somewhere unexpected.
+  static const _launchRoutes = {'/history'};
+
+  /// A drop-out alert opens the app on History, where the drop-out is listed.
+  Future<void> _openLaunchRoute() async {
+    final route = await ref.read(indicatorChannelProvider).takeLaunchRoute();
+    if (route == null || !_launchRoutes.contains(route) || !mounted) return;
+    context.push(route);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _reviewSubscription?.close();
     super.dispose();
   }
 
@@ -49,6 +80,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       case AppLifecycleState.resumed:
         controller.setForeground(true);
         ref.read(indicatorControllerProvider).refresh();
+        ref.read(reviewPrompterProvider).recordUse();
+        _openLaunchRoute();
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
@@ -64,6 +97,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final state = controller.state;
     final settings = ref.watch(effectiveSettingsProvider);
     final isPro = ref.watch(isProProvider);
+    final teaser = ref.watch(proTeaserProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -96,6 +130,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 pause: state.pause,
                 onOpenSettings: () => context.push('/settings'),
               ),
+              if (state.hasReading)
+                if (Diagnosis.of(state.sample) case final diagnosis?) ...[
+                  _DiagnosisCard(diagnosis: diagnosis),
+                  const SizedBox(height: 16),
+                ],
               _MetricGrid(sample: state.sample, hasReading: state.hasReading),
               const SizedBox(height: 20),
               BudgetMeter(budget: state.budget),
@@ -118,7 +157,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 OutlinedButton.icon(
                   onPressed: () => context.push('/pro'),
                   icon: const Icon(Icons.workspace_premium_outlined),
-                  label: const Text('Honest Signal Pro'),
+                  // Names the user's own recorded drop-outs when there are
+                  // any: a reason to look, rather than a generic upsell.
+                  label: Text(
+                    teaser != null && teaser.dropouts > 0
+                        ? 'See your ${teaser.dropoutPhrase} from today — Pro'
+                        : 'Honest Signal Pro',
+                  ),
                 ),
               ],
             ],
@@ -170,6 +215,51 @@ class _Verdict extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Why the score is what it is, in words, and what usually helps.
+class _DiagnosisCard extends StatelessWidget {
+  const _DiagnosisCard({required this.diagnosis});
+
+  final Diagnosis diagnosis;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.lightbulb_outline, color: theme.colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    diagnosis.title,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    diagnosis.advice,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

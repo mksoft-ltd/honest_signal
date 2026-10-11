@@ -1,1 +1,5 @@
-Clearer measurement settings and background-status guidance. Readings update while the app is open and refresh when you return to it.
+New: a home-screen and lock-screen widget that runs its own quick connection check, so you can see your score without opening the app.
+
+When something is wrong, Honest Signal now says what in plain English — a Wi-Fi sign-in page, failing DNS, Wi-Fi up but the internet down — and what usually fixes it.
+
+Pro now keeps 30 days of history, lists every drop-out with its time and length, splits results by Wi-Fi and mobile, and exports a PDF report or CSV you can send to your provider.

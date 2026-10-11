@@ -18,8 +18,14 @@ import io.flutter.plugin.common.MethodChannel
  * Kept as a plain handler owned by [MainActivity] rather than a full Flutter
  * plugin: it is app-specific, needs an Activity for the runtime permission
  * request, and has no life outside this app.
+ *
+ * [takeLaunchRoute] hands over, once, the in-app route a notification asked
+ * for (see [MainActivity.EXTRA_ROUTE]).
  */
-class IndicatorPlugin(private val activity: Activity) : MethodChannel.MethodCallHandler {
+class IndicatorPlugin(
+    private val activity: Activity,
+    private val takeLaunchRoute: () -> String? = { null },
+) : MethodChannel.MethodCallHandler {
 
     companion object {
         const val CHANNEL = "com.froggyeye.honestsignal/indicator"
@@ -139,6 +145,26 @@ class IndicatorPlugin(private val activity: Activity) : MethodChannel.MethodCall
 
             "isOverlayRunning" -> result.success(OverlayService.isRunning)
 
+            "updateWidgets" -> {
+                // Every foreground reading, whether or not the indicator service
+                // is running — so this writes the store and redraws directly
+                // and must never start the service, which would be a foreground
+                // service the user did not ask for.
+                val timestamp = call.argument<Number>("timestampMs")?.toLong()
+                    ?: System.currentTimeMillis()
+                val reading = Reading.fromStored(
+                    bars = call.argument<Number>("bars")?.toInt(),
+                    verdict = call.argument<String>("verdict"),
+                    detail = call.argument<String>("detail"),
+                    timestampMs = timestamp,
+                    theme = call.argument<String>("theme"),
+                )
+                if (reading != null) LastReading.save(activity.applicationContext, reading)
+                result.success(null)
+            }
+
+            "takeLaunchRoute" -> result.success(takeLaunchRoute())
+
             else -> result.notImplemented()
         }
     }
@@ -164,6 +190,18 @@ class IndicatorPlugin(private val activity: Activity) : MethodChannel.MethodCall
                 call.argument<Boolean>("measureOnCellular") ?: true,
             )
             putExtra(HonestSignalService.EXTRA_ACTIVE, call.argument<Boolean>("uiActive") ?: false)
+            putExtra(
+                HonestSignalService.EXTRA_ALERTS_ENABLED,
+                call.argument<Boolean>("alertsEnabled") ?: false,
+            )
+            putExtra(
+                HonestSignalService.EXTRA_ALERT_BARS,
+                call.argument<Number>("alertBars")?.toInt() ?: AlertConfig.DEFAULT_BARS,
+            )
+            putExtra(
+                HonestSignalService.EXTRA_ALERT_MINUTES,
+                call.argument<Number>("alertMinutes")?.toInt() ?: AlertConfig.DEFAULT_MINUTES,
+            )
         }
 
     /**

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+import '../domain/dropout_alerts.dart';
 import '../domain/indicator_text.dart';
 import '../domain/measurement_config.dart';
 import '../domain/network_kind.dart';
@@ -64,6 +65,7 @@ class BackgroundMeasurementHost {
   DateTime? _lastTransferAt;
   bool _lastTransferFailed = false;
   SignalSample? _lastStoredSample;
+  final DropoutAlertTracker _alerts = DropoutAlertTracker();
 
   /// Transfer cadence in the background. Sparser than the foreground rate: the
   /// user is not watching, and a 120 KB sample every few minutes would dominate
@@ -88,6 +90,20 @@ class BackgroundMeasurementHost {
       intervalSeconds: (args['intervalSeconds'] as num?)?.toInt() ?? 2,
     );
     if (sample == null) return null;
+    if (args['alertsEnabled'] == true) {
+      final alert = _alerts.observe(
+        sample,
+        thresholdBars: (args['alertBars'] as num?)?.toInt() ?? 1,
+        after: Duration(minutes: (args['alertMinutes'] as num?)?.toInt() ?? 2),
+      );
+      if (alert != null) {
+        try {
+          await _channel.invokeMethod<void>('postAlert', alert.toChannelArgs());
+        } on Object {
+          // An alert that cannot be posted must not cost the indicator update.
+        }
+      }
+    }
     // The notification's title and body are composed here rather than in Kotlin
     // so the wording lives in one language, next to the model that produced it.
     return {

@@ -41,6 +41,9 @@ class IndicatorChannel {
     required int budgetLimitBytes,
     required bool measureOnCellular,
     required bool uiActive,
+    bool alertsEnabled = false,
+    int alertBars = 1,
+    int alertMinutes = 2,
   }) => _invoke<void>('startIndicator', {
     'theme': theme,
     'highContrast': highContrast,
@@ -48,9 +51,33 @@ class IndicatorChannel {
     'budgetLimitBytes': budgetLimitBytes,
     'measureOnCellular': measureOnCellular,
     'uiActive': uiActive,
+    'alertsEnabled': alertsEnabled,
+    'alertBars': alertBars,
+    'alertMinutes': alertMinutes,
   });
 
   Future<void> stop() => _invoke<void>('stopIndicator');
+
+  /// Refreshes the home-screen widget and Quick Settings tile with a reading
+  /// taken in the app. Never starts the indicator service: the widget is free
+  /// and works with the indicator switched off.
+  Future<void> updateWidgets({
+    required int bars,
+    required String verdict,
+    required String detail,
+    required DateTime timestamp,
+    required String theme,
+  }) => _invoke<void>('updateWidgets', {
+    'bars': bars,
+    'verdict': verdict,
+    'detail': detail,
+    'timestampMs': timestamp.millisecondsSinceEpoch,
+    'theme': theme,
+  });
+
+  /// The in-app route a notification asked to open (e.g. `/history` from a
+  /// drop-out alert), consumed once.
+  Future<String?> takeLaunchRoute() => _invoke<String>('takeLaunchRoute');
 
   /// Pushes a sample measured by the UI isolate so the status-bar icon stays
   /// live without the background isolate duplicating the work.

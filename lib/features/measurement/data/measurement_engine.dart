@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import '../domain/measurement_config.dart';
 import '../domain/network_kind.dart';
+import '../domain/probe_issue.dart';
 import '../domain/probe_targets.dart';
 import '../domain/scoring.dart';
 import '../domain/signal_sample.dart';
@@ -69,6 +70,7 @@ class MeasurementEngine {
     var failures = 0;
     var bytes = 0;
     var abortedDead = false;
+    final issues = <ProbeIssue>[];
 
     for (var i = 0; i < targets.length; i++) {
       attempted++;
@@ -77,6 +79,7 @@ class MeasurementEngine {
         timeout: _config.probeTimeout,
       );
       bytes += result.bytes;
+      if (result.issue != null) issues.add(result.issue!);
       if (result.ok && result.rttMs != null) {
         rtts.add(result.rttMs!);
       } else {
@@ -178,7 +181,21 @@ class MeasurementEngine {
       probesSent: probesSent,
       bytesUsed: bytes,
       networkDetail: networkDetail,
+      issue: _summariseIssues(issues, anyAnswered: rtts.isNotEmpty),
     );
+  }
+
+  /// One intercepted answer is enough to say "sign-in page": a working path
+  /// never returns anything but the 204. Failure kinds only count when nothing
+  /// answered at all, and only if every failure agrees.
+  static ProbeIssue? _summariseIssues(
+    List<ProbeIssue> issues, {
+    required bool anyAnswered,
+  }) {
+    if (issues.contains(ProbeIssue.intercepted)) return ProbeIssue.intercepted;
+    if (anyAnswered || issues.isEmpty) return null;
+    final first = issues.first;
+    return issues.every((i) => i == first) ? first : ProbeIssue.unreachable;
   }
 
   /// Downloads a sized sample and converts it to throughput, discounting the

@@ -135,8 +135,8 @@ class _DemoIapGateway implements IapGateway {
     id: PurchaseController.proProductId,
     title: 'Honest Signal Pro',
     description: 'History, themes, custom intervals and the floating indicator.',
-    price: '£2.99',
-    rawPrice: 2.99,
+    price: '£4.99',
+    rawPrice: 4.99,
     currencyCode: 'GBP',
     currencySymbol: '£',
   );

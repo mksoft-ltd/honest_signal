@@ -10,11 +10,16 @@ class ProLock extends StatelessWidget {
     required this.title,
     required this.body,
     required this.onUnlock,
+    this.preview,
   });
 
   final String title;
   final String body;
   final VoidCallback onUnlock;
+
+  /// Shown in place of the badge icon — e.g. the user's own recorded data,
+  /// blurred, so the lock shows what is behind it rather than a padlock.
+  final Widget? preview;
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +31,12 @@ class ProLock extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.workspace_premium_outlined,
-                size: 48,
-                color: theme.colorScheme.primary,
-              ),
+              preview ??
+                  Icon(
+                    Icons.workspace_premium_outlined,
+                    size: 48,
+                    color: theme.colorScheme.primary,
+                  ),
               const SizedBox(height: 20),
               Text(
                 title,

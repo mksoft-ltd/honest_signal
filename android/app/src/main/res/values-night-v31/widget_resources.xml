@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12+ dark theme: see values-v31/widget_resources.xml. -->
+<resources>
+    <color name="widget_background">@android:color/system_neutral1_900</color>
+    <color name="widget_on_background">@android:color/system_neutral1_50</color>
+    <color name="widget_on_background_variant">@android:color/system_neutral2_200</color>
+</resources>

@@ -1,0 +1,6 @@
+// Brings in FLUTTER_BUILD_NAME / FLUTTER_BUILD_NUMBER, which the target's
+// MARKETING_VERSION / CURRENT_PROJECT_VERSION reference, so the extension's
+// version always matches the app's (App Store rejects a mismatch). Not the
+// Flutter Debug/Release.xcconfig: those also include the Pods-Runner settings,
+// which must not link into the extension.
+#include "../Flutter/Generated.xcconfig"

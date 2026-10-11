@@ -109,6 +109,78 @@ class SettingsScreen extends ConsumerWidget {
                 controller.update((s) => s.copyWith(barTheme: value)),
             onLocked: () => context.push('/pro'),
           ),
+          if (Platform.isAndroid) ...[
+            const _SectionHeader('Alerts'),
+            SwitchListTile(
+              title: Row(
+                children: [
+                  const Text('Drop-out alerts'),
+                  if (!isPro) ...[
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.workspace_premium_outlined,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ],
+                ],
+              ),
+              subtitle: Text(
+                !isPro
+                    ? 'Pro: a notification when the connection drops out, and '
+                          'another when it is back.'
+                    : !effective.notificationIndicatorEnabled
+                    ? 'Needs the status-bar indicator, which does the '
+                          'background measuring.'
+                    : 'A notification when the connection drops out, and '
+                          'another when it is back.',
+              ),
+              value: effective.alertsEnabled,
+              onChanged: !isPro
+                  ? (_) => context.push('/pro')
+                  : effective.notificationIndicatorEnabled
+                  ? (value) => controller.update(
+                      (s) => s.copyWith(alertsEnabled: value),
+                    )
+                  : null,
+            ),
+            if (effective.alertsEnabled) ...[
+              ListTile(
+                title: const Text('Alert at'),
+                trailing: DropdownButton<int>(
+                  value: effective.alertBars,
+                  underline: const SizedBox.shrink(),
+                  items: const [
+                    DropdownMenuItem(value: 0, child: Text('0 bars')),
+                    DropdownMenuItem(value: 1, child: Text('1 bar or less')),
+                    DropdownMenuItem(value: 2, child: Text('2 bars or less')),
+                  ],
+                  onChanged: (value) => value == null
+                      ? null
+                      : controller.update((s) => s.copyWith(alertBars: value)),
+                ),
+              ),
+              ListTile(
+                title: const Text('After it lasts'),
+                trailing: DropdownButton<int>(
+                  value: effective.alertMinutes,
+                  underline: const SizedBox.shrink(),
+                  items: [
+                    for (final minutes in AppSettings.alertMinuteChoices)
+                      DropdownMenuItem(
+                        value: minutes,
+                        child: Text('$minutes min'),
+                      ),
+                  ],
+                  onChanged: (value) => value == null
+                      ? null
+                      : controller.update(
+                          (s) => s.copyWith(alertMinutes: value),
+                        ),
+                ),
+              ),
+            ],
+          ],
           const _SectionHeader('Measurement'),
           _IntervalTile(
             title: 'While the app is open',
@@ -207,7 +279,11 @@ class SettingsScreen extends ConsumerWidget {
             ListTile(
               leading: const Icon(Icons.workspace_premium_outlined),
               title: const Text('Honest Signal Pro'),
-              subtitle: const Text('History, themes, custom intervals'),
+              subtitle: Text(
+                Platform.isAndroid
+                    ? '30-day history, reports, alerts, themes'
+                    : '30-day history, reports, themes',
+              ),
               onTap: () => context.push('/pro'),
             ),
           ListTile(
@@ -230,6 +306,24 @@ class SettingsScreen extends ConsumerWidget {
             onTap: purchase.restoring
                 ? null
                 : () => ref.read(purchaseControllerProvider).restore(),
+          ),
+          ListTile(
+            leading: const Icon(Icons.star_outline),
+            title: const Text('Rate Honest Signal'),
+            subtitle: const Text(
+              'Reviews are how people find an app with no ads to pay for '
+              'marketing.',
+            ),
+            onTap: () => ref.read(reviewPrompterProvider).openStoreListing(),
+          ),
+          ListTile(
+            leading: const Icon(Icons.mail_outline),
+            title: const Text('Send feedback'),
+            subtitle: const Text('A bug, a wrong score, or an idea'),
+            onTap: () => _open(
+              'mailto:${AppConstants.supportEmail}'
+              '?subject=${Uri.encodeComponent('Honest Signal feedback')}',
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),

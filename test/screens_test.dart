@@ -104,7 +104,15 @@ void main() {
     ) async {
       await tester.pumpWidget(host(const PaywallScreen()));
 
-      expect(find.text('History and graphs'), findsOneWidget);
+      expect(find.text('30 days of history'), findsOneWidget);
+      expect(find.text('Evidence reports'), findsOneWidget);
+      // The purchase bar is pinned below the list, so on the small test
+      // surface the later features sit below the fold.
+      await tester.scrollUntilVisible(
+        find.text('Indicator themes'),
+        100,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Your own sampling rate'), findsOneWidget);
       expect(find.text('Indicator themes'), findsOneWidget);
       await unmount(tester);
@@ -115,6 +123,11 @@ void main() {
     ) async {
       // H-1. These tests run with `Platform.isAndroid == false`, which is the
       // iPhone path — the one the compliance audit failed on.
+      // Tall enough that the whole lazily-built list exists, so the absence
+      // checks below mean something.
+      tester.view.physicalSize = const Size(800, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
       await tester.pumpWidget(host(const PaywallScreen()));
 
       // The daily budget is adjustable on EVERY tier (`clampedForTier` never
@@ -196,6 +209,33 @@ void main() {
       await unmount(tester);
     });
 
+    testWidgets('quotes the drop-outs already recorded on this phone', (
+      tester,
+    ) async {
+      final history = HistoryRepository(store.history);
+      final start = DateTime.now().subtract(const Duration(hours: 2));
+      const bars = [5, 5, 5, 1, 0, 5, 5, 5, 0, 5, 5, 5];
+      for (var i = 0; i < bars.length; i++) {
+        await history.record(
+          SignalSample(
+            timestamp: start.add(Duration(minutes: i)),
+            kind: NetworkKind.wifi,
+            bars: bars[i],
+            composite: bars[i] / 5,
+            lossRatio: 0,
+            probesSent: 4,
+            bytesUsed: 2800,
+          ),
+        );
+      }
+
+      await tester.pumpWidget(host(const PaywallScreen()));
+      await tester.pump();
+
+      expect(find.text('2 drop-outs in the last 24 hours'), findsOneWidget);
+      await unmount(tester);
+    });
+
     testWidgets('restore is always reachable, even before the store answers', (
       tester,
     ) async {
@@ -268,7 +308,7 @@ void main() {
       await tester.pumpWidget(host(const HistoryScreen()));
       await tester.pump();
 
-      await tester.tap(find.text('Last 24 h'));
+      await tester.tap(find.text('24 h'));
       await tester.pump();
 
       expect(find.byType(HistoryChart), findsOneWidget);

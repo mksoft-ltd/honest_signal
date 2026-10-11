@@ -13,6 +13,7 @@ platform :android do
     Dir.chdir("../..") { sh("flutter", "build", "appbundle", "--release") }
     supply(
       aab: "../build/app/outputs/bundle/release/app-release.aab",
+      mapping: "../build/app/outputs/mapping/release/mapping.txt",
       track: "internal",
       release_status: "draft",
       skip_upload_apk: true
@@ -27,6 +28,7 @@ platform :android do
   lane :internal_upload do
     supply(
       aab: "../build/app/outputs/bundle/release/app-release.aab",
+      mapping: "../build/app/outputs/mapping/release/mapping.txt",
       track: "internal",
       release_status: "completed",
       skip_upload_apk: true
@@ -38,6 +40,7 @@ platform :android do
     Dir.chdir("../..") { sh("flutter", "build", "appbundle", "--release") }
     supply(
       aab: "../build/app/outputs/bundle/release/app-release.aab",
+      mapping: "../build/app/outputs/mapping/release/mapping.txt",
       track: "production",
       release_status: "completed",
       skip_upload_apk: true

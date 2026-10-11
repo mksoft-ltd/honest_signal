@@ -490,6 +490,48 @@ void main() {
       },
     );
 
+    test('alerts post once on a sustained drop and once on recovery', () async {
+      final start = DateTime(2026, 10, 1, 9);
+      build();
+      host.attach();
+      engine.timestampFor = (i) => start.add(Duration(seconds: 30 * i));
+      engine.barsFor = (i) => i < 4 ? 0 : 5;
+      const args = {
+        'measureOnCellular': true,
+        'budgetLimitBytes': defaultBudget,
+        'alertsEnabled': true,
+        'alertBars': 1,
+        'alertMinutes': 1,
+      };
+
+      for (var i = 0; i < 6; i++) {
+        await callIn('runCycle', args);
+      }
+
+      final alerts = outgoing.where((c) => c.method == 'postAlert').toList();
+      expect(alerts.map((c) => (c.arguments as Map)['kind']), [
+        'drop',
+        'recovered',
+      ]);
+    });
+
+    test('alerts stay silent when switched off', () async {
+      final start = DateTime(2026, 10, 1, 9);
+      build();
+      host.attach();
+      engine.timestampFor = (i) => start.add(Duration(seconds: 30 * i));
+      engine.barsFor = (_) => 0;
+
+      for (var i = 0; i < 6; i++) {
+        await callIn('runCycle', {
+          'measureOnCellular': true,
+          'budgetLimitBytes': defaultBudget,
+        });
+      }
+
+      expect(outgoing.where((c) => c.method == 'postAlert'), isEmpty);
+    });
+
     test('an unknown method is ignored rather than throwing', () async {
       build();
       host.attach();

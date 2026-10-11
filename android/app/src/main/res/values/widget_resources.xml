@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget colours and shape, light theme, Android 11 and below.
+
+     In its own file rather than colors.xml for the same reason as
+     window_background.xml: flutter_launcher_icons rewrites colors.xml.
+
+     The fallbacks are the app's own light ColorScheme (surface / onSurface /
+     onSurfaceVariant), so on a phone without dynamic colour the widget looks
+     like the app it opens. -->
+<resources>
+    <color name="widget_background">#F5FBF5</color>
+    <color name="widget_on_background">#171D1A</color>
+    <color name="widget_on_background_variant">#404943</color>
+    <!-- AppColors.light.good: the preview shows a 4/5 reading. -->
+    <color name="widget_preview_score">#357A27</color>
+    <dimen name="widget_corner_radius">16dp</dimen>
+</resources>

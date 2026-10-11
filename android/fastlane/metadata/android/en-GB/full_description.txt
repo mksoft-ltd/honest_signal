@@ -1,12 +1,12 @@
-Your phone's signal icon reports radio strength — how loudly the nearest mast or router is shouting. It says nothing about whether data is moving. Everyone has stood somewhere with five bars and a page that will not load.
+Your phone's signal icon reports radio strength — how loudly the nearest mast or router is shouting — not whether data is moving. Everyone has stood somewhere with five bars and a page that will not load.
 
 Honest Signal measures the connection instead. While open, it sends timed latency probes and periodically downloads a real 120 KB transfer sample. In the background, it uses a lighter probe between transfer samples. It blends measured latency, loss and throughput into a quality score from 0 to 5 bars — on Wi-Fi, 4G or 5G — with a plain-English verdict.
 
 A LIVE SCORE IN YOUR STATUS BAR
 
-The score lives in your status bar as a small indicator icon, next to the one your phone already draws. With the indicator on, background measurements are attempted every 2 seconds when the service can run; slow networks and Android power management can delay updates. Free, not a Pro feature.
+The score lives in your status bar as a small indicator icon, next to the one your phone already draws. With the indicator on, background measurements are attempted every 2 seconds; slow networks and Android power management can delay them. Free, not a Pro feature.
 
-The indicator is one silent, ongoing notification. It returns after a restart.
+The indicator is one silent, ongoing notification. It returns after a restart. There is also a home-screen widget and a Quick Settings tile, both free.
 
 WHAT IT MEASURES
 
@@ -17,7 +17,11 @@ WHAT IT MEASURES
 
 THE CASE A PING-ONLY TOOL MISSES
 
-A link can answer pings promptly while no data moves through it. Latency and jitter look excellent then, so a ping-only tool calls it healthy. Honest Signal takes a real transfer sample: when probes answer but the download will not complete, it caps the score at 2 bars and says why — the "full bars, no data" failure pinging cannot see.
+A link can answer pings promptly while no data moves through it, so a ping-only tool calls it healthy. Honest Signal takes a real transfer sample: when probes answer but the download stalls, it caps the score at 2 bars and says why — the "full bars, no data" failure pinging cannot see.
+
+WHAT'S WRONG, IN WORDS
+
+When something is off, it says what: a Wi-Fi sign-in page, failing DNS, Wi-Fi up but the internet down, or signal with no data — and what usually fixes it.
 
 NO MYSTERY SCORE
 
@@ -25,20 +29,22 @@ NO MYSTERY SCORE
 
 CONTROL YOUR DATA USE
 
-A single background latency probe costs about 700 B, or roughly 30 MB over a full day at the fastest interval; transfer samples use more. The home screen shows estimated daily traffic. The adjustable 25 MB default cutoff pauses speed samples at the limit; small latency probes continue, so total traffic can exceed it. Lengthen the interval or turn off mobile-data measurement to use less.
+A single background latency probe costs about 700 B, or roughly 30 MB over a full day at the fastest interval; transfer samples use more. The adjustable 25 MB default cutoff pauses speed samples at the limit; small latency probes continue, so total traffic can exceed it. Lengthen the interval or turn off mobile-data measurement to use less.
 
 THIS IS NOT A SPEED TEST
 
-A speed test answers "how fast is this right now". Honest Signal is a network monitor: it answers "is this working" throughout the day. It does not report dBm — radio strength is the wrong number. Built for rural areas, thick walls, trains and patchy office Wi-Fi, and for a quick connection test when a page stalls.
+A speed test answers "how fast is this right now". Honest Signal is a network monitor: it answers "is this working" throughout the day. It does not report dBm — radio strength is the wrong number. Built for rural areas, thick walls, trains and patchy Wi-Fi.
 
 HONEST SIGNAL PRO — one-off purchase, no subscription
 
-• History — the last hour and last 24 hours as a step chart with summary statistics on stability, so the dropouts and outages you report to your ISP are on record
-• A floating bubble showing the live score over other apps, so you can watch the connection while using the app that is struggling. Drag it, tap to open, long-press to dismiss. It needs the status bar indicator on, and asks for the "display over other apps" permission only then
+• 30 days of history — the last hour, day, week or month as a chart, every drop-out listed by time and length, split by Wi-Fi and mobile
+• Evidence reports — a PDF of every drop-out, or every reading as CSV, to send to your provider
+• Drop-out alerts — a notification when the connection has been down as long as you choose, and when it is back
+• A floating bubble showing the live score over other apps. Drag it, tap to open, long-press to dismiss. It asks for the "display over other apps" permission only when you turn it on
 • Custom intervals — 2 to 60 seconds on screen, 2 seconds to 60 minutes in background
 • Indicator themes: bars, dots or wave, in the app and status bar
 
-Buy once, keep it. The paywall explains each feature before naming the price; purchases restore from the paywall or Settings.
+Buy once, keep it. Purchases restore from the paywall or Settings.
 
 PRIVACY
 

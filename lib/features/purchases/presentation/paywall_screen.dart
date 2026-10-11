@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/providers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../data/purchase_controller.dart';
+import '../domain/purchase_state.dart';
+import '../domain/pro_teaser.dart';
 
 class PaywallScreen extends ConsumerStatefulWidget {
   const PaywallScreen({super.key});
@@ -22,10 +24,30 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     super.initState();
     // Messages arrive from the store's purchase stream, not from the button
     // press, so they are surfaced by listening rather than awaiting `buy()`.
-    _subscription = ref.listenManual(
-      purchaseControllerProvider,
-      (_, controller) => _showMessage(controller),
-    );
+    _subscription = ref.listenManual(purchaseControllerProvider, (
+      _,
+      controller,
+    ) {
+      _showMessage(controller);
+      _maybeAskForReview(controller);
+    });
+    _wasPro = ref.read(purchaseControllerProvider).state.isPro;
+  }
+
+  bool _wasPro = false;
+
+  /// Just after a purchase is the best moment the app gets: the user has
+  /// decided it is worth money. The delay lets the store's own sheet finish
+  /// dismissing first, so the two never collide.
+  void _maybeAskForReview(PurchaseController controller) {
+    final isPro = controller.state.isPro;
+    if (isPro && !_wasPro) {
+      final prompter = ref.read(reviewPrompterProvider);
+      Future<void>.delayed(const Duration(seconds: 2), () {
+        if (mounted) prompter.maybePrompt(currentBars: 5, afterPurchase: true);
+      });
+    }
+    _wasPro = isPro;
   }
 
   @override
@@ -54,15 +76,27 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   Widget build(BuildContext context) {
     final controller = ref.watch(purchaseControllerProvider);
     final state = controller.state;
+    final teaser = ref.watch(proTeaserProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Honest Signal Pro')),
+      // The button sits outside the scroll view so the price and the way to
+      // pay are on screen from the first frame, not below the fold.
+      bottomNavigationBar: state.isPro
+          ? null
+          : _PurchaseBar(state: state, controller: controller),
       body: ListView(
         padding: AppSpacing.page,
         children: [
           Text(
-            state.isPro ? 'You have Pro' : 'One payment. Yours for good.',
+            state.isPro
+                ? 'You have Pro'
+                // Only Android measures in the background, so only Android
+                // can promise the drop-outs the user did not see.
+                : Platform.isAndroid
+                ? 'Catch every drop-out, not just the ones you see'
+                : 'Every drop-out on record, with the times to prove it',
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -70,19 +104,61 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           const SizedBox(height: 8),
           Text(
             'Honest Signal is useful for free and always will be. Pro adds the '
-            'parts power users ask for.',
+            'record and the controls — for one payment, not a subscription.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
+          if (state.isPro) ...[
+            const SizedBox(height: 20),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: theme.colorScheme.primary),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text('Pro is unlocked on this device.'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          if (!state.isPro && teaser != null) ...[
+            const SizedBox(height: 20),
+            _AlreadyRecorded(teaser: teaser),
+          ],
           const SizedBox(height: 28),
-          const _Feature(
+          _Feature(
             icon: Icons.show_chart,
-            title: 'History and graphs',
-            body:
-                'See the last hour and the last 24 hours, so a connection '
-                'that drops out only when you are not looking still gets caught.',
+            title: '30 days of history',
+            body: Platform.isAndroid
+                ? 'The last hour, day, week or month as a chart, with every '
+                      'drop-out listed by time and length and split by Wi-Fi '
+                      'and mobile — so a connection that fails when you are '
+                      'not looking still gets caught.'
+                : 'The last hour, day, week or month of readings taken while '
+                      'the app is open, as a chart, with every drop-out listed '
+                      'by time and length and split by Wi-Fi and mobile.',
           ),
+          const _Feature(
+            icon: Icons.picture_as_pdf_outlined,
+            title: 'Evidence reports',
+            body:
+                'Export a PDF of every drop-out with dates and durations, or '
+                'every reading as a spreadsheet, ready to send to your '
+                'broadband or mobile provider.',
+          ),
+          if (Platform.isAndroid)
+            const _Feature(
+              icon: Icons.notifications_active_outlined,
+              title: 'Drop-out alerts',
+              body:
+                  'A notification when the connection has been down for as '
+                  'long as you choose, and another when it is back.',
+            ),
           if (Platform.isAndroid)
             const _Feature(
               icon: Icons.bubble_chart_outlined,
@@ -113,61 +189,13 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                 ? 'Bars, dots or wave — in the app and in the status bar.'
                 : 'Bars, dots or wave — in the app.',
           ),
-          const SizedBox(height: 20),
-          if (state.isPro)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    Icon(Icons.check_circle, color: theme.colorScheme.primary),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text('Pro is unlocked on this device.'),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else ...[
-            FilledButton(
-              onPressed: state.busy || !state.storeAvailable
-                  ? null
-                  : () => controller.buy(),
-              child: state.busy
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(
-                      state.priceLabel == null
-                          ? 'Unlock Pro'
-                          : 'Unlock Pro — ${state.priceLabel}',
-                    ),
-            ),
-            if (!state.storeAvailable) ...[
-              const SizedBox(height: 10),
-              Text(
-                'The store is unreachable right now. Check your connection and '
-                'try again — which, admittedly, is the whole point of this app.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              TextButton.icon(
-                onPressed: controller.init,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry store'),
-              ),
-            ],
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: state.restoring ? null : () => controller.restore(),
-              child: Text(state.restoring ? 'Restoring…' : 'Restore purchase'),
-            ),
-          ],
+          const _Feature(
+            icon: Icons.favorite_outline,
+            title: 'Keeps an ad-free app going',
+            body:
+                'No ads, no tracking and no subscription means Pro is the only '
+                'thing that pays for Honest Signal. Thank you.',
+          ),
           const SizedBox(height: 16),
           Text(
             'A single non-consumable purchase, billed by '
@@ -179,6 +207,144 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The free tier's own recorded history, quoted back. History is recorded on
+/// every tier, so this states a fact about the device rather than a promise.
+class _AlreadyRecorded extends StatelessWidget {
+  const _AlreadyRecorded({required this.teaser});
+
+  final ProTeaser teaser;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colours = AppColors.of(context);
+    final hasDrops = teaser.dropouts > 0;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              hasDrops
+                  ? Icons.signal_cellular_connected_no_internet_0_bar
+                  : Icons.history,
+              color: hasDrops ? colours.dead : theme.colorScheme.primary,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    hasDrops
+                        ? '${teaser.dropoutPhrase} in the last 24 hours'
+                        : 'Already recording',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    hasDrops
+                        ? 'Honest Signal logged ${teaser.readings} readings on '
+                              'this phone, and your connection fell to 0–1 bars '
+                              '${teaser.dropouts == 1 ? 'once' : '${teaser.dropouts} separate times'}. '
+                              'Pro shows exactly when, and for how long.'
+                        : 'Honest Signal has logged ${teaser.readings} readings '
+                              'on this phone in the last 24 hours. Pro shows them '
+                              'as a chart, so the next drop-out is on record.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PurchaseBar extends StatelessWidget {
+  const _PurchaseBar({required this.state, required this.controller});
+
+  final PurchaseState state;
+  final PurchaseController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.colorScheme.surfaceContainer,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                ),
+                onPressed: state.busy || !state.storeAvailable
+                    ? null
+                    : () => controller.buy(),
+                child: state.busy
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        state.priceLabel == null
+                            ? 'Unlock Pro'
+                            : 'Unlock Pro — ${state.priceLabel}',
+                      ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Pay once · Yours for good · No subscription',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              if (!state.storeAvailable) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'The store is unreachable right now. Check your connection '
+                  'and try again — which, admittedly, is the whole point of '
+                  'this app.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: controller.init,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry store'),
+                ),
+              ],
+              TextButton(
+                onPressed: state.restoring ? null : () => controller.restore(),
+                child: Text(
+                  state.restoring ? 'Restoring…' : 'Restore purchase',
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

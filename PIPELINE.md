@@ -24,6 +24,26 @@ Decisions (founder, 2026-08-07): **free + £2.99 Pro IAP** (native `in_app_purch
 | 7 | publish | store-publisher | 1.0.3 (build 5) is `IN_REVIEW` on Play production and `WAITING_FOR_REVIEW` on Apple | 2026-09-26 |
 | 8 | website | general-purpose (froggyeye-website skill) | done — page LIVE at https://honestsignal.froggyeye.com, current store buttons and copy verified | 2026-09-26 |
 
+## Next feature release — in progress (2026-10-11)
+
+Founder asked for: paywall that quotes the user's own recorded drop-outs, store review prompt,
+30-day Pro history + compaction, PDF/CSV export, Android drop-out alerts, plain-English diagnosis,
+per-network breakdown, Android home widget + Quick Settings tile, self-measuring iOS widget
+(`HonestSignalWidget` extension, no App Group), and **Pro £2.99 → £4.99**.
+Price decision: raise **when this release is live**, not before — run
+`ruby scripts/raise_pro_price.rb` (dry run) then `--apply`. Dry run 2026-10-11: GB £4.99,
+US $5.49, DE/IE €5.99, AU A$8.49, CA C$7.99; ASC GBR point proceeds £3.52.
+Store descriptions and PRIVACY_POLICY.md are already updated for it — push the policy only with the release.
+
+## 1.0.4 (build 7) — iOS version sync, 30 Sep / 1 Oct 2026
+
+Same code as Play 1.0.4 (6); iOS build 7 shipped only to bring both stores onto one version line
+(fleet-health store sync, 30 Sep). Submitted 30 Sep 23:51 UTC (submission `ca66d3f2-fc7c-4be8-8ae6-1cbe500e2ecd`),
+**rejected 1 Oct 04:15 UTC under guideline 2.3.10** because the What's New said "aligned with the Android app".
+Notes rewritten platform-neutral via the API, then App Store Connect → version page → Update Review → Resubmit to
+App Review (the API refuses to resubmit a REJECTED version). Read back 1 Oct ~20:30 UTC: `WAITING_FOR_REVIEW`.
+Lesson recorded in fleet-health memory: never mention other platforms in App Store metadata.
+
 ## Latest release — 1.0.3 (build 5), 2026-09-26
 
 Android's optional persistent status-bar indicator now attempts a background

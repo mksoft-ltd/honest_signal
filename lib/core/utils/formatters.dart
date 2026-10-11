@@ -44,6 +44,34 @@ class Format {
       '${timestamp.hour.toString().padLeft(2, '0')}:'
       '${timestamp.minute.toString().padLeft(2, '0')}';
 
+  static const _months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  /// "4 Oct". Used where a list spans more than a day.
+  static String shortDate(DateTime t) => '${t.day} ${_months[t.month - 1]}';
+
+  /// "45 s" / "12 min" / "2 h 05 min" / "3 d 4 h".
+  static String duration(Duration d) {
+    if (d.inMinutes < 1) return '${d.inSeconds} s';
+    if (d.inHours < 1) return '${d.inMinutes} min';
+    if (d.inDays < 1) {
+      return '${d.inHours} h ${(d.inMinutes % 60).toString().padLeft(2, '0')} min';
+    }
+    return '${d.inDays} d ${d.inHours % 24} h';
+  }
+
   static String interval(int seconds) {
     if (seconds < 60) return '${seconds}s';
     if (seconds % 60 == 0 && seconds < 3600) return '${seconds ~/ 60} min';

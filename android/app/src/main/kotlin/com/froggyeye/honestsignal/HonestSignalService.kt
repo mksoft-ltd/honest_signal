@@ -1,5 +1,6 @@
 package com.froggyeye.honestsignal
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -7,12 +8,15 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -45,6 +49,15 @@ class HonestSignalService : Service() {
         /** Deleted on channel setup so the dead v1 entry does not linger in Settings. */
         private const val LEGACY_CHANNEL_ID = "honest_signal_indicator"
         private const val NOTIFICATION_ID = 4201
+
+        /**
+         * A plain, dismissable notification posted when the system refuses to
+         * let the service go foreground (see [startForegroundIndicator]). A
+         * separate ID so it never collides with, or gets cancelled as, the
+         * live indicator.
+         */
+        private const val RESTORE_NOTIFICATION_ID = 4202
+        private const val TAG = "HonestSignalService"
         private const val PREFS = "honest_signal_service"
 
         private const val KEY_ENABLED = "enabled"
@@ -54,6 +67,9 @@ class HonestSignalService : Service() {
         private const val KEY_CADENCE_V2 = "cadenceV2"
         private const val KEY_BUDGET = "budget"
         private const val KEY_CELLULAR = "cellular"
+        private const val KEY_ALERTS_ENABLED = "alertsEnabled"
+        private const val KEY_ALERT_BARS = "alertBars"
+        private const val KEY_ALERT_MINUTES = "alertMinutes"
 
         const val ACTION_START = "com.froggyeye.honestsignal.START"
         const val ACTION_STOP = "com.froggyeye.honestsignal.STOP"
@@ -70,6 +86,9 @@ class HonestSignalService : Service() {
         const val EXTRA_DETAIL = "detail"
         const val EXTRA_ACTIVE = "active"
         const val EXTRA_UI_INTERVAL = "uiIntervalSeconds"
+        const val EXTRA_ALERTS_ENABLED = "alertsEnabled"
+        const val EXTRA_ALERT_BARS = "alertBars"
+        const val EXTRA_ALERT_MINUTES = "alertMinutes"
 
         /**
          * Floor for the UI-active lease. The lease must outlast the gap between
@@ -101,7 +120,96 @@ class HonestSignalService : Service() {
                 putExtra(EXTRA_INTERVAL, if (!prefs.getBoolean(KEY_CADENCE_V2, false) && storedInterval == 300) 2 else storedInterval)
                 putExtra(EXTRA_BUDGET, prefs.getLong(KEY_BUDGET, 25L * 1024 * 1024))
                 putExtra(EXTRA_CELLULAR, prefs.getBoolean(KEY_CELLULAR, true))
+                // Restored with the rest so alerts survive a reboot or a sticky
+                // restart; without them the background isolate would silently
+                // fall back to "alerts off" until the app was next opened.
+                putExtra(EXTRA_ALERTS_ENABLED, prefs.getBoolean(KEY_ALERTS_ENABLED, false))
+                putExtra(EXTRA_ALERT_BARS, prefs.getInt(KEY_ALERT_BARS, AlertConfig.DEFAULT_BARS))
+                putExtra(EXTRA_ALERT_MINUTES, prefs.getInt(KEY_ALERT_MINUTES, AlertConfig.DEFAULT_MINUTES))
             }
+        }
+
+        fun ensureNotificationChannel(context: Context) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+            val manager = context.getSystemService(NotificationManager::class.java) ?: return
+            // IMPORTANCE_DEFAULT, deliberately, despite this notification being
+            // silent. From Android 11 the status bar hides the icon of anything
+            // below IMPORTANCE_DEFAULT — those land in the shade's "Silent" section
+            // only. This channel previously used IMPORTANCE_LOW on the belief that
+            // it was "visible in the status bar but never intrusive"; that was true
+            // before Android 11 and is false now, and it cost the app its headline
+            // Android feature.
+            //
+            // DEFAULT is the lowest importance that still gets an icon. It does not
+            // peek — heads-up needs IMPORTANCE_HIGH — and the sound and vibration it
+            // would otherwise carry are removed on the channel below and again on
+            // the builder, so the result is an icon and nothing else.
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Signal indicator",
+                NotificationManager.IMPORTANCE_DEFAULT,
+            ).apply {
+                description = "Shows your measured connection quality in the status bar."
+                setShowBadge(false)
+                enableVibration(false)
+                vibrationPattern = null
+                enableLights(false)
+                setSound(null, null)
+            }
+            manager.createNotificationChannel(channel)
+            // Order matters only in that both must happen; the v1 channel is dead
+            // and leaving it would show the user a stale duplicate in Settings.
+            manager.deleteNotificationChannel(LEGACY_CHANNEL_ID)
+            // Created up front rather than on the first alert, so the user can
+            // find and adjust "Connection alerts" in Settings before one fires.
+            ConnectionAlerts.ensureChannel(context)
+        }
+
+        /**
+         * The graceful-degradation path for a refused foreground start.
+         *
+         * From Android 12 the system throws `ForegroundServiceStartNotAllowedException`
+         * when an app that is not on screen tries to start a foreground service
+         * — a sticky restart after the process was reclaimed, a boot receiver on
+         * a device that withholds the exemption, an alarm. Play vitals showed
+         * exactly that crash on versionCodes 3 and 5. Rather than die, the app
+         * asks the user to open it: [MainActivity] re-syncs the indicator on
+         * every foreground, so a tap restores everything the user had on.
+         *
+         * Never throws. A refused post (notifications switched off) is the
+         * user's decision and simply means the indicator waits for the next
+         * time they open the app on their own.
+         */
+        fun postRestoreNotification(context: Context) {
+            runCatching {
+                if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return
+                // Redundant with the line above on 13+, but explicit beside
+                // notify() so lint's MissingPermission check can see it.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED
+                ) return
+                ensureNotificationChannel(context)
+                val open = PendingIntent.getActivity(
+                    context,
+                    2,
+                    Intent(context, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    },
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+                val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setSmallIcon(IndicatorIcons.resourceFor("bars", 0, true))
+                    .setContentTitle("Signal indicator paused")
+                    .setContentText("Open Honest Signal to bring the status-bar indicator back.")
+                    .setContentIntent(open)
+                    .setAutoCancel(true)
+                    .setSilent(true)
+                    .setCategory(NotificationCompat.CATEGORY_STATUS)
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .build()
+                NotificationManagerCompat.from(context).notify(RESTORE_NOTIFICATION_ID, notification)
+            }.onFailure { Log.w(TAG, "Could not post the restore notification", it) }
         }
     }
 
@@ -114,6 +222,7 @@ class HonestSignalService : Service() {
     private var intervalSeconds: Int = 2
     private var budgetLimitBytes: Long = 25L * 1024 * 1024
     private var measureOnCellular: Boolean = true
+    private var alerts: AlertConfig = AlertConfig.DEFAULT
 
     private var uiActiveUntilMs = 0L
     private var engineReady = false
@@ -136,7 +245,7 @@ class HonestSignalService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        createNotificationChannel()
+        ensureNotificationChannel(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -163,6 +272,7 @@ class HonestSignalService : Service() {
                 )
                 if (isRunning) updateNotification()
                 OverlayService.publish(bars, theme)
+                saveLastReading()
             }
 
             ACTION_UI_ACTIVE -> {
@@ -178,7 +288,15 @@ class HonestSignalService : Service() {
                 applyConfig(intent)
                 renewUiLease(intent?.getBooleanExtra(EXTRA_ACTIVE, false) ?: false)
                 persistEnabled(true)
-                startForegroundIndicator()
+                if (!startForegroundIndicator()) {
+                    // Refused (app not on screen — typically a START_STICKY
+                    // restart after the process was reclaimed). The user has
+                    // been asked to open the app; a sticky return here would
+                    // just make the system retry from the background and be
+                    // refused again, so do not ask for one.
+                    stopSelf()
+                    return START_NOT_STICKY
+                }
                 ensureEngine()
                 restartLoop()
                 restoreOverlayIfEnabled()
@@ -209,6 +327,18 @@ class HonestSignalService : Service() {
             ?.getBooleanExtra(EXTRA_CELLULAR, true)
             ?: prefs.getBoolean(KEY_CELLULAR, measureOnCellular)
 
+        alerts = AlertConfig.of(
+            enabled = intent?.takeIf { it.hasExtra(EXTRA_ALERTS_ENABLED) }
+                ?.getBooleanExtra(EXTRA_ALERTS_ENABLED, false)
+                ?: prefs.getBoolean(KEY_ALERTS_ENABLED, alerts.enabled),
+            bars = intent?.takeIf { it.hasExtra(EXTRA_ALERT_BARS) }
+                ?.getIntExtra(EXTRA_ALERT_BARS, AlertConfig.DEFAULT_BARS)
+                ?: prefs.getInt(KEY_ALERT_BARS, alerts.bars),
+            minutes = intent?.takeIf { it.hasExtra(EXTRA_ALERT_MINUTES) }
+                ?.getIntExtra(EXTRA_ALERT_MINUTES, AlertConfig.DEFAULT_MINUTES)
+                ?: prefs.getInt(KEY_ALERT_MINUTES, alerts.minutes),
+        )
+
         // Never let a bad value turn the indicator into a battery drain.
         intervalSeconds = intervalSeconds.coerceIn(2, 3600)
 
@@ -219,6 +349,9 @@ class HonestSignalService : Service() {
             .putBoolean(KEY_CADENCE_V2, true)
             .putLong(KEY_BUDGET, budgetLimitBytes)
             .putBoolean(KEY_CELLULAR, measureOnCellular)
+            .putBoolean(KEY_ALERTS_ENABLED, alerts.enabled)
+            .putInt(KEY_ALERT_BARS, alerts.bars)
+            .putInt(KEY_ALERT_MINUTES, alerts.minutes)
             .apply()
     }
 
@@ -227,12 +360,39 @@ class HonestSignalService : Service() {
             .edit().putBoolean(KEY_ENABLED, enabled).apply()
     }
 
-    private fun startForegroundIndicator() {
-        // The 2-argument form deliberately: it takes the foreground service type
-        // from the manifest, which keeps the specialUse declaration in exactly
-        // one place and works unchanged from API 24 to 35+.
-        startForeground(NOTIFICATION_ID, buildNotification())
-        isRunning = true
+    /**
+     * Promotes the service to the foreground. Returns false, having posted a
+     * notification asking the user to open the app, when the system refuses.
+     *
+     * The refusal is `android.app.ForegroundServiceStartNotAllowedException`
+     * (API 31+). It is caught as its supertype `IllegalStateException` rather
+     * than by name so this compiles and verifies unchanged on every supported
+     * API level; `SecurityException` covers a missing FOREGROUND_SERVICE_*
+     * grant on API 34+. Anything else is a genuine bug and still propagates.
+     */
+    private fun startForegroundIndicator(): Boolean {
+        return try {
+            // The 2-argument form deliberately: it takes the foreground service type
+            // from the manifest, which keeps the specialUse declaration in exactly
+            // one place and works unchanged from API 24 to 35+.
+            startForeground(NOTIFICATION_ID, buildNotification())
+            isRunning = true
+            // The tile's active state mirrors this service.
+            LastReading.requestTileUpdate(this)
+            true
+        } catch (e: IllegalStateException) {
+            onForegroundRefused(e)
+            false
+        } catch (e: SecurityException) {
+            onForegroundRefused(e)
+            false
+        }
+    }
+
+    private fun onForegroundRefused(e: Exception) {
+        Log.w(TAG, "Foreground start refused; asking the user to reopen the app", e)
+        isRunning = false
+        postRestoreNotification(this)
     }
 
     // After a reboot the boot receiver may only start *this* service, since a
@@ -295,6 +455,12 @@ class HonestSignalService : Service() {
                 "measureOnCellular" to measureOnCellular,
                 "budgetLimitBytes" to budgetLimitBytes,
                 "intervalSeconds" to intervalSeconds,
+                // The isolate keeps the drop/recovery state machine; it needs
+                // the thresholds on every cycle, since the user can change them
+                // while the service runs.
+                "alertsEnabled" to alerts.enabled,
+                "alertBars" to alerts.bars,
+                "alertMinutes" to alerts.minutes,
             ),
             object : MethodChannel.Result {
                 override fun success(result: Any?) {
@@ -306,6 +472,7 @@ class HonestSignalService : Service() {
                     detail = map["detail"] as? String ?: detail
                     updateNotification()
                     OverlayService.publish(bars, theme)
+                    saveLastReading()
                 }
 
                 override fun error(code: String, message: String?, details: Any?) {
@@ -354,52 +521,38 @@ class HonestSignalService : Service() {
             "com.froggyeye.honestsignal/background",
         )
         channel.setMethodCallHandler { call, result ->
-            if (call.method == "backgroundReady") {
-                // Waiting for Dart to say it is up avoids firing runCycle into
-                // an engine whose plugins have not registered yet.
-                engineReady = true
-                runCycle()
-                result.success(null)
-            } else {
-                result.notImplemented()
+            when (call.method) {
+                "backgroundReady" -> {
+                    // Waiting for Dart to say it is up avoids firing runCycle
+                    // into an engine whose plugins have not registered yet.
+                    engineReady = true
+                    runCycle()
+                    result.success(null)
+                }
+
+                "postAlert" -> {
+                    // Dart decided an alert is due; re-check the switch anyway,
+                    // so a cycle already in flight when the user turned alerts
+                    // off cannot post one afterwards.
+                    if (alerts.enabled) {
+                        ConnectionAlerts.post(
+                            this,
+                            kind = call.argument<String>("kind"),
+                            title = call.argument<String>("title"),
+                            body = call.argument<String>("body"),
+                            theme = theme,
+                            highContrast = highContrast,
+                        )
+                    }
+                    result.success(null)
+                }
+
+                else -> result.notImplemented()
             }
         }
 
         engine = created
         backgroundChannel = channel
-    }
-
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
-        val manager = getSystemService(NotificationManager::class.java) ?: return
-        // IMPORTANCE_DEFAULT, deliberately, despite this notification being
-        // silent. From Android 11 the status bar hides the icon of anything
-        // below IMPORTANCE_DEFAULT — those land in the shade's "Silent" section
-        // only. This channel previously used IMPORTANCE_LOW on the belief that
-        // it was "visible in the status bar but never intrusive"; that was true
-        // before Android 11 and is false now, and it cost the app its headline
-        // Android feature.
-        //
-        // DEFAULT is the lowest importance that still gets an icon. It does not
-        // peek — heads-up needs IMPORTANCE_HIGH — and the sound and vibration it
-        // would otherwise carry are removed on the channel below and again on
-        // the builder, so the result is an icon and nothing else.
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            "Signal indicator",
-            NotificationManager.IMPORTANCE_DEFAULT,
-        ).apply {
-            description = "Shows your measured connection quality in the status bar."
-            setShowBadge(false)
-            enableVibration(false)
-            vibrationPattern = null
-            enableLights(false)
-            setSound(null, null)
-        }
-        manager.createNotificationChannel(channel)
-        // Order matters only in that both must happen; the v1 channel is dead
-        // and leaving it would show the user a stale duplicate in Settings.
-        manager.deleteNotificationChannel(LEGACY_CHANNEL_ID)
     }
 
     private fun buildNotification(): Notification {
@@ -504,6 +657,14 @@ class HonestSignalService : Service() {
         manager.notify(NOTIFICATION_ID, buildNotification())
     }
 
+    /** Feeds the widget and tile; [LastReading] throttles the redraws. */
+    private fun saveLastReading() {
+        LastReading.save(
+            this,
+            Reading(bars, verdict, detail, System.currentTimeMillis(), theme),
+        )
+    }
+
     private fun stop() {
         handler.removeCallbacks(tick)
         cycleWatchdog?.let(handler::removeCallbacks)
@@ -513,6 +674,7 @@ class HonestSignalService : Service() {
         backgroundChannel = null
         engineReady = false
         isRunning = false
+        LastReading.requestTileUpdate(this)
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
@@ -526,6 +688,7 @@ class HonestSignalService : Service() {
         backgroundChannel = null
         engineReady = false
         isRunning = false
+        LastReading.requestTileUpdate(this)
         super.onDestroy()
     }
 }

@@ -1,4 +1,5 @@
 import 'network_kind.dart';
+import 'probe_issue.dart';
 import 'scoring.dart';
 
 /// One completed measurement cycle.
@@ -21,6 +22,7 @@ class SignalSample {
     this.throughputMeasuredAt,
     this.throughputIsStale = false,
     this.networkDetail,
+    this.issue,
   });
 
   final DateTime timestamp;
@@ -56,6 +58,10 @@ class SignalSample {
   /// Best-effort extra detail, e.g. the Wi-Fi SSID-free descriptor or "Mobile".
   final String? networkDetail;
 
+  /// What the probes ran into this cycle, for the diagnosis card. Null when
+  /// nothing unusual happened.
+  final ProbeIssue? issue;
+
   bool get isOffline => kind == NetworkKind.none || lossRatio >= 1.0;
 
   String get verdict => SignalScoring.verdict(bars);
@@ -76,6 +82,7 @@ class SignalSample {
         probesSent: probesSent,
         bytesUsed: bytesUsed ?? this.bytesUsed,
         networkDetail: networkDetail,
+        issue: issue,
       );
 
   Map<String, dynamic> toJson() => {
@@ -92,6 +99,7 @@ class SignalSample {
     'probes': probesSent,
     'bytes': bytesUsed,
     'detail': networkDetail,
+    if (issue != null) 'issue': issue!.name,
   };
 
   static SignalSample fromJson(Map<dynamic, dynamic> json) => SignalSample(
@@ -114,6 +122,7 @@ class SignalSample {
     probesSent: (json['probes'] as num?)?.toInt() ?? 0,
     bytesUsed: (json['bytes'] as num?)?.toInt() ?? 0,
     networkDetail: json['detail'] as String?,
+    issue: ProbeIssue.fromStorage(json['issue']),
   );
 
   /// The sample shown before the first cycle completes.

@@ -56,23 +56,26 @@ day, for almost no data".
 | "How the score works" — the full scoring method, in-app | Free |
 | Onboarding that explains the premise and the one permission | Free |
 | Restore purchases, privacy policy link, light/dark/system theme | Free |
-| History: last hour / last 24 hours, step chart plus summary stats | **Pro** |
+| Plain-English diagnosis card (sign-in page, DNS, Wi-Fi up/internet down, signal-no-data, loss, latency, jitter, slow downloads) | Free |
+| Android home-screen widget and Quick Settings tile showing the latest score and its age | Free |
+| iOS home/lock-screen widget that runs its own latency-only quick check on WidgetKit's schedule | Free |
+| Store review prompt (system sheet only, no sentiment gate; ≥3 days used, good reading, 120-day cooldown, max 3) and Rate / Send feedback in Settings | Free |
+| History: 1 h / 24 h / 7 d / 30 d step chart, summary stats, every drop-out listed, per-network breakdown. Free installs record the last 25 h (quoted on the paywall); Pro keeps 30 days, compacting rows older than 25 h to the worst reading per 5 min | **Pro** |
+| Export: PDF evidence report and CSV of readings via the system share sheet | **Pro** |
+| Drop-out alerts (Android): notify after N minutes at ≤ X bars, and on recovery; computed in the background isolate, needs the status-bar indicator | **Pro** |
 | Floating overlay bubble over other apps (draggable, tap to open, long-press to dismiss) | **Pro** |
 | Custom sampling intervals (2 s–60 s foreground, 2 s–60 min Android background) | **Pro** |
 | Indicator themes: bars, dots, wave — in-app and in the status bar | **Pro** |
 
 ### Later (deliberately not in the MVP)
 
-- **iOS home-screen widget** showing the last score and its timestamp. Needs a
-  WidgetKit extension target, which cannot be added from the Flutter CLI and
-  would need hand-editing the Xcode project. Deferred rather than done badly.
 - **iOS BGTaskScheduler refresh** so the widget has something recent to show.
   iOS grants background time on its own schedule; the app must never imply the
   number is live when it is not.
-- Per-network history ("your home Wi-Fi averages 4.2 bars").
-- Export history as CSV.
-- Alerts when the connection drops below a chosen level.
-- Automatic diagnosis text ("this looks like a captive portal").
+- Per *named* network history ("your home Wi-Fi averages 4.2 bars"). The
+  shipped breakdown is by network type only: telling one Wi-Fi network from
+  another needs the SSID, which both platforms gate behind location
+  permission — a cost this app will not ask users to pay.
 
 ## 4. Screen map
 
@@ -504,7 +507,10 @@ under `mksoft-ltd` first.
 
 ## 11. Monetisation
 
-One-time non-consumable unlock, **£2.99**, product ID
+One-time non-consumable unlock, **£4.99** from the feature release that adds
+30-day history, reports and alerts (it was £2.99 before; founder decision
+2026-10-11, applied with `scripts/raise_pro_price.rb --apply` once that release
+is live on both stores), product ID
 `com.froggyeye.honestsignal.pro`, native `in_app_purchase` plugin only — no
 RevenueCat or any other wrapper.
 

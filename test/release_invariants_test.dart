@@ -358,8 +358,11 @@ void main() {
       // Every one of these has a written justification in PRODUCT_SPEC §9 and
       // a Play Console declaration behind it. An extra one appearing here needs
       // both before it can ship.
+      // Only `<uses-permission>` requests count. `android:permission` on a
+      // component (e.g. BIND_QUICK_SETTINGS_TILE on the tile service) guards
+      // who may bind to it and is not something the app asks the user for.
       final declared = RegExp(
-        r'android\.permission\.([A-Z_]+)',
+        r'<uses-permission\s+android:name="android\.permission\.([A-Z_]+)"',
       ).allMatches(manifest).map((m) => m.group(1)).toSet();
 
       expect(declared, {

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 2x1 by default, resizable down to 1x1 (SignalWidgetProvider swaps to the
+     compact layout below 100dp wide).
+
+     updatePeriodMillis is the 30-minute floor the system allows. It does not
+     fetch anything — the widget never measures — it only re-renders so the
+     "Not live" state appears even if the stale alarm was deferred.
+
+     previewLayout and targetCell* are Android 12+ and ignored before it; the
+     older picker falls back to the app icon, which is acceptable for a
+     single-widget app. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:description="@string/widget_description"
+    android:initialLayout="@layout/widget_signal"
+    android:minWidth="110dp"
+    android:minHeight="40dp"
+    android:minResizeWidth="40dp"
+    android:minResizeHeight="40dp"
+    android:previewLayout="@layout/widget_signal_preview"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellWidth="2"
+    android:targetCellHeight="1"
+    android:updatePeriodMillis="1800000"
+    android:widgetCategory="home_screen"
+    tools:targetApi="31" />

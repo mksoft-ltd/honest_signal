@@ -1,0 +1,4662 @@
+{
+  "source": "lib/features/measurement/domain/scoring.dart (SignalScoring.composite with throughputKbps: null, SignalScoring.bars with no previousBars or cap)",
+  "generator": "scripts/widget_scoring_fixture.dart",
+  "cases": [
+    {
+      "latencyMs": null,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 1.0,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": null,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.5,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": null,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.33333333333333337,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": null,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": null,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": null,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 1.0,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.75,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.6666666666666667,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.5,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.5,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 1.0,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.7999999999999999,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.7333333333333334,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.6,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.6,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 1.0,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.7999999999999999,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.7333333333333334,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.6,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.6,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.9242681012911724,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.7242681012911724,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.6576014346245058,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.5242681012911724,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.5242681012911724,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.8394419255728063,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.6394419255728062,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5727752589061397,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.4394419255728063,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.4394419255728063,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.7999999999999999,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.6,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5333333333333333,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.39999999999999997,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.39999999999999997,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 5.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 1.0,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.75,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.6666666666666667,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.5,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.5,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 1.0,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.7999999999999999,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.7333333333333334,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.6,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.6,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 1.0,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.7999999999999999,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.7333333333333334,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.6,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.6,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.9242681012911724,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.7242681012911724,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.6576014346245058,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.5242681012911724,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.5242681012911724,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.8394419255728063,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.6394419255728062,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5727752589061397,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.4394419255728063,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.4394419255728063,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.7999999999999999,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.6,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5333333333333333,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.39999999999999997,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.39999999999999997,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 40.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.9954408872146607,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.7454408872146606,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.6621075538813275,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.4954408872146607,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.4954408872146607,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.9963527097717285,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.7963527097717286,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.7296860431050619,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.5963527097717285,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.5963527097717285,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.9963527097717285,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.7963527097717286,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.7296860431050619,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.5963527097717285,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.5963527097717285,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.920620811062901,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.720620811062901,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.6539541443962343,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.5206208110629009,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.5206208110629009,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.8357946353445348,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.6357946353445348,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5691279686778682,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.43579463534453483,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.43579463534453483,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.7963527097717286,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.5963527097717285,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.529686043105062,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.39635270977172854,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.39635270977172854,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 41.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.9251370768638012,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.6751370768638014,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5918037435304679,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.4251370768638013,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.4251370768638013,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.940109661491041,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.7401096614910411,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.6734429948243744,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.5401096614910411,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.5401096614910411,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.940109661491041,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.7401096614910411,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.6734429948243744,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.5401096614910411,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.5401096614910411,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.8643777627822135,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.6643777627822135,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5977110961155468,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.4643777627822135,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.4643777627822135,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.7795515870638473,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.5795515870638474,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5128849203971807,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.37955158706384734,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.37955158706384734,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.740109661491041,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.5401096614910411,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.47344299482437435,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.34010966149104105,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.34010966149104105,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 60.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.8720209875950923,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.6220209875950923,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.538687654261759,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.3720209875950923,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.3720209875950923,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.8976167900760738,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.6976167900760738,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.6309501234094071,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.4976167900760738,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.4976167900760738,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.8976167900760738,
+      "bars": 5,
+      "verdict": "Excellent"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.6976167900760738,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.6309501234094071,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.4976167900760738,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.4976167900760738,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.8218848913672462,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.6218848913672462,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5552182247005796,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.4218848913672462,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.4218848913672462,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.73705871564888,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.5370587156488801,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.4703920489822135,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.33705871564888007,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.33705871564888007,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.6976167900760738,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.4976167900760738,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.43095012340940714,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.29761679007607383,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.29761679007607383,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 80.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.7971580644588935,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.5471580644588935,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.4638247311255602,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.29715806445889353,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.29715806445889353,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.8377264515671148,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.6377264515671147,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5710597849004482,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.4377264515671148,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.4377264515671148,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.8377264515671148,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.6377264515671147,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5710597849004482,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.4377264515671148,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.4377264515671148,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.7619945528582872,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.5619945528582871,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.4953278861916206,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.36199455285828724,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.36199455285828724,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.6771683771399211,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.4771683771399211,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.41050171047325446,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.2771683771399211,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.2771683771399211,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.6377264515671147,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.4377264515671148,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.37105978490044816,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.2377264515671148,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.2377264515671148,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 120.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.7222951413226949,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.47229514132269484,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.38896180798936153,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.22229514132269484,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.22229514132269484,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.7778361130581559,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.5778361130581559,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5111694463914892,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.37783611305815584,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.37783611305815584,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.7778361130581559,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.5778361130581559,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.5111694463914892,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.37783611305815584,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.37783611305815584,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.7021042143493283,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.5021042143493283,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.4354375476826616,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.30210421434932827,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.30210421434932827,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.6172780386309622,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.4172780386309622,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.35061137196429554,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.21727803863096215,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.21727803863096215,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.5778361130581559,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.37783611305815584,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3111694463914892,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.17783611305815586,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.17783611305815586,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 180.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.6616418958920284,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.4116418958920284,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.32830856255869506,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.16164189589202838,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.16164189589202838,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.7293135167136228,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.5293135167136227,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.462646850046956,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.3293135167136227,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.3293135167136227,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.7293135167136228,
+      "bars": 4,
+      "verdict": "Good"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.5293135167136227,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.462646850046956,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.3293135167136227,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.3293135167136227,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.6535816180047952,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.45358161800479513,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3869149513381284,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.2535816180047951,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.2535816180047951,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.568755442286429,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.368755442286429,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3020887756197623,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.168755442286429,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.168755442286429,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.5293135167136227,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.3293135167136227,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.26264685004695604,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.1293135167136227,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.1293135167136227,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 250.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.5748629231361987,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.3248629231361987,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.24152958980286535,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.07486292313619869,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.07486292313619869,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.659890338508959,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.45989033850895894,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3932236718422923,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.25989033850895893,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.25989033850895893,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.659890338508959,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.45989033850895894,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3932236718422923,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.25989033850895893,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.25989033850895893,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.5841584398001314,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.38415843980013137,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3174917731334647,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.18415843980013136,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.18415843980013136,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.49933226408176523,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.2993322640817652,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.23266559741509854,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.09933226408176522,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.09933226408176522,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.45989033850895894,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.25989033850895893,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.19322367184229228,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.059890338508958946,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.059890338508958946,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 400.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.5164013232971937,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.26640132329719374,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.18306798996386042,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.016401323297193737,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.016401323297193737,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.613121058637755,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.41312105863775495,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.34645439197108835,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.213121058637755,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.213121058637755,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.613121058637755,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.41312105863775495,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.34645439197108835,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.213121058637755,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.213121058637755,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.5373891599289274,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.3373891599289274,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.2707224932622608,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.13738915992892742,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.13738915992892742,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.45256298421056124,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.2525629842105613,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.1858963175438946,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.05256298421056127,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.05256298421056127,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.41312105863775495,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.213121058637755,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.14645439197108834,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.01312105863775499,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.01312105863775499,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 549.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.5000307750124114,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.2500307750124114,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.16669744167907807,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.000030775012411388136,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.000030775012411388136,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.6000246200099291,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.4000246200099291,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.33335795334326246,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.20002462000992913,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.20002462000992913,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.6000246200099291,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.4000246200099291,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.33335795334326246,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.20002462000992913,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.20002462000992913,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.5242927213011015,
+      "bars": 3,
+      "verdict": "Workable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.32429272130110154,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.2576260546344349,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.12429272130110153,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.12429272130110153,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.4394665455827354,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.2394665455827354,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.17279987891606874,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.039466545582735386,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.039466545582735386,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.4000246200099291,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.20002462000992913,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.13335795334326245,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.000024620009929110507,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.000024620009929110507,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 599.9,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.5,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.25,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.16666666666666669,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.6,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.39999999999999997,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3333333333333333,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.6,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.39999999999999997,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3333333333333333,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.5242681012911724,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.3242681012911724,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.25760143462450574,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.12426810129117243,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.12426810129117243,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.4394419255728063,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.23944192557280627,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.17277525890613962,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.03944192557280628,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.03944192557280628,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.39999999999999997,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.13333333333333333,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 600.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.5,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.25,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.16666666666666669,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.6,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.39999999999999997,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3333333333333333,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.6,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.39999999999999997,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3333333333333333,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.5242681012911724,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.3242681012911724,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.25760143462450574,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.12426810129117243,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.12426810129117243,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.4394419255728063,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.23944192557280627,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.17277525890613962,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.03944192557280628,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.03944192557280628,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.39999999999999997,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.13333333333333333,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 750.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.5,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.25,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.16666666666666669,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.6,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.39999999999999997,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3333333333333333,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.6,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.39999999999999997,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3333333333333333,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.5242681012911724,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.3242681012911724,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.25760143462450574,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.12426810129117243,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.12426810129117243,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.4394419255728063,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.23944192557280627,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.17277525890613962,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.03944192557280628,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.03944192557280628,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.39999999999999997,
+      "bars": 2,
+      "verdict": "Slow"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.13333333333333333,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 999.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.5,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.25,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.16666666666666669,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.6,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.39999999999999997,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3333333333333333,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.6,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.39999999999999997,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3333333333333333,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.5242681012911724,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.3242681012911724,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.25760143462450574,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.12426810129117243,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.12426810129117243,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.4394419255728063,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.23944192557280627,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.17277525890613962,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.03944192557280628,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.03944192557280628,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.39999999999999997,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.13333333333333333,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 1000.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": null,
+      "lossRatio": 0.0,
+      "composite": 0.5,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": null,
+      "lossRatio": 0.25,
+      "composite": 0.25,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": null,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.16666666666666669,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": null,
+      "lossRatio": 0.5,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": null,
+      "lossRatio": 0.75,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": null,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.0,
+      "composite": 0.6,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.25,
+      "composite": 0.39999999999999997,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3333333333333333,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.5,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 0.5,
+      "lossRatio": 0.75,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 0.5,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.0,
+      "composite": 0.6,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.25,
+      "composite": 0.39999999999999997,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.3333333333333333,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.5,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 15.0,
+      "lossRatio": 0.75,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 15.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.0,
+      "composite": 0.5242681012911724,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.25,
+      "composite": 0.3242681012911724,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.25760143462450574,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.5,
+      "composite": 0.12426810129117243,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 40.0,
+      "lossRatio": 0.75,
+      "composite": 0.12426810129117243,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 40.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.0,
+      "composite": 0.4394419255728063,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.25,
+      "composite": 0.23944192557280627,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.17277525890613962,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.5,
+      "composite": 0.03944192557280628,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 120.0,
+      "lossRatio": 0.75,
+      "composite": 0.03944192557280628,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 120.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.0,
+      "composite": 0.39999999999999997,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.25,
+      "composite": 0.19999999999999998,
+      "bars": 1,
+      "verdict": "Barely usable"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.3333333333333333,
+      "composite": 0.13333333333333333,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.5,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 250.0,
+      "lossRatio": 0.75,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    },
+    {
+      "latencyMs": 2000.0,
+      "jitterMs": 250.0,
+      "lossRatio": 1.0,
+      "composite": 0.0,
+      "bars": 0,
+      "verdict": "No usable connection"
+    }
+  ]
+}

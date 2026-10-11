@@ -1,0 +1,3 @@
+Stability fix for the Android status-bar indicator.
+
+On some devices the indicator could crash when Android refused to restart it in the background, for example after a reboot or when the system had reclaimed the app. It now asks you to open the app instead, and the indicator comes back as soon as you do.

@@ -89,7 +89,28 @@ class HistoryRepository {
   /// rather than being retyped into each of them.
   static const Duration defaultRetention = Duration(hours: 25);
 
-  final Duration retention;
+  /// Pro keeps a month: a complaint to a provider needs weeks of evidence, not
+  /// one day. Only the most recent [defaultRetention] is kept at full
+  /// resolution; older rows are compacted (see [compactionBucket]).
+  static const Duration proRetention = Duration(days: 30);
+
+  /// Beyond [defaultRetention], one row per bucket survives: the *worst*
+  /// reading in it. A month at full resolution would be ~90,000 rows held in
+  /// memory by Hive; a month of five-minute buckets is under 9,000. Keeping the
+  /// worst rather than the latest means compaction can blur when a drop-out
+  /// started by a few minutes, but can never erase one.
+  static const Duration compactionBucket = Duration(minutes: 5);
+
+  /// Pruning walks every row, so it runs at most this often from [record]
+  /// rather than on every stored sample.
+  static const Duration pruneInterval = Duration(minutes: 10);
+
+  /// Changed when the Pro entitlement changes. Shrinking it deletes the extra
+  /// history at the next prune — a refunded purchase degrades to the free
+  /// window rather than keeping the paid one.
+  Duration retention;
+
+  DateTime? _lastPrune;
 
   /// Consecutive samples with the same score are not worth a row each; at a
   /// 5-second foreground cadence that would be 17k rows an hour. A sample is
@@ -105,7 +126,11 @@ class HistoryRepository {
     _samples.sort((a, b) => a.timestamp.compareTo(b.timestamp));
     _latest = sample;
     _knownBoxLength = _box.length;
-    await prune(sample.timestamp);
+    final last = _lastPrune;
+    if (last == null ||
+        sample.timestamp.difference(last).abs() >= pruneInterval) {
+      await prune(sample.timestamp);
+    }
   }
 
   /// Moves samples written by the Android background isolate into Hive.
@@ -136,14 +161,40 @@ class HistoryRepository {
   }
 
   Future<void> prune(DateTime now) async {
+    _lastPrune = now;
     final cutoff = now.subtract(retention).millisecondsSinceEpoch;
+    final fullResolutionCutoff = now
+        .subtract(defaultRetention)
+        .millisecondsSinceEpoch;
+    final bucketMs = compactionBucket.inMilliseconds;
     final stale = <dynamic>[];
+    // bucket index -> (key, bars, timestamp) of the row kept so far.
+    final kept = <int, (dynamic, int, int)>{};
     for (final key in _box.keys) {
-      final timestamp = _timestampOf(_box.get(key));
-      if (timestamp == null || timestamp < cutoff) stale.add(key);
+      final raw = _box.get(key);
+      final timestamp = _timestampOf(raw);
+      if (timestamp == null || timestamp < cutoff) {
+        stale.add(key);
+        continue;
+      }
+      if (timestamp >= fullResolutionCutoff) continue;
+      final bars = ((raw as Map)['bars'] as num?)?.toInt() ?? 0;
+      final bucket = timestamp ~/ bucketMs;
+      final current = kept[bucket];
+      if (current == null) {
+        kept[bucket] = (key, bars, timestamp);
+      } else if (bars < current.$2 ||
+          (bars == current.$2 && timestamp < current.$3)) {
+        stale.add(current.$1);
+        kept[bucket] = (key, bars, timestamp);
+      } else {
+        stale.add(key);
+      }
     }
-    if (stale.isNotEmpty) await _box.deleteAll(stale);
-    _rebuildCache();
+    if (stale.isNotEmpty) {
+      await _box.deleteAll(stale);
+      _rebuildCache();
+    }
   }
 
   SignalSample? latest() {

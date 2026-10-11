@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The default 2x1 home-screen widget: score glyph, verdict, and when it was
+     measured. RemoteViews-safe views only (LinearLayout, ImageView, TextView).
+
+     @android:id/background marks the root as the widget's background for
+     Android 12+, which is what lets the launcher apply its own corner radius
+     and launch animation; clipToOutline keeps the content inside those
+     corners and is ignored on older versions. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:clipToOutline="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    tools:targetApi="31">
+
+    <ImageView
+        android:id="@+id/widget_bars"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_signal_bars_0" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/widget_verdict"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/app_name_widget"
+            android:textColor="@color/widget_on_background"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@string/widget_no_reading"
+            android:textColor="@color/widget_on_background_variant"
+            android:textSize="12sp" />
+    </LinearLayout>
+</LinearLayout>

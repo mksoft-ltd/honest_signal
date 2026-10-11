@@ -8,7 +8,8 @@
   signing (`xcodebuild -allowProvisioningUpdates` fails with "Cloud signing
   permission error"). The profile named below is created once via
   POST /v1/profiles and installed into ~/Library/MobileDevice/Provisioning
-  Profiles/.
+  Profiles/. The widget extension's profile is created and installed by
+  scripts/asc_register_widget.rb.
 -->
 <plist version="1.0">
 <dict>
@@ -24,6 +25,8 @@
 	<dict>
 		<key>com.froggyeye.honestsignal</key>
 		<string>HonestSignal App Store</string>
+		<key>com.froggyeye.honestsignal.widget</key>
+		<string>HonestSignal Widget App Store</string>
 	</dict>
 	<key>uploadSymbols</key>
 	<true/>

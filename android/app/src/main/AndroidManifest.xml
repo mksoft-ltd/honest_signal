@@ -85,6 +85,35 @@
             </intent-filter>
         </receiver>
 
+        <!-- Home-screen widget: the latest score, read-only. Not exported: the
+             system delivers APPWIDGET_UPDATE to it regardless, and the stale
+             refresh alarm is an explicit intent from this app. -->
+        <receiver
+            android:name=".SignalWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/signal_widget_info"/>
+        </receiver>
+
+        <!-- Quick Settings tile. Exported because System UI binds it, and
+             guarded by BIND_QUICK_SETTINGS_TILE so nothing else can. API 24,
+             which is the app's minSdk, so no enabled-by-version switch. -->
+        <service
+            android:name=".SignalTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_signal_bars_4"
+            android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+        </service>
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

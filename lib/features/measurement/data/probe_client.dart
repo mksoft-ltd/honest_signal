@@ -2,18 +2,27 @@ import 'dart:async';
 
 import 'package:http/http.dart' as http;
 
+import '../domain/probe_issue.dart';
+
 /// Outcome of a single latency probe.
 class ProbeResult {
   const ProbeResult({
     required this.ok,
     required this.rttMs,
     required this.bytes,
+    this.issue,
   });
 
-  const ProbeResult.failed({this.bytes = 0}) : ok = false, rttMs = null;
+  const ProbeResult.failed({this.bytes = 0, this.issue})
+    : ok = false,
+      rttMs = null;
 
   final bool ok;
   final double? rttMs;
+
+  /// Why a probe failed, or — on a successful one — that the answer was not
+  /// the empty 204 the endpoint always sends ([ProbeIssue.intercepted]).
+  final ProbeIssue? issue;
 
   /// Approximate bytes on the wire, charged to the daily data budget.
   final int bytes;
@@ -115,17 +124,28 @@ class HttpProbeClient implements ProbeClient {
       if (bodyAndStatus >= 500) {
         return ProbeResult.failed(
           bytes: probeOverheadBytes + received,
+          issue: ProbeIssue.unreachable,
         );
       }
       return ProbeResult(
         ok: true,
         rttMs: stopwatch.elapsedMicroseconds / 1000.0,
         bytes: probeOverheadBytes + received,
+        // Every latency endpoint answers an empty 204. Anything else — a 302
+        // to a login page, a 200 with HTML — means something on the network
+        // answered in its place. It still counts as reachable for scoring;
+        // it only feeds the plain-English diagnosis.
+        issue: bodyAndStatus != 204 || received > 0
+            ? ProbeIssue.intercepted
+            : null,
       );
-    } on Object {
+    } on Object catch (error) {
       // Timeouts, DNS failures, TLS failures and socket errors are all "the
       // connection did not deliver", which is exactly what we want to count.
-      return ProbeResult.failed(bytes: probeOverheadBytes + received);
+      return ProbeResult.failed(
+        bytes: probeOverheadBytes + received,
+        issue: ProbeIssue.classify(error),
+      );
     }
   }
 

@@ -206,6 +206,9 @@ void main() {
             dailyBudgetMb: 50,
             barTheme: BarTheme.wave,
             measureOnCellular: false,
+            alertsEnabled: true,
+            alertBars: 0,
+            alertMinutes: 5,
           ),
         );
 
@@ -216,6 +219,9 @@ void main() {
           'budgetLimitBytes': 50 * 1024 * 1024,
           'measureOnCellular': false,
           'uiActive': true,
+          'alertsEnabled': true,
+          'alertBars': 0,
+          'alertMinutes': 5,
         });
       },
     );

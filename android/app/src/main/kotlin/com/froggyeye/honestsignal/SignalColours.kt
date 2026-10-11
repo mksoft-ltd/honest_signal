@@ -9,7 +9,9 @@ import android.graphics.Color
  * Mirrors `AppColors.dark.forBars` in Dart — the dark set specifically. Change
  * the two together.
  *
- * Three callers, and they do not share a ground. `SignalBubbleView` draws on its
+ * The widget is the exception that needs both ramps; see [forBarsOnLight].
+ *
+ * Three callers of [forBars], and they do not share a ground. `SignalBubbleView` draws on its
  * own dark plate whatever theme the phone is in. The notification uses these as
  * `setColor`, and below Android 16 as the colorized card, both of which live in
  * the system shade and therefore follow the phone's theme — the dark ramp's
@@ -32,5 +34,20 @@ object SignalColours {
         2, 3 -> Color.rgb(0xD8, 0xB2, 0x2E)
         4 -> Color.rgb(0x4F, 0xA8, 0x3D)
         else -> Color.rgb(0x1F, 0xA9, 0x7A)
+    }
+
+    /**
+     * Mirrors `AppColors.light` in Dart. The home-screen widget is the first
+     * Android surface the app paints itself on a light ground — nothing
+     * contrast-corrects a RemoteViews tint the way the shade corrects a
+     * notification accent — and the dark ramp's "fair" yellow is under 2:1 on
+     * a light widget background. Change the two together.
+     */
+    fun forBarsOnLight(level: Int): Int = when (level.coerceIn(0, 5)) {
+        0 -> Color.rgb(0xC0, 0x27, 0x1B)
+        1 -> Color.rgb(0xA8, 0x5A, 0x0A)
+        2, 3 -> Color.rgb(0x8A, 0x6B, 0x00)
+        4 -> Color.rgb(0x35, 0x7A, 0x27)
+        else -> Color.rgb(0x0E, 0x7A, 0x57)
     }
 }

@@ -251,6 +251,13 @@ class MeasurementController extends ChangeNotifier {
   }
 
   Future<void> _publishToIndicator(SignalSample sample) async {
+    await _indicator.updateWidgets(
+      bars: sample.bars,
+      verdict: sample.verdict,
+      detail: IndicatorText.detail(sample),
+      timestamp: sample.timestamp,
+      theme: _settings.barTheme.name,
+    );
     if (!_settings.notificationIndicatorEnabled) return;
     await _indicator.publishSample(
       bars: sample.bars,

@@ -33,6 +33,11 @@ class FakeIndicatorChannel extends IndicatorChannel {
   final List<Map<String, Object?>> published = [];
   final List<bool> uiActive = [];
 
+  /// Kept out of [calls]: widget refreshes accompany every reading, and the
+  /// call-order assertions are about the service lifecycle.
+  final List<Map<String, Object?>> widgetUpdates = [];
+  String? launchRoute;
+
   @override
   bool get isSupported => supported;
 
@@ -50,6 +55,9 @@ class FakeIndicatorChannel extends IndicatorChannel {
     required int budgetLimitBytes,
     required bool measureOnCellular,
     required bool uiActive,
+    bool alertsEnabled = false,
+    int alertBars = 1,
+    int alertMinutes = 2,
   }) async {
     calls.add('startIndicator');
     starts.add({
@@ -59,6 +67,9 @@ class FakeIndicatorChannel extends IndicatorChannel {
       'budgetLimitBytes': budgetLimitBytes,
       'measureOnCellular': measureOnCellular,
       'uiActive': uiActive,
+      'alertsEnabled': alertsEnabled,
+      'alertBars': alertBars,
+      'alertMinutes': alertMinutes,
     });
     serviceRunning = true;
   }
@@ -87,6 +98,24 @@ class FakeIndicatorChannel extends IndicatorChannel {
       'highContrast': highContrast,
       'uiIntervalSeconds': uiIntervalSeconds,
     });
+  }
+
+  @override
+  Future<void> updateWidgets({
+    required int bars,
+    required String verdict,
+    required String detail,
+    required DateTime timestamp,
+    required String theme,
+  }) async {
+    widgetUpdates.add({'bars': bars, 'verdict': verdict, 'theme': theme});
+  }
+
+  @override
+  Future<String?> takeLaunchRoute() async {
+    final route = launchRoute;
+    launchRoute = null;
+    return route;
   }
 
   @override

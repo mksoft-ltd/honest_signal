@@ -1,6 +1,6 @@
 # Honest Signal — Privacy Policy
 
-**Last updated: 26 September 2026**
+**Last updated: 11 October 2026**
 
 **Publisher: Froggy Eye Ltd (United Kingdom)**
 
@@ -20,11 +20,16 @@ device:
 
 - **Your measurements** — the connection scores, latencies, speeds and network
   types the app measures. These are kept for up to 25 hours and then deleted
-  automatically. You can delete them all at once from the History screen.
+  automatically. With Pro they are kept for up to 30 days: the most recent 25
+  hours in full, and older readings reduced to the worst reading in each five
+  minutes. You can delete them all at once from the History screen.
 - **Your settings** — sampling intervals, indicator style, speed-sample cutoff,
   theme.
 - **Your Pro purchase status** — a single flag recording that the unlock was
   bought.
+
+On Android, the home-screen widget and Quick Settings tile read the latest
+score from the same private storage.
 
 Uninstalling the app removes all of it. It is not included in cloud backup or
 device-to-device transfer.
@@ -52,6 +57,30 @@ total measurement traffic can exceed the cutoff. Shorter intervals use more
 data and battery. You can lengthen the interval or switch off measuring on
 mobile data entirely.
 
+## Home-screen widget (iOS)
+
+The iOS widget measures on its own, because iOS gives the app no time to
+measure in the background. Whenever iOS refreshes it, the widget sends a few of
+the same small latency requests to the Google and Cloudflare endpoints listed
+above and shows the result. It stores nothing beyond the reading it displays
+and sends nothing else.
+
+## Reports you export (Pro)
+
+The History screen can export a PDF report or a CSV file of your readings.
+These are created on your device and handed to your phone's share sheet; they
+go only where you choose to send them. They contain the readings' times,
+scores, speeds and network types (Wi-Fi or mobile), and no device, account or
+location identifiers.
+
+## Ratings and feedback
+
+Honest Signal may occasionally show the App Store or Google Play rating prompt.
+That prompt is the store's own; the app learns nothing about whether or how you
+rated it. "Send feedback" opens your email app addressed to
+info@froggyeye.com — if you send it, we receive what you wrote and your email
+address, and use them only to reply.
+
 ## Purchases
 
 Honest Signal Pro is a one-off purchase handled entirely by the App Store or
@@ -63,7 +92,9 @@ question of the same store.
 ## Permissions
 
 - **Notifications (Android)** — the live signal indicator *is* a notification;
-  its icon is the score. Declining it leaves the rest of the app working.
+  its icon is the score. Optional drop-out alerts (Pro) are also local
+  notifications, created on the device from its own readings. Declining
+  notifications leaves the rest of the app working.
 - **Display over other apps (Android, optional)** — draws the floating bubble.
   Off by default, requested only when you turn the feature on, and revocable in
   Android settings at any time.

@@ -72,7 +72,9 @@ class HistoryChart extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              Format.clockTime(now.subtract(window)),
+              window > const Duration(hours: 24)
+                  ? Format.shortDate(now.subtract(window))
+                  : Format.clockTime(now.subtract(window)),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

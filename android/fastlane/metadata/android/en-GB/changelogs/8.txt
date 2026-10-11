@@ -1,0 +1,5 @@
+• Home-screen widget and Quick Settings tile
+• Plain-English diagnosis: Wi-Fi sign-in pages, DNS failures, signal with no data
+• Pro: 30 days of history, every drop-out listed, Wi-Fi vs mobile breakdown
+• Pro: PDF and CSV reports to send to your provider
+• Pro: alerts when the connection drops out and when it is back

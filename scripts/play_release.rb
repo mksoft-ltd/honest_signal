@@ -80,6 +80,14 @@ begin
   abort "Uploaded build #{bundle['versionCode']} instead of #{BUILD}" unless bundle['versionCode'] == BUILD
   puts "Bundle uploaded: SHA-256 #{bundle['sha256']}"
 
+  # R8 mapping, so Play vitals stack traces stay readable (as the fastlane
+  # lanes do with `mapping:`).
+  mapping = File.join(ROOT, 'build/app/outputs/mapping/release/mapping.txt')
+  if File.file?(mapping)
+    upload(edit, "/apks/#{BUILD}/deobfuscationFiles/proguard", 'application/octet-stream', mapping)
+    puts 'Deobfuscation mapping uploaded'
+  end
+
   listing(edit)
   call_api('DELETE', "/edits/#{edit}/listings/en-GB/phoneScreenshots")
   screenshots.each do |file|

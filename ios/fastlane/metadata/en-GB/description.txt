@@ -14,9 +14,13 @@ THE CASE A PING-ONLY TOOL MISSES
 
 A link can answer pings promptly while no real data moves through it. Latency and jitter both look excellent in that state, so anything that only pings will call it healthy. Honest Signal takes a real transfer sample, and when the probes answer but the download will not complete it caps the score at 2 bars and tells you why. That is the "full bars, no data" failure this app exists to expose, and you cannot see it by pinging.
 
+WHAT'S WRONG, IN WORDS
+
+When something is off, Honest Signal says what: a Wi-Fi sign-in page, failing DNS, Wi-Fi up but the internet down, or signal with no data — and what usually fixes it.
+
 NO MYSTERY SCORE
 
-"How the score works" is a screen in the app, not a footnote. Every curve, weight, threshold and cap is written down: which measurements are blended, what each is worth, where each one reaches zero, and the rules that cap the display no matter what the arithmetic says. If you disagree with the method, you can at least read it.
+"How the score works" is a screen in the app, not a footnote. Every curve, weight, threshold and cap is written down.
 
 ALMOST NO DATA
 
@@ -24,19 +28,20 @@ A round of four latency probes costs about 2.8 KB. A transfer sample costs about
 
 THIS IS NOT A SPEED TEST
 
-A speed test answers "how fast is this right now, if I spend a couple of hundred megabytes finding out". Honest Signal answers "is this connection actually working", repeatedly, for almost nothing. It does not report dBm or radio strength: the whole premise is that radio strength is the wrong number.
+A speed test answers "how fast is this right now". Honest Signal answers "is this connection actually working", repeatedly, for almost nothing. It does not report dBm: radio strength is the wrong number.
 
-HONEST ABOUT ITS LIMITS
+A WIDGET THAT CHECKS FOR ITSELF
 
-iOS does not let an app measure while it is closed, and Honest Signal never pretends otherwise. Every reading carries its age, and once a reading is a couple of minutes old the app says outright that measuring has stopped and offers a pull to refresh.
+iOS does not let an app measure while it is closed, and Honest Signal never pretends otherwise: every reading carries its age. The home-screen and lock-screen widget runs its own quick check whenever iOS refreshes it, so you can glance at your connection without opening the app.
 
 HONEST SIGNAL PRO — one-off purchase, no subscription
 
-• History — the last hour and the last 24 hours as a step chart, with summary statistics, so a drop-out you felt is a drop-out you can point at
+• 30 days of history — the last hour, day, week or month as a chart, with every drop-out listed by time and length and split by Wi-Fi and mobile
+• Evidence reports — a PDF of every drop-out, or every reading as CSV, to send to your provider
 • Custom sampling intervals, from 2 to 60 seconds
 • Indicator themes: bars, dots or wave
 
-Buy once, keep it. Restore purchases from the paywall or Settings. The paywall names and explains each feature before it mentions the price.
+Buy once, keep it. Restore purchases from the paywall or Settings.
 
 PRIVACY
 
