@@ -1,0 +1,3 @@
+• A long outage is now listed as one drop-out, not several short ones
+• "Turn off" on the status-bar notification now stays off
+• Alert settings: tap anywhere on a row to change it

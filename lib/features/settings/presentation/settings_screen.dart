@@ -11,6 +11,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/widgets/signal_bars.dart';
 import '../domain/app_settings.dart';
+import 'choice_tile.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -145,39 +146,26 @@ class SettingsScreen extends ConsumerWidget {
                   : null,
             ),
             if (effective.alertsEnabled) ...[
-              ListTile(
-                title: const Text('Alert at'),
-                trailing: DropdownButton<int>(
-                  value: effective.alertBars,
-                  underline: const SizedBox.shrink(),
-                  items: const [
-                    DropdownMenuItem(value: 0, child: Text('0 bars')),
-                    DropdownMenuItem(value: 1, child: Text('1 bar or less')),
-                    DropdownMenuItem(value: 2, child: Text('2 bars or less')),
-                  ],
-                  onChanged: (value) => value == null
-                      ? null
-                      : controller.update((s) => s.copyWith(alertBars: value)),
-                ),
+              ChoiceTile<int>(
+                title: 'Alert at',
+                value: effective.alertBars,
+                choices: const {
+                  0: '0 bars',
+                  1: '1 bar or less',
+                  2: '2 bars or less',
+                },
+                onChanged: (value) =>
+                    controller.update((s) => s.copyWith(alertBars: value)),
               ),
-              ListTile(
-                title: const Text('After it lasts'),
-                trailing: DropdownButton<int>(
-                  value: effective.alertMinutes,
-                  underline: const SizedBox.shrink(),
-                  items: [
-                    for (final minutes in AppSettings.alertMinuteChoices)
-                      DropdownMenuItem(
-                        value: minutes,
-                        child: Text('$minutes min'),
-                      ),
-                  ],
-                  onChanged: (value) => value == null
-                      ? null
-                      : controller.update(
-                          (s) => s.copyWith(alertMinutes: value),
-                        ),
-                ),
+              ChoiceTile<int>(
+                title: 'After it lasts',
+                value: effective.alertMinutes,
+                choices: {
+                  for (final minutes in AppSettings.alertMinuteChoices)
+                    minutes: '$minutes min',
+                },
+                onChanged: (value) =>
+                    controller.update((s) => s.copyWith(alertMinutes: value)),
               ),
             ],
           ],
