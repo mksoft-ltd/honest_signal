@@ -24,9 +24,9 @@
 	<key>provisioningProfiles</key>
 	<dict>
 		<key>com.froggyeye.honestsignal</key>
-		<string>HonestSignal App Store</string>
+		<string>HonestSignal App Store 2027</string>
 		<key>com.froggyeye.honestsignal.widget</key>
-		<string>HonestSignal Widget App Store</string>
+		<string>HonestSignal Widget App Store 2027</string>
 	</dict>
 	<key>uploadSymbols</key>
 	<true/>
