@@ -24,6 +24,21 @@ Decisions (founder, 2026-08-07): **free + £2.99 Pro IAP** (native `in_app_purch
 | 7 | publish | store-publisher | 1.0.3 (build 5) is `IN_REVIEW` on Play production and `WAITING_FOR_REVIEW` on Apple | 2026-09-26 |
 | 8 | website | general-purpose (froggyeye-website skill) | done — page LIVE at https://honestsignal.froggyeye.com, current store buttons and copy verified | 2026-09-26 |
 
+## 1.1.1 (build 10) — submitted to both stores, 2026-10-11
+
+- **Pro price raised to £4.99 on both stores (2026-10-11, founder's call, before 1.1.0 was live on iOS).**
+  Play read-back GB £4.99 / US $5.49 / DE+BG €5.99 (regions version 2026/01; PATCH is the lowercase
+  `onetimeproducts` path). ASC read-back GBR £4.99 / USA $4.99 / DEU €5.99, startDate null.
+- Fixes: background outage split into 1-minute drop-outs; notification "Turn off" not sticking;
+  alert-setting rows open from anywhere on the row (`ChoiceTile`).
+- **Play:** edit `04405906563746781474`, bundle SHA-256 9fd498a8…, mapping, 6 screenshots, changelogs/10.txt;
+  read-back 1.1.1 (10) `RELEASE_LIFECYCLE_STATE_IN_REVIEW`. 1.1.0 (9) is PUBLISHED.
+- **Apple:** 1.1.0 submission `bdfbf7c2…` cancelled unreviewed; same version `04cf922f…` renamed 1.1.1; build 10
+  `d290887d-219d-43dd-955d-172c83c7a3ab` attached; 4 new screenshots synced; submission
+  `c0c3c93c-c3f2-466b-bbc8-d3602dc11df0` → `WAITING_FOR_REVIEW`.
+- Signing: all 20 fleet App Store profiles re-issued as "<name> 2027" on cert 48CDM5Z29C (to 2027-10-11) and
+  installed. Other apps must point their ExportOptions.plist at the "… 2027" names before 2026-12-14.
+
 ## 1.1.0 (build 9) — submitted to both stores, 2026-10-11
 
 - **Play:** production edit `04160865225641731032` committed (bundle SHA-256 b3ccea1c…, R8 mapping, listing,
