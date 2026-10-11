@@ -24,7 +24,21 @@ Decisions (founder, 2026-08-07): **free + £2.99 Pro IAP** (native `in_app_purch
 | 7 | publish | store-publisher | 1.0.3 (build 5) is `IN_REVIEW` on Play production and `WAITING_FOR_REVIEW` on Apple | 2026-09-26 |
 | 8 | website | general-purpose (froggyeye-website skill) | done — page LIVE at https://honestsignal.froggyeye.com, current store buttons and copy verified | 2026-09-26 |
 
-## Next feature release — in progress (2026-10-11)
+## 1.1.0 (build 9) — submitted to both stores, 2026-10-11
+
+- **Play:** production edit `04160865225641731032` committed (bundle SHA-256 b3ccea1c…, R8 mapping, listing,
+  5 screenshots, changelogs/9.txt); read-back: 1.1.0 (9) `RELEASE_LIFECYCLE_STATE_IN_REVIEW`.
+- **Apple:** build 9 `a8aa7da6-eab7-435d-b7c9-188e787a1b71` VALID, version `04cf922f-1316-4997-a04f-f717f32bcf29`
+  metadata + review notes (rewritten, 3,932 chars, platform-neutral) synced, submission
+  `bdfbf7c2-d2e5-46ec-96f0-0691217d0f4a` → `WAITING_FOR_REVIEW`, release AFTER_APPROVAL.
+  Build 8 was uploaded first but superseded (paywall wording fix) and never submitted; hence 9 on both stores.
+- Compliance audit: PASS WITH FIXES → all three blockers fixed before submission (1.1.0 binaries, policy pushed
+  and live with "11 October 2026", review notes rewritten); iOS paywall copy no longer implies background capture.
+- iOS widget profile "HonestSignal Widget App Store" and the app profile **expire 2026-12-14** with the cert.
+- **To do when both are live:** `ruby scripts/raise_pro_price.rb --apply`. Later: recapture screenshots
+  (History UI changed; add widget/report shots).
+
+## Feature release scope (2026-10-11)
 
 Founder asked for: paywall that quotes the user's own recorded drop-outs, store review prompt,
 30-day Pro history + compaction, PDF/CSV export, Android drop-out alerts, plain-English diagnosis,
