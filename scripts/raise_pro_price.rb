@@ -74,6 +74,8 @@ regions = option.fetch('regionalPricingAndAvailabilityConfigs')
 gb = regions.find { |r| r['regionCode'] == 'GB' } || abort('Play: no GB price')
 puts "Play: GB now #{money(gb['price'])}, #{regions.size} regions"
 
+# Regions version: 2026/01 is the first with Bulgaria on the euro; older ones
+# reject the converted EUR price for BG, newer-looking ones are "invalid".
 # convertRegionPrices takes a tax-EXCLUSIVE price and adds local tax where
 # prices are shown tax-inclusive (it turns GBP 4.99 into GBP 5.99 for the UK).
 # The live prices were set from the VAT-inclusive UK figure, so convert from
@@ -106,7 +108,10 @@ puts "Play: converted from GBP #{format('%.4f', ex_vat)} ex-VAT " \
   puts "  #{code}: #{money(before['price'])} -> #{money(after['price'])}" if before && after
 end
 
-if APPLY
+already = money(gb['price']) == "GBP #{NEW_GBP}"
+if already
+  puts "Play: GB is already GBP #{NEW_GBP}; leaving Play unchanged"
+elsif APPLY
   product['purchaseOptions'] = product['purchaseOptions'].map do |o|
     o['purchaseOptionId'] == 'pro' ? o.merge('regionalPricingAndAvailabilityConfigs' => updated) : o
   end
@@ -114,12 +119,14 @@ if APPLY
     l['languageCode'] == 'en-GB' ? l.merge('description' => PLAY_DESCRIPTION) : l
   end
   http(:patch,
-       "#{base}/oneTimeProducts/#{SKU}?updateMask=purchaseOptions,listings" \
-       '&regionsVersion.version=2022/02',
+       # PATCH alone lives at the lowercase path (per the discovery document);
+       # the camel-case one answers 404 for it.
+       "#{base}/onetimeproducts/#{SKU}?updateMask=purchaseOptions,listings" \
+       "&regionsVersion.version=#{ENV.fetch('PLAY_REGIONS_VERSION', '2026/01')}",
        play_auth, product)
   check = http(:get, "#{base}/oneTimeProducts/#{SKU}", play_auth)
-  gb_now = check['purchaseOptions'].find { |o| o['purchaseOptionId'] == 'pro' }
-                ['regionalPricingAndAvailabilityConfigs'].find { |r| r['regionCode'] == 'GB' }
+  pro_now = check['purchaseOptions'].find { |o| o['purchaseOptionId'] == 'pro' }
+  gb_now = pro_now['regionalPricingAndAvailabilityConfigs'].find { |r| r['regionCode'] == 'GB' }
   puts "Play: read back GB #{money(gb_now['price'])}"
 else
   puts "Play: would set GB to GBP #{NEW_GBP} and convert #{updated.count { |r| r['price'] }} regions"
