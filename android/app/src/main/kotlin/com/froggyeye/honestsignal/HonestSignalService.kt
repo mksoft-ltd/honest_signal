@@ -61,6 +61,7 @@ class HonestSignalService : Service() {
         private const val PREFS = "honest_signal_service"
 
         private const val KEY_ENABLED = "enabled"
+        private const val KEY_STOPPED_FROM_NOTIFICATION = "stoppedFromNotification"
         private const val KEY_THEME = "theme"
         private const val KEY_HIGH_CONTRAST = "highContrast"
         private const val KEY_INTERVAL = "interval"
@@ -89,6 +90,7 @@ class HonestSignalService : Service() {
         const val EXTRA_ALERTS_ENABLED = "alertsEnabled"
         const val EXTRA_ALERT_BARS = "alertBars"
         const val EXTRA_ALERT_MINUTES = "alertMinutes"
+        const val EXTRA_FROM_NOTIFICATION = "fromNotification"
 
         /**
          * Floor for the UI-active lease. The lease must outlast the gap between
@@ -109,6 +111,19 @@ class HonestSignalService : Service() {
         fun wasEnabled(context: Context): Boolean =
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                 .getBoolean(KEY_ENABLED, false)
+
+        /**
+         * True, once, after the user switched the indicator off with the
+         * notification's "Turn off" action. The app mirrors that into its own
+         * setting; otherwise the switch would still read on and the next sync
+         * would start the service again.
+         */
+        fun takeStoppedFromNotification(context: Context): Boolean {
+            val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            val stopped = prefs.getBoolean(KEY_STOPPED_FROM_NOTIFICATION, false)
+            if (stopped) prefs.edit().remove(KEY_STOPPED_FROM_NOTIFICATION).apply()
+            return stopped
+        }
 
         fun startIntent(context: Context): Intent {
             val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -252,6 +267,10 @@ class HonestSignalService : Service() {
         when (intent?.action) {
             ACTION_STOP -> {
                 persistEnabled(false)
+                if (intent.getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
+                    getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                        .putBoolean(KEY_STOPPED_FROM_NOTIFICATION, true).apply()
+                }
                 stop()
                 return START_NOT_STICKY
             }
@@ -356,8 +375,10 @@ class HonestSignalService : Service() {
     }
 
     private fun persistEnabled(enabled: Boolean) {
-        getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .edit().putBoolean(KEY_ENABLED, enabled).apply()
+        val editor = getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putBoolean(KEY_ENABLED, enabled)
+        if (enabled) editor.remove(KEY_STOPPED_FROM_NOTIFICATION)
+        editor.apply()
     }
 
     /**
@@ -568,7 +589,9 @@ class HonestSignalService : Service() {
         val stopIntent = PendingIntent.getService(
             this,
             1,
-            Intent(this, HonestSignalService::class.java).setAction(ACTION_STOP),
+            Intent(this, HonestSignalService::class.java)
+                .setAction(ACTION_STOP)
+                .putExtra(EXTRA_FROM_NOTIFICATION, true),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 

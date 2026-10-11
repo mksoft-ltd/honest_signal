@@ -106,6 +106,20 @@ final indicatorControllerProvider = ChangeNotifierProvider<IndicatorController>(
   },
 );
 
+/// Mirrors a "Turn off" tapped on the indicator notification into settings.
+/// The service has already stopped itself; without this the switch would still
+/// read on and the next sync would start the indicator again.
+Future<void> adoptIndicatorTurnOff(WidgetRef ref) async {
+  if (!await ref
+      .read(indicatorControllerProvider)
+      .takeStoppedFromNotification()) {
+    return;
+  }
+  await ref
+      .read(settingsProvider.notifier)
+      .update((s) => s.copyWith(notificationIndicatorEnabled: false));
+}
+
 final measurementEngineProvider = Provider<MeasurementEngine>(
   (ref) => MeasurementEngine(client: ref.watch(probeClientProvider)),
 );

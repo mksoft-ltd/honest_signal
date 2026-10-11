@@ -412,6 +412,30 @@ void main() {
       await unmount(tester);
     });
 
+    testWidgets('"Turn off" on the notification sticks when the app opens', (
+      tester,
+    ) async {
+      await SettingsRepository(
+        store.settings,
+      ).save(const AppSettings(hasSeenOnboarding: true));
+      final indicator = FakeIndicatorChannel()..stoppedFromNotification = true;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: overrides(indicator: indicator),
+          child: const HonestSignalApp(),
+        ),
+      );
+      await settle(tester, 4);
+
+      expect(
+        SettingsRepository(store.settings).load().notificationIndicatorEnabled,
+        isFalse,
+      );
+      expect(indicator.calls, isNot(contains('startIndicator')));
+      expect(indicator.serviceRunning, isFalse);
+      await unmount(tester);
+    });
+
     testWidgets('an onboarded install opens straight onto a real reading', (
       tester,
     ) async {

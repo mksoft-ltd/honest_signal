@@ -117,6 +117,32 @@ void main() {
     );
   });
 
+  test('background heartbeats never leave gaps that split one outage', () {
+    // The background host measures every 2 s but stores an unchanged reading
+    // once a minute, and each heartbeat lands a tick or so after the minute.
+    final hold = HistoryInterval.maximumHold(
+      HistoryInterval.expectedInterval(
+        foreground: const Duration(seconds: 5),
+        background: const Duration(seconds: 2),
+        persistentIndicatorActive: true,
+      ),
+    );
+    final start = DateTime(2026, 9, 25, 12);
+    final outage = [
+      for (var i = 0; i < 4; i++)
+        sample(start.add(Duration(seconds: 62 * i)), 0),
+      sample(start.add(const Duration(seconds: 250)), 5),
+    ];
+    final intervals = HistoryInterval.fromSamples(
+      outage,
+      end: start.add(const Duration(minutes: 5)),
+      maxHold: hold,
+    );
+    for (var i = 1; i < intervals.length; i++) {
+      expect(intervals[i].start, intervals[i - 1].end);
+    }
+  });
+
   test('future and zero-duration samples contribute no measured time', () {
     final end = DateTime(2026, 9, 25, 12);
     final stats = HistoryStats.from(

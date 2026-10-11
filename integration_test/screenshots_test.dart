@@ -127,6 +127,17 @@ void main() {
     await goBack(tester);
 
     await tapIcon(tester, Icons.settings_outlined, 'the Settings button');
+    // The Play settings shot sells the status-bar score and the drop-out
+    // alerts together, so it is taken with alerts switched on. The switch only
+    // exists on Android (alerts ride the background indicator), and on the
+    // free tier tapping it opens the paywall instead.
+    final alerts = find.text('Drop-out alerts');
+    if (Platform.isAndroid &&
+        ScreenshotMode.isPro &&
+        alerts.evaluate().isNotEmpty) {
+      await tester.tap(alerts);
+      await settle(tester);
+    }
     await shoot(tester, '03_settings');
 
     final howItWorks = find.text('How the score works');

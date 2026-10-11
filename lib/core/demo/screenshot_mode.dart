@@ -24,13 +24,17 @@ import '../../features/measurement/domain/signal_sample.dart';
 class ScreenshotMode {
   const ScreenshotMode._();
 
-  static const bool _flag =
-      bool.fromEnvironment('SCREENSHOT_MODE', defaultValue: false);
+  static const bool _flag = bool.fromEnvironment(
+    'SCREENSHOT_MODE',
+    defaultValue: false,
+  );
 
   /// `pro` (default) shows the Pro screens; `free` captures the paywall and the
   /// locked states. Pass `--dart-define=SCREENSHOT_TIER=free` for those shots.
-  static const String _tier =
-      String.fromEnvironment('SCREENSHOT_TIER', defaultValue: 'pro');
+  static const String _tier = String.fromEnvironment(
+    'SCREENSHOT_TIER',
+    defaultValue: 'pro',
+  );
 
   static bool get isEnabled => _flag && !kReleaseMode;
 
@@ -39,71 +43,134 @@ class ScreenshotMode {
   /// Provider overrides that replace every network- and store-facing seam with
   /// a deterministic fake, so screenshots are identical on every run.
   static List<Override> overrides() => [
-        probeClientProvider.overrideWithValue(_DemoProbeClient()),
-        connectivitySourceProvider.overrideWithValue(_DemoConnectivitySource()),
-        iapGatewayProvider.overrideWithValue(_DemoIapGateway()),
-        budgetStoreProvider.overrideWith((ref) {
-          final store = InMemoryBudgetStore();
-          unawaited(store.spend(
-            now: DateTime.now(),
-            bytes: 6 * 1024 * 1024,
-            limitBytes: 25 * 1024 * 1024,
-          ));
-          return store;
-        }),
-      ];
+    probeClientProvider.overrideWithValue(_DemoProbeClient()),
+    connectivitySourceProvider.overrideWithValue(_DemoConnectivitySource()),
+    iapGatewayProvider.overrideWithValue(_DemoIapGateway()),
+    budgetStoreProvider.overrideWith((ref) {
+      final store = InMemoryBudgetStore();
+      unawaited(
+        store.spend(
+          now: DateTime.now(),
+          bytes: 6 * 1024 * 1024,
+          limitBytes: 25 * 1024 * 1024,
+        ),
+      );
+      return store;
+    }),
+  ];
 
-  /// Fills the history box with a plausible day: mostly good, with the kind of
-  /// dip the app exists to catch.
+  /// Fills the history box with a plausible hour: mostly good, with the kind
+  /// of trouble the app exists to catch — the Wi-Fi falling over, the phone
+  /// falling back to mobile data, and that failing too before things recover.
+  ///
+  /// Only the raw measurements are invented. Every composite and bar count is
+  /// produced by [SignalScoring], so the chart, the drop-out list and the
+  /// per-network breakdown are exactly what the real engine would show for
+  /// these numbers.
   static Future<void> seedHistory(HistoryRepository history) async {
     final now = DateTime.now();
     final random = math.Random(7);
+    int? previousBars;
 
     for (var minutesAgo = 60; minutesAgo >= 0; minutesAgo--) {
       final t = now.subtract(Duration(minutes: minutesAgo));
-      // A believable story: solid connection, a bad patch 35–22 minutes ago,
-      // recovery, and a strong reading now.
-      final bars = switch (minutesAgo) {
-        > 46 => 5,
-        > 35 => 4,
-        > 30 => 1,
-        > 26 => 0,
-        > 22 => 2,
-        > 12 => 4,
-        _ => 5,
-      };
-      final latency = switch (bars) {
-        0 => 1800.0,
-        1 => 780.0,
-        2 => 320.0,
-        3 => 140.0,
-        4 => 62.0,
-        _ => 24.0 + random.nextInt(8),
-      };
-      final throughput = switch (bars) {
-        0 => 0.0,
-        1 => 240.0,
-        2 => 1100.0,
-        3 => 4200.0,
-        4 => 11000.0,
-        _ => 46000.0,
-      };
+      final reading = _demoReading(minutesAgo, random);
+      final composite = SignalScoring.composite(
+        lossRatio: reading.loss,
+        latencyMs: reading.latencyMs,
+        jitterMs: reading.jitterMs,
+        throughputKbps: reading.throughputKbps,
+      );
+      final bars = SignalScoring.bars(
+        composite,
+        previousBars: previousBars,
+        lossRatio: reading.loss,
+        latencyMs: reading.latencyMs,
+      );
+      previousBars = bars;
 
-      await history.record(SignalSample(
-        timestamp: t,
-        kind: bars <= 1 ? NetworkKind.cellular : NetworkKind.wifi,
-        bars: bars,
-        composite: bars / 5,
-        latencyMs: latency,
-        jitterMs: bars >= 4 ? 6 : 90,
-        throughputKbps: throughput,
-        lossRatio: bars == 0 ? 1 : (bars == 1 ? 0.5 : 0),
-        probesSent: 4,
-        bytesUsed: 0,
-        networkDetail: bars <= 1 ? 'Mobile data' : 'Home Wi-Fi',
-      ));
+      await history.record(
+        SignalSample(
+          timestamp: t,
+          kind: reading.kind,
+          bars: bars,
+          composite: composite,
+          latencyMs: reading.latencyMs,
+          jitterMs: reading.jitterMs,
+          throughputKbps: reading.throughputKbps,
+          lossRatio: reading.loss,
+          probesSent: 4,
+          bytesUsed: 0,
+          networkDetail: reading.kind == NetworkKind.wifi
+              ? 'Home Wi-Fi'
+              : 'Mobile data',
+        ),
+      );
     }
   }
+
+  /// The story, oldest first: solid home Wi-Fi; the router struggling and then
+  /// failing (drop-out on Wi-Fi); the phone falling back to mobile data, which
+  /// is slow and then drops out too (drop-out on cellular); mobile data
+  /// recovering; Wi-Fi back and strong now.
+  static ({
+    NetworkKind kind,
+    double? latencyMs,
+    double? jitterMs,
+    double? throughputKbps,
+    double loss,
+  })
+  _demoReading(int minutesAgo, math.Random random) => switch (minutesAgo) {
+    > 46 => (
+      kind: NetworkKind.wifi,
+      latencyMs: 24.0 + random.nextInt(8),
+      jitterMs: 4,
+      throughputKbps: 46000,
+      loss: 0,
+    ),
+    > 40 => (
+      kind: NetworkKind.wifi,
+      latencyMs: 140,
+      jitterMs: 45,
+      throughputKbps: 4000,
+      loss: 0,
+    ),
+    > 34 => (
+      kind: NetworkKind.wifi,
+      latencyMs: 650,
+      jitterMs: 120,
+      throughputKbps: 600,
+      loss: 0.35,
+    ),
+    > 30 => (
+      kind: NetworkKind.cellular,
+      latencyMs: 380,
+      jitterMs: 90,
+      throughputKbps: 900,
+      loss: 0,
+    ),
+    > 26 => (
+      kind: NetworkKind.cellular,
+      latencyMs: null,
+      jitterMs: null,
+      throughputKbps: null,
+      loss: 1,
+    ),
+    > 14 => (
+      kind: NetworkKind.cellular,
+      latencyMs: 110,
+      jitterMs: 30,
+      throughputKbps: 4000,
+      loss: 0,
+    ),
+    _ => (
+      kind: NetworkKind.wifi,
+      latencyMs: 24.0 + random.nextInt(8),
+      jitterMs: 4,
+      throughputKbps: 46000,
+      loss: 0,
+    ),
+  };
 }
 
 /// Always reports an excellent connection, so the hero screenshot is stable.
@@ -134,7 +201,8 @@ class _DemoIapGateway implements IapGateway {
   static final _product = ProductDetails(
     id: PurchaseController.proProductId,
     title: 'Honest Signal Pro',
-    description: 'History, themes, custom intervals and the floating indicator.',
+    description:
+        'History, themes, custom intervals and the floating indicator.',
     price: '£4.99',
     rawPrice: 4.99,
     currencyCode: 'GBP',

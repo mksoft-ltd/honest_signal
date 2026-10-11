@@ -79,7 +79,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     switch (state) {
       case AppLifecycleState.resumed:
         controller.setForeground(true);
-        ref.read(indicatorControllerProvider).refresh();
+        adoptIndicatorTurnOff(ref).then((_) {
+          if (mounted) ref.read(indicatorControllerProvider).refresh();
+        });
         ref.read(reviewPrompterProvider).recordUse();
         _openLaunchRoute();
       case AppLifecycleState.paused:

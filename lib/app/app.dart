@@ -22,8 +22,10 @@ class _HonestSignalAppState extends ConsumerState<HonestSignalApp> {
     // pre-API-35 devices consistent and clears Play's edge-to-edge warning.
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(purchaseControllerProvider).init();
+      await adoptIndicatorTurnOff(ref);
+      if (!mounted) return;
       final settings = ref.read(effectiveSettingsProvider);
       if (settings.hasSeenOnboarding) {
         ref

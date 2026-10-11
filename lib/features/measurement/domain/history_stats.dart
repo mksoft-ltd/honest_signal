@@ -33,11 +33,21 @@ class HistoryInterval {
     return twoCycles < maximumFreshness ? twoCycles : maximumFreshness;
   }
 
+  /// The Android background host stores an unchanged reading only this often
+  /// (`BackgroundMeasurementHost`), however fast it measures. Its rows are
+  /// therefore never closer than this, and a hold shorter than two of them
+  /// leaves a sliver between consecutive heartbeats — which split one long
+  /// outage into a run of one-minute "drop-outs".
+  static const Duration backgroundHeartbeat = Duration(minutes: 1);
+
   static Duration expectedInterval({
     required Duration foreground,
     required Duration background,
     required bool persistentIndicatorActive,
-  }) => persistentIndicatorActive ? background : foreground;
+  }) {
+    if (!persistentIndicatorActive) return foreground;
+    return background < backgroundHeartbeat ? backgroundHeartbeat : background;
+  }
 
   static List<HistoryInterval> fromSamples(
     List<SignalSample> samples, {

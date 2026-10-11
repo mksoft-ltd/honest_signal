@@ -75,9 +75,14 @@ because the copy below depends on it:
   capture, not off the demo source — the engine's setup discount lands the
   throughput at 60 Mbps, not the ~48 the fake's comment suggests.)
 - **Budget: 6.1 MB / 25 MB** spent today.
-- **History: 61 minutes**, telling a story — solid, then a collapse to 0–1 bars
-  between 35 and 22 minutes ago, then recovery. That dip is the point of shot 3;
-  it is what the product exists to catch.
+- **History: 61 minutes**, telling a story — home Wi-Fi solid, then struggling,
+  then failing (a 6-minute drop-out on Wi-Fi at 1 bar); the phone falling back
+  to mobile data, which is slow and then drops out too (a 4-minute drop-out on
+  cellular at 0 bars); mobile data recovering; Wi-Fi back and strong now. Only
+  the raw latency/jitter/throughput/loss figures are invented — every bar count
+  comes from `SignalScoring`, so the chart, drop-out list and "By network"
+  rows (Wi-Fi 4.2/5, Cellular 3.0/5) are what the real engine produces.
+  (Reseeded 2026-10-11 for the 1.1.0 history screen.)
 
 ## 3. The shots
 
@@ -165,3 +170,24 @@ screenshot.
   the device's own transport.
 - Never state or imply the app measures in the background on iOS. It does not,
   and the app itself says so.
+
+---
+
+## 5. 1.1.0 refresh (2026-10-11, store-publisher)
+
+- History shot headline is now **"Every drop‑out, on the record"** /
+  "When, how long, and on which network — for 30 days." (both stores, Pro badge).
+  It shows the 1 h / 24 h / 7 d / 30 d selector, the drop-out list and "By network".
+- Play status-bar shot is captured with **drop-out alerts switched on** (the
+  harness taps the switch, pro tier only); its subheadline says alerts are Pro.
+- New **Play-only** shot `04_widget`: *not* a harness capture. It is an
+  `adb exec-out screencap` of the real 2×1 widget on the emulator home screen
+  (status bar shows the live "HS" indicator chip), cropped with
+  `ffmpeg -vf crop=1080:1860:0:0` to drop the launcher dock and Google search
+  bar (third-party marks). `raw/06_widget.png`. Recapture after any widget
+  layout change. `sips -c` crops from the centre and ignores `--cropOffset`.
+- The App Store set (`raw_ios/`) is still captured host-side on an iPhone 17
+  Pro Max simulator with `xcrun simctl io screenshot`, synchronised by stdout
+  markers from a temporary test file (deleted afterwards). Clear the handshake
+  files in /tmp between runs or every shot lags one screen.
+- Play now ships 6 screenshots; `scripts/play_release.rb` guards on 6.

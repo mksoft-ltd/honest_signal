@@ -165,6 +165,10 @@ class IndicatorPlugin(
 
             "takeLaunchRoute" -> result.success(takeLaunchRoute())
 
+            "takeStoppedFromNotification" -> result.success(
+                HonestSignalService.takeStoppedFromNotification(activity.applicationContext)
+            )
+
             else -> result.notImplemented()
         }
     }

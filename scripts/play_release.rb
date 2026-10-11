@@ -64,7 +64,7 @@ def listing(eid)
 end
 
 screenshots = Dir["#{META}/images/phoneScreenshots/*.png"].sort
-abort "Expected five screenshots; found #{screenshots.size}" unless screenshots.size == 5
+abort "Expected six screenshots; found #{screenshots.size}" unless screenshots.size == 6
 abort 'Play description exceeds 4,000 characters' if File.read("#{META}/full_description.txt").strip.length > 4000
 notes = File.read("#{META}/changelogs/#{BUILD}.txt").strip
 

@@ -38,6 +38,9 @@ class FakeIndicatorChannel extends IndicatorChannel {
   final List<Map<String, Object?>> widgetUpdates = [];
   String? launchRoute;
 
+  /// Set to simulate "Turn off" tapped on the indicator notification.
+  bool stoppedFromNotification = false;
+
   @override
   bool get isSupported => supported;
 
@@ -116,6 +119,13 @@ class FakeIndicatorChannel extends IndicatorChannel {
     final route = launchRoute;
     launchRoute = null;
     return route;
+  }
+
+  @override
+  Future<bool> takeStoppedFromNotification() async {
+    final stopped = stoppedFromNotification;
+    stoppedFromNotification = false;
+    return stopped;
   }
 
   @override

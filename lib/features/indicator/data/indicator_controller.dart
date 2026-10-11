@@ -116,6 +116,11 @@ class IndicatorController extends ChangeNotifier {
     await refresh();
   }
 
+  /// True, once, after the user tapped "Turn off" on the indicator
+  /// notification. See [adoptIndicatorTurnOff].
+  Future<bool> takeStoppedFromNotification() async =>
+      _channel.isSupported && await _channel.takeStoppedFromNotification();
+
   Future<void> openOverlayPermissionSettings() =>
       _channel.openOverlaySettings();
 

@@ -8,11 +8,23 @@
     "05_pro is deliberately absent from both marketing sets: the paywall shows a",
     "store-supplied price, and a GBP figure baked into artwork is wrong on every",
     "other storefront. That capture is still taken — it is the IAP review",
-    "screenshot App Store Connect requires."
+    "screenshot App Store Connect requires.",
+    "",
+    "06_widget (Play only) is NOT a harness capture: it is an adb screencap of the",
+    "real widget on the emulator home screen, cropped above the launcher's dock and",
+    "search bar (third-party marks). See ../screenshot_specs.md."
   ],
   "canvases": {
-    "ios": { "width": 1320, "height": 2868, "label": "iPhone 6.9\"" },
-    "play": { "width": 1080, "height": 2160, "label": "Play phone (2:1)" }
+    "ios": {
+      "width": 1320,
+      "height": 2868,
+      "label": "iPhone 6.9\""
+    },
+    "play": {
+      "width": 1080,
+      "height": 2160,
+      "label": "Play phone (2:1)"
+    }
   },
   "shots": {
     "ios": [
@@ -31,8 +43,8 @@
       {
         "out": "03_history",
         "src": "02_history.png",
-        "head": "Prove the drop‑outs are real",
-        "sub": "An hour or a full day, kept on your phone.",
+        "head": "Every drop‑out, on the record",
+        "sub": "When, how long, and on which network — for 30 days.",
         "badge": "Pro"
       },
       {
@@ -59,17 +71,23 @@
         "out": "03_statusbar",
         "src": "03_settings.png",
         "head": "A live score in your status bar",
-        "sub": "Keeps measuring while you get on with something else."
+        "sub": "Keeps measuring in the background. Pro adds drop‑out alerts."
       },
       {
-        "out": "04_history",
+        "out": "04_widget",
+        "src": "06_widget.png",
+        "head": "Your real score at a glance",
+        "sub": "A home‑screen widget and a Quick Settings tile."
+      },
+      {
+        "out": "05_history",
         "src": "02_history.png",
-        "head": "Prove the drop‑outs are real",
-        "sub": "An hour or a full day, kept on your phone.",
+        "head": "Every drop‑out, on the record",
+        "sub": "When, how long, and on which network — for 30 days.",
         "badge": "Pro"
       },
       {
-        "out": "05_method",
+        "out": "06_method",
         "src": "04_how_it_works.png",
         "head": "No mystery score",
         "sub": "Every weight and threshold is written down, in the app."

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 import '../domain/dropout_alerts.dart';
+import '../domain/history_stats.dart';
 import '../domain/indicator_text.dart';
 import '../domain/measurement_config.dart';
 import '../domain/network_kind.dart';
@@ -205,13 +206,13 @@ class BackgroundMeasurementHost {
     // flapping link generates more transitions than storage can retain.
     final previous = _lastStoredSample;
     final elapsed = previous == null
-        ? const Duration(minutes: 1)
+        ? HistoryInterval.backgroundHeartbeat
         : sample.timestamp.difference(previous.timestamp);
     if (previous == null ||
         previous.bars != sample.bars ||
         previous.kind != sample.kind ||
         elapsed.isNegative ||
-        elapsed >= const Duration(minutes: 1)) {
+        elapsed >= HistoryInterval.backgroundHeartbeat) {
       await _historyBridge.append(sample);
       _lastStoredSample = sample;
     }

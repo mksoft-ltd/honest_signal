@@ -79,6 +79,11 @@ class IndicatorChannel {
   /// drop-out alert), consumed once.
   Future<String?> takeLaunchRoute() => _invoke<String>('takeLaunchRoute');
 
+  /// True, once, after the user tapped "Turn off" on the indicator
+  /// notification while the app was not looking.
+  Future<bool> takeStoppedFromNotification() async =>
+      await _invoke<bool>('takeStoppedFromNotification') ?? false;
+
   /// Pushes a sample measured by the UI isolate so the status-bar icon stays
   /// live without the background isolate duplicating the work.
   Future<void> publishSample({
